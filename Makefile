@@ -9,18 +9,15 @@
 UebungBlaetter = Uebung/Blaetter/
 
 # Folder for UebungsFolien
-UebungFolien = Uebung/Folien/LaTeX/
-
-# Folder for VorlesungsFolien
-VorlesungsFolien = Vorlesungsfolien/neues_format/
+UebungFolien = Uebung/Folien/
 
 ################################################################################
 
 .PHONY: all ci UBlaetter UFolien Uebung UBlaetter_ci UFolien_ci Vorlesung Vorlesung_ci
 
-all: Uebung Vorlesung
+all: Uebung
 
-ci: UFolien_ci UBlaetter_ci Vorlesung_ci
+ci: UFolien_ci UBlaetter_ci
 
 Uebung: UBlaetter UFolien 
 
@@ -29,27 +26,21 @@ UBlaetter:
 
 UBlaetter_ci:
 	$(MAKE) -C $(UebungBlaetter) ci
+	cp -r $(UebungBlaetter)_out Blaetter
 
 UFolien:
 	$(MAKE) -j -C $(UebungFolien)
 
 UFolien_ci:
 	$(MAKE) -C $(UebungFolien) ci
+	cp -r $(UebungFolien)_out Folien
 
-Vorlesung:
-	$(MAKE) -j -C $(VorlesungsFolien)
-
-Vorlesung_ci:
-	$(MAKE) -C $(VorlesungsFolien) ci
-
-clean: cleanUF cleanUB cleanVl
+clean: cleanUF cleanUB
 
 cleanUF:
 	$(MAKE) -C $(UebungFolien) clean
+	rm -rf Folien
 
 cleanUB:
 	$(MAKE) -C $(UebungBlaetter) clean
-
-cleanVl:
-	$(MAKE) -C $(VorlesungsFolien) clean
-
+	rm -rf Blaetter
