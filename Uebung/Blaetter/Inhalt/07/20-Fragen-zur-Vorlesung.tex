@@ -1,0 +1,80 @@
+\section{Fragen zur Vorlesung}
+\begin{enumerate}[a)]
+	\item Wozu dient der Datenbankpuffer?
+
+	\begin{solution}
+	Der Datenbankpuffer dient dem Zwischenspeichern von Daten im Hauptspeicher. Ziel ist es, die Performance zu erhöhen, indem man Blöcke nicht erst von der langsamen Platte lesen muss, sondern sie im schnellen Hauptspeicher vorhält.
+	\end{solution}
+
+
+	\item Warum verwendet man nicht einfach die Pufferverwaltung des Betriebssystems?
+
+	\begin{solution}
+	\begin{itemize}
+		\item Tut man ja. Die Pufferverwaltung des BS ist weiterhin aktiv und kann Daten auf die Platte auslagern, von denen das DBMS glaubt, sie seien im Speicher.
+
+		\item Das Betriebssystem weiß weniger über die anwendungsspezifischen Zugriffsmuster und kann daher keine optimale Strategie anwenden. Für unseren speziellen Anwendungsfall können wir es besser. Das ist der Hauptgrund, warum man sich nicht alleine auf das BS verlässt. Außerdem bietet das Betriebsystem nicht die Schnittstellen, die für die anderen Schichten gebraucht werden (z.\,B. Transaktionssystem).
+
+		\begin{note}
+		\item Weitere Überlegung (technisch, müssen die Teilnehmer nicht wissen): Die Pufferverwaltung des BS stellt jedem Programm einen (virtuellen) Adressraum zur Verfügung, den dieses nutzen kann. Es kann dann Seiten dieses virtuellen Adressraumes an beliebige Stellen des physischen Adressraumes schieben oder sie gar auf die Platte auslagern. Die Anwendung sieht davon nichts, sie greift einfach auf Adressen im virtuellen Adressraum zu. In unserem Fall hieße das, wir würden die gesamte Datenbank in den virtuellen Adressraum kopieren und das BS entscheiden lassen, welche Frames/Seiten davon wirklich im Hauptspeicher liegen. Dank \texttt{mmap()} o.\,ä. geht das sogar schnell. Allerdings ist bei 32-bit-Architekturen der Adressraum auf 4\,GiB beschränkt, das ist viel zu wenig. Unter 64-bit Linux stehen pro
+Prozess 128\,TiB virtueller Adressraum zur Verfügung, unter 64-bit Windows 8\,TiB. Auch das kann von großen Datenbanken überschritten werden. Man muss also entscheiden, welche Frames im virtuellen Adressraum liegen sollen. Und das ist bereits wieder eine eigene Pufferverwaltung.
+		\end{note}
+	\end{itemize}
+	\end{solution}
+
+
+	\item Welche Probleme kann ein Puffer im Fehlerfall (z.\,B. Stromausfall) verursachen? Wie kann man damit umgehen?
+
+	\begin{solution}
+	Wenn nicht gespeicherte Änderungen im Puffer liegen, gehen sie verloren. Das ist nicht zu ändern und immer unangenehm, besonders aber wenn Inkonsistenzen auftreten.
+
+	Beispiele:
+	\begin{itemize}
+		\item B-Baum-Splitt: Kindknoten sind schon auf Platte, Vaterknoten noch nicht $\rightarrow$ es fehlt die Verzweigung, ein Knoten wird nicht beachtet.
+		\item Freispeicherverwaltung (vgl. Übung 4 -- Sätze): Ein Satz wurde in einen Block eingefügt, die Freispeichertabelle ist noch nicht angepasst.
+		\item Wir überweisen Geld. Abbuchung ist schon auf der Platte, Gutschrift noch nicht $\rightarrow$ Geldvernichtung
+	\end{itemize}
+	Minimalziel ist es daher immer, einen konsistenten Zustand zu gewährleisten. Ab da können die Anwendungen ihre Arbeit ggf. noch mal machen. Das schafft man z.B. indem man alte Blöcke nicht überschreibt, sondern den neuen Inhalt in neue Blöcke schreibt und atomar umschaltet.
+
+	Bei den ersten beiden Beispielen, weiß das DBMS, welche Änderungen zusammengehören und wieder zu einem konsistenten Zustand führen. Im dritten Beispiel weiß das nur die Anwendung $\rightarrow$ Transaktionen, siehe später
+	\end{solution}
+
+
+	\item Was ist der Unterschied zwischen direkter und indirekter Seitenzuordnung? Was ist der Unterschied zwischen direkter und indirekter Seiteneinbringung?
+
+	\begin{solution}
+
+	\paragraph{Block, Seite und Kachel}
+	Zunächst unterscheiden wir die Begriffe Block, Seite und Kachel:
+	\begin{description}
+		\item[Block] Block auf der physischen Festplatte, es werden immer ganze Blöcke gelesen und geschrieben und von der Platte in den Hauptspeicher transportiert und umgekehrt.
+		\item[Kachel] Eine Kachel ist der Platz für einen Block im Datenbankpuffer. %% im (virtuellen) Hauptspeicher
+		\item[Seite] Eine Seite ist die Adressierungseinheit an der Pufferschnittstelle. Eine Seite wird auf Blöcke abgebildet und ist genauso groß wie ein Block. Die höhere Softwareschicht arbeitet nur noch mit Seiten.
+	\end{description}
+
+
+	\paragraph{Seitenzuordnung}
+	\begin{description}
+		\item[Direkte Seitenzuordnung] bedeutet, dass aufeinanderfolgende Seiten auch in aufeinanderfolgenden Blöcken einer Datei abgelegt werden. Man muss sich also nur die erste Blocknummer für ein Segment merken und kann die Blocknummern für alle Seiten des Segments ausrechnen.
+
+		Das hat nichts mit den Kacheln im Puffer zu tun. Im Puffer können die Seiten deshalb trotzdem komplett verstreut liegen und auch einzeln verdrängt werden. Der Puffer merkt sich zu jeder Kachel, welche Seite darin liegt und kann durch die Seitenzuordnung ermitteln, in welchen Block sie geschrieben werden muss.
+
+		\item[Indirekte Seitenzuordnung] heißt, dass über eine Tabelle festgelegt wird, welche Seite auf welchen Block einer Datei abgebildet wird. Hintereinanderliegende Seiten müssen also nicht mehr in aufeinanderfolgenden Blöcken liegen.
+	\end{description}
+
+	Direkt ist schneller und benötigt weniger Verwaltungsdaten, dafür ist es aber auch unflexibler.
+
+	\paragraph{Einbringstrategie}
+	Die grundlegende Idee ist, dass speichern auf der Festplatte beim Verdrängen aus dem Puffer nicht notwendigerweise sofort ein Einbringen in den Datenbestand sein muss.
+
+	\begin{description}
+		\item[Direkte Seiteneinbringung] heißt, dass Seiten, die auf die Platte gespeichert werden, weil sie aus dem Puffer verdrängt werden, sofort in den Datenbestand eingebracht werden. Das heißt, alle Zeiger und Zuordnungstabellen zeigen sofort auf die neuen Daten. Das geschieht im allgemeinen einfach dadurch, dass die Seite wieder in den Block geschrieben wird, aus dem sie gelesen wurde.
+		\item[Indirekte Seiteneinbringung] heißt, geänderte Seiten werden nicht sofort, wenn sie aufgrund der Verdrängung aus dem Puffer auf die Platte gespeichert werden, in den Datenbestand eingebracht. Dies geschieht erst später, z.B. nach einer Datenänderung erst dann, wenn alle Daten der Transaktion geändert sind und auch die Seiten der zugehörigen Indexstrukturen (z.B. B-Bäume) angepasst sind. Hierzu werden die verdrängten Seiten zunächst in neue Blöcke geschrieben und diese erst später durch Änderung von Verwaltungsstrukturen als zum Datenbestand gehörig gekennzeichnet.
+	\end{description}
+
+Indirekte Seiteneinbringung ist aufwändiger, bietet aber den Vorteil, dass man den alten Block im Fehlerfall wiederherstellen kann, da er ja noch existiert.
+ Direkte Seiteneinbringung hingegen ist von sich aus nicht fehlertolerant. Fehlertoleranz kann z.\,B. über das Führen eines Logs erreicht werden. Die Wiederherstellung muss im Fehlerfall dann das Log auswerten und Änderungen rückgängig machen.
+
+Die Kombination indirekter Seiteneinbringung mit direkter Seitenzuordnung wird beispielsweise durch das Twin-Slot-Verfahren (siehe VL-Folie~\TwinSlot) realisiert.
+\end{solution}
+\end{enumerate}

@@ -1,0 +1,140 @@
+\section{Programmschnittstelle}
+
+Gegeben sei folgende SQL-Abfrage:
+
+\texttt{SELECT nachname, vorname FROM Kunden WHERE kundennr = 23;}
+
+An der internen Satzschnittstelle stehen folgende Objekte zur Verfügung:
+\begin{itemize}
+	\item eine Datei \emph{Kunden}, die die Kundendatensätze in Form von Tupeln der Relation enthält;
+	\item eine Datei \emph{Kundennummer-Index}, die eine Kundennummer auf eine Satzadresse abbildet.
+\end{itemize}
+Jede Kundennummer ist eindeutig.
+
+\begin{enumerate}[a)]
+	\item Schreiben Sie ein Programm, dass die o.\,g.\ SQL-Anfrage mit den Aufrufen der internen Satzschnittstelle realisiert. Verwenden Sie eine Sprache Ihrer Wahl oder auch Pseudocode.
+
+	\begin{solution}
+	%TODO Fehlerbehandlung
+	\nt{TODO: Fehlerbehandlung!}
+	\texttt{// Wir nehmen an, dass der Eintrag existiert\\
+		// Es wird auf eine Fehlerbehandlung verzichtet\\
+		//[Skript S. 5-34] \\
+		KeyedRecordFile index = new KeyedRecordFile("Kundennummer-Index", "r"); \\
+		TID tid = index.read-key(23); \\
+		//[Skript S. 3-28] \\
+		DirectRecordFile saetze = new DirectRecordFile("Kunden", "r"); \\
+		Record ergebnis = saetze.read(tid); \\
+		ergebnis = ergebnis.proj("nachname", "vorname"); \\
+		print(record\_to\_string(ergebnis));}
+
+	Oder alternativ etwas C-näher:
+
+	\texttt{FILE *index = keyed\_record\_file\_open("Kundennummer-Index", "r"); \\
+		TID tid; \\
+		keyed\_record\_file\_read-key(index, 23, \&tid, sizeof(tid)); \\
+		//[Skript S. 3-28] \\
+		FILE *saetze = direct\_record\_file\_open ("Kunden", "r"); \\
+		Record ergebnis; \\
+		direct\_record\_file\_read(saetze, tid, \&ergebnis, sizeof(ergebnis)); \\
+		record\_project(\&ergebnis, sizeof(ergebnis), "nachname", "vorname"); \\
+		printf(record\_to\_string(ergebnis));}
+	\end{solution}
+
+	\item Wie würde das Programm aussehen, wenn kein Index zur Verfügung stünde?
+
+	\begin{solution}
+		\texttt{
+			\begin{tabbing}
+			\hspace*{1cm} \= \hspace*{1cm} \= \kill
+			//[Skript S. 3-28] \\
+			DirectRecordFile saetze = new DirectRecordFile("Kunden", "r"); \\
+			Record ergebnis; \\
+			while (saetze.hasNext()) \{ \\
+			\> ergebnis = saetze.next(); \\
+			\> if (ergebnis.get(kundennr) == 23) \{ \\
+			\> \> ergebnis = ergebnis.proj("nachname", "vorname"); \\
+			\> \> print(record\_to\_string(ergebnis)); \\
+			\> \> break; //Abbruch, jede Kundennummer existiert 1x \\
+			\> \} \\
+			\}
+			\end{tabbing}
+		}
+	\end{solution}
+
+	\item Was muss (in groben Zügen) anhand der SQL-Anfrage geprüft und ermittelt werden, damit ein lauffähiges Programm entsteht?
+
+	\begin{solution}
+	\begin{itemize}
+		\item Syntaxprüfung
+		\item Gibt es die Relationen und Attribute überhaupt?
+		\item Wie heißt die Datei zur Relation?
+		\item Was für eine Datei ist das –- direkt oder Schlüssel-basiert?
+		\item Gibt es einen Index für "`kundennr"'?
+		\item Wie heißt dessen Datei?
+		\item Wie lang sind die Sätze der Datei "`Kunden"'?
+	\end{itemize}
+  Die Diskussion, was davon zur Übersetzungs- und was zur Laufzeit durchgeführt wird, führen wir detaillierter in Übung 10 zur Anfrageverarbeitung.
+	\end{solution}
+
+	\item Welche Methoden sollte ein Call-Level Interface bieten, das die Ausführung von SQL-Anfragen ermöglicht?
+
+	\begin{solution}
+	Das ist das Prinzip jeder DB-Schnittstelle, z.\,B.\ in PHP, Java/JDBC, C\#ODP.NET, usw. Die Verbindung sei schon gegeben (z.\,B.\ via \texttt{connect(username, password, database}).
+
+	Dann benötigen wir:
+	\begin{enumerate}[i)]
+		\item eine Methode, um eine Abfrage auszuführen (Diese sollte einen Status über die Ausführung der Query bzw. ein Handle zum Abrufen des Ergebnisses liefern.);
+		\item eine Methode um zu prüfen, ob es (weitere) Ergebnisse gibt;
+		\item eine Methode, um überhaupt an die Ergebnisse heranzukommen.
+	\end{enumerate}
+
+	Ein Beispiel (JDBC):
+	\begin{enumerate}[i)]
+		\item \texttt{ResultSet Statement.executeQuery(String query);}\\
+		Wirft im Fehlerfall eine Exception.
+		\item \texttt{Boolean ResultSet.next();}\\
+		Bewegt den Zeiger auf das nächste Ergebnis, \texttt{true} bei Erfolg, \texttt{false} sonst.
+		\item \texttt{Record ResultSet.[getString, getInt, \ldots](int columnIndex);}\\
+		Liefert den zugehörigen Wert im aktuellen Ergebnis.
+	\end{enumerate}
+
+	\end{solution}
+\beamertxt{\pagebreak}
+
+	\item Bei einem Call-Level Interface kann die ganze Bearbeitung der Anfrage erst zur Laufzeit erfolgen. Dabei wird auch ein Programm erzeugt, für das die oben eingeführten Pseudocode-Programme als Beispiel genommen werden können.
+
+	Eine clevere Idee ist nun, die Programme aufzubewahren und bei zukünftigen SQL-Anfragen zu prüfen, ob sie nicht auch dafür verwendet werden können. Dies erlaubt es, den Aufwand der Neuerzeugung einzusparen, erfordert aber, dass die alte Anfrage und die neue miteinander verglichen werden.
+
+	Wie kann man das tun und welche Übereinstimmung muss gegeben sein, damit die Wiederverwendung des schon vorhandenen Programms zulässig und sinnvoll ist?
+
+	\begin{solution}
+	Es gibt verschiedene Möglichkeiten, dies zu tun:
+
+\begin{description}
+\item[Oracle] z.\,B.\ parst und optimiert die Anfrage und bewahrt den Anfragestring, die geparste und optimierte Anfrage, sowie das erzeugte Programm auf.
+Wird nun eine neue Anfrage gestellt, wird diese auf absolute Übereinstimmung mit dem Anfragestring der gespeicherten Anfragen verglichen.
+Gibt es einen Treffer, so muss diese nicht geparst, optimiert oder übersetzt werden.
+
+\begin{note}
+Stichwort: Library Cache\\
+Das Matching ist Case-Sensitive, auch die Kommentare müssen übereinstimmen.
+Daher vermutlich per Hash.
+\end{note}
+
+\item[MariaDB] speichert den Anfragestrings sowie das Ergebnis.
+Bei einer neuen Anfragen werden wieder die Anfragestrings auf absolute Übereinstimmung überprüft.
+Anders als bei Oracle wird hier jedoch bei einem Treffer das Ergebnis direkt aus dem Cache zurückgeliefert.\\
+Bei einer Änderung einer Tabelle werden alle zugehörigen Anfragen aus dem Puffer gelöscht.
+
+\begin{note}
+Stichwort: Query Cache\\
+Das Matching ist Case-Sensitive, auch die Kommentare müssen übereinstimmen.
+Daher vermutlich per Hash.
+\end{note}
+\end{description}
+
+Selbstverständlich muss bei der Wiederverwendung der Anfrage zunächst geprüft werden, ob diese noch aktuell ist und ausreichend Rechte für die Ausführung vorhanden sind.
+\end{solution}
+
+\end{enumerate}

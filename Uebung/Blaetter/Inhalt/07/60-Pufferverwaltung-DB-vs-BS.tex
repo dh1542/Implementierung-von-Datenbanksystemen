@@ -1,0 +1,10 @@
+\section{Pufferverwaltung in Datenbank- und Betriebssystem}
+Viele Datenbankmanagementsysteme verwenden Varianten der LRU-Strategie (z.\,B. Oracle, DB2, MS-SQL-Server). Ihre Verwendung in Betriebssystemen ist meist wesentlich schwieriger. Woran könnte das liegen?
+
+\begin{solution}
+Grundidee an LRU ist, Zugriffe auf eine Seite zu protokollieren, um die Zeit seit dem letzten Zugriff  zu bestimmen. Das geht in Datenbanken, da der Zugriff mit einer Fix-Operation eingeleitet werden muss. Da macht man die Pufferverwaltung. Der Aufwand ist erträglich, da nach einem Fix i.\,A. viele Operationen auf der Seite ausgeführt werden.
+
+Betriebssysteme garantieren die Zugreifbarkeit des gesamten virtuellen Adressraumes und verwenden dazu Hardware-Unterstützung (Page-Tables zur Übersetzung, Page-Faults wenn Seite nicht vorhanden). Daher gibt es keine Fix-Operation. Man müsste also jeden einzelnen Zugriff auf eine Adresse in einer Seite abfangen und protokollieren. Das ist theoretisch möglich (Seite als nicht vorhanden markieren, im Fault-Handler protokollieren). Allerdings ist jeder Zugriff nur eine CPU-Operation, allein der Sprung in den Fault-Handler braucht mehrere davon. Wir würden für jede Nutzoperation viele Verwaltungsoperationen ausführen $\rightarrow$ Performance.
+
+Man könnte nun Hardware-Unterstützung dafür bauen und den Zugriffszeitpunkt in die Page-Tables eintragen. Diese wird von einigen Mainframe-Systemen auch angeboten. Die Page-Tables werden dadurch allerdings bedeutend größer. Analog zu dieser Idee gibt es aber auch read- und modified-Flags, die rege verwendet werden.
+\end{solution}

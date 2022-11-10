@@ -1,0 +1,41 @@
+\section{Programmieraufgabe 7: Planoperatoren}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie 6 Klassen, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.module.Module} implementieren.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+		Diese 6 Klassen entsprechen den Planoperatoren \textit{Projektion, Rename, Selektion, Kreuzprodukt, OrderBy, Table Scan}.
+		Nutzen Sie für alle Planoperatoren, die Daten aus einem anderen Operator erhalten, ein \texttt{idb.module.Module} als Quelle dieser Daten, wie auch in den entsprechenden Methoden in \texttt{idb.construct.Util} vorgesehen.
+		Bei dem Kreuzprodukt entsprechen die beiden Strings Präfixe für den Namen der jeweiligen Seite. \texttt{leftS} kann auch auf \texttt{null} gesetzt werden um Vielfachkreuzprodukte umsetzen zu können. In diesem Fall werden Attributnamen aus dieser Seite ohne Präfix übernommen.
+		Für OrderBy ist ein Komparator bereits in \texttt{idb.module.Util} gegeben. Die Syntax \texttt{String... arg} entspricht auf der Callee-Seite einem Array und ist damit mit dem Parameter in \texttt{idb.module.Util} ausgelegt.
+		Achten Sie bei OrderBy darauf, das nächste Element im \texttt{pull()} mit Bubblesort in \textit{O(n)} zu finden.
+		Implementieren Sie keinen anderen (Pufferlastigeren) Sortieralgorithmus.
+		Tragen Sie die entsprechenden Konstruktoren in \texttt{idb.construct.Util} ein.
+	\item Implementieren Sie zusätzlich unter \textit{Store} einen Planoperator, der eine \linebreak \texttt{idb.record.SeqRecordFile} nutzt, um alle Daten des darin eingebauten Operators beim ersten \texttt{pull()} in eine neu angelegte Datei zu speichern und ab dann diese auszulesen. Achten Sie darauf, diese Datei mit \texttt{java.io.File.createTempFile} anzulegen und im \texttt{close} wieder zu löschen.
+		Tragen Sie den entsprechenden Konstruktor in \texttt{idb.construct.Util} ein.
+	\item Implementieren Sie außerdem unter \textit{Generate} einen Planoperator, mit dessen Hilfe weitere Attribut-Wert Kombinationen (als \texttt{NamedCombinedRecord}) zu den bereits enthaltenen Informationen erzeugt werden können (z.B. bei der Berechnung und Filterung von Strings nach ihrer Länge). Die von der übergebenen Funktion zurückgegebene \texttt{NamedCombinedRecord} sind als Zusätze und nicht als Ersatz der Tupel zu sehen (Hinweis: \texttt{NamedCombinedRecord::combine}).
+		Tragen Sie den entsprechenden Konstruktor in \texttt{idb.construct.Util} ein.
+	\item Implementieren Sie die Funktion \texttt{idb.construct.Util.delete}, mit deren Hilfe Daten aus einer TID-File gelöscht werden sollen.
+		Achten Sie darauf, alle Module ordnungsgemäß zu schließen.
+		Bei einer eventuell auftretenden Exception muss Ihre Datenbank sich nicht korrekt verhalten.
+	\item Implementieren Sie abschließend \textit{GroupBy} mit Verwendung der bereits existierenden \textit{OrderBy, Projektion}. \texttt{String ...vars} geht dabei direkt in den \textit{OrderBy} über (mittels \texttt{generateOrder(/*TODO*/, /*TODO*/, vars)}).
+		\texttt{funcs} entspricht dabei den Aggregationsfunktionen für die Gruppierung.
+		Dabei entspricht jeder Eintrag in dieser Liste einer Aggregierung (z.B. \textit{max(MatrNr)}).
+		Das Tripel besteht aus den folgenden drei Teilen:
+		\begin{enumerate}
+			\item Initialer Wert als \texttt{NamedCombinedRecord} für eine leere Gruppierung.
+			\item Name des neu erzeugten Attributes als String.
+			\item Funktion um aus zwei (Zwischen-)werten einen gemeinsamen Wert zu bilden. (z.B. bei Count: sowas wie \texttt{return a + b}, jedoch für NamedCombinedRecord).
+		\end{enumerate}
+		Zur Erzeugung dieser Tripels gibt es \texttt{count}, \texttt{min}, \texttt{max} in \texttt{idb.construct.Util}.
+		\textit{Seitenbemerkung, für Interessierte: Diese Darstellung von Funktionen funktioniert nur für eine reduzierte Menge an Funktionen wie count, max, min, sum.
+		Für avg ist sie ungeeignet, avg muss über die Eigenschaft sum/count umgesetzt werden.}
+		Tragen Sie den entsprechenden Konstruktor in \texttt{idb.construct.Util} ein.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus den Klassen in \texttt{tests/ProjTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein7| ausführen.
+	Die einzelnen Unterpunkte hier lassen sich mit \lstinline|ant Meilenstein7a| bis \lstinline |ant Meilenstein7e| ausführen (mit Ausnahme von \lstinline|ant Meilenstein7b|, der nur durch \lstinline|ant Meilenstein 7d| abgedeckt wird).
+	Sollten diese Meilensteine 7a bis 7e fehlen, aktualisieren Sie bitte Ihre Version auf die aktualisierten Build-Files der Angabe.
+	\item Achten Sie bei allen Modulen darauf, dass die Konstruktion günstig ist und nicht schon \texttt{pull, read} oder ähnliche Funktionen aufruft.
+		Sollten Sie Daten haben, die durch einen Aufruf dieser Funktionen initialisiert werden würden, markieren Sie sich den Zustand als unbearbeitet und führen Sie entsprechende Initialisierungen erst beim ersten \texttt{pull} aus.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür Ihre Abgabe mit dem Tag "`Aufgabe-7"'.
+\end{enumerate}

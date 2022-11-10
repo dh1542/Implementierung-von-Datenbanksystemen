@@ -1,0 +1,42 @@
+\section{Anomalien}
+
+Gegeben sei folgender Ablauf nicht synchronisierter Transaktionen \textbf{T1}, \textbf{T2}, \textbf{T3} und \textbf{T4}. Gehen Sie davon aus, dass die Datenobjekte $A$ bis $E$ vor Beginn aller Transaktionen verschiedene positive ganzzahlige Werte besitzen. Treten bei diesem Ablauf Inkonsistenzen auf? Falls ja, wo genau und auf welche Anomalien sind sie zurückzuführen? Legende: (r)ead, (w)rite, (c)ommit, (a)bort.
+
+\begin{tabular}{ | p{1cm} | p{2.8cm} | p{2.8cm} | p{2.8cm} | p{2.8cm} | }
+	\hline
+	\textbf{Zeit} & \textbf{T1}  & \textbf{T2}  & \textbf{T3}  & \textbf{T4}  \\ \hline
+	1             & [BOT;] r[A]; &              &              &              \\ \hline
+	2             &              & [BOT;] r[D]; &              &              \\ \hline
+	3             &              &              & [BOT;] r[B]; &              \\ \hline
+	4             &              &              &              & [BOT;] r[C]; \\ \hline
+	5             & r[D];        &              &              &              \\ \hline
+	6             &              & $D = D + 1$  &              &              \\ \hline
+	7             &              &              & $B = B + 1$  &              \\ \hline
+	8             & $A = A + D$  &              &              &              \\ \hline
+	9             &              &              &              & r[E];        \\ \hline
+	10            &              & w[D];        &              &              \\ \hline
+	11            & w[A];        &              &              &              \\ \hline
+	12            &              &              & w[B];        &              \\ \hline
+	13            & r[B];        &              &              &              \\ \hline
+	14            &              &              &              & $C = C +E$   \\ \hline
+	15            & r[D];        &              &              &              \\ \hline
+	16            &              & c; [EOT]     &              &              \\ \hline
+	17            & $B = B + D$  &              &              &              \\ \hline
+	18            &              &              & a; [EOT]     &              \\ \hline
+	19            & w[B];        &              &              &              \\ \hline
+	20            & r[C];        &              &              &              \\ \hline
+	21            &              &              &              & w[C];        \\ \hline
+	22            & r[D];        &              &              &              \\ \hline
+	23            & $C = C + D$  &              &              &              \\ \hline
+	24            & w[C];        &              &              &              \\ \hline
+	25            & c; [EOT]     &              &              &              \\ \hline
+	26            &              &              &              & c; [EOT]     \\ \hline
+\end{tabular}
+
+\begin{solution}
+	\begin{itemize}
+		\item Der Wert von B, der von T1 in Zeile 19 geschrieben wird, ist inkonsistent aufgrund von Dirty Read (T3, 12; T1, 13; T3, 18; T1, 25).
+		\item Die Änderung von C durch T4 in Zeile 21 geht verloren aufgrund von Dirty Write (T4, 21; T1, 24; T1, 25; T4, 26). Außerdem zwei Non-Repeatable Reads (T1, 20; T4, 21; T1, 25; T4, 26) und (T4, 4; T1, 24; T1, 25; T4, 26).
+		\item T1 liest für D in den Zeilen 5 und 15/22 verschiedene Werte, ohne D selbst verändert zu haben, aufgrund von Non-Repeatable Read (T1, 5; T2, 10; T2, 16; T1, 25) und Dirty Read (T2, 10; T1, 15; T2, 16; T1, 25).
+	\end{itemize}
+\end{solution}

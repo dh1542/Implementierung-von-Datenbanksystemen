@@ -1,0 +1,36 @@
+\section{Programmieraufgabe 2: SeqRecordFile}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.record.SeqRecordFile} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{generateSeqRecordFile()} ein.
+		Die Funktion soll den DBBuffer und eine BlockFile nehmen und eine \textbf{neue} SeqRecordFile zurückgeben.
+		Beachten Sie, dass die BlockFile zu diesem Zeitpunkt schon geöffnet ist.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{rebuildSeqRecordFile()} ein.
+		Die Funktion soll den DBBuffer und eine BlockFile nehmen und eine \textbf{existierende} SeqRecordFile von Platte laden.
+		Beachten Sie, dass die BlockFile zu diesem Zeitpunkt schon geöffnet ist.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{SeqTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein2| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür ihre Abgabe mit dem Tag "`Aufgabe-2"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Im Gegensatz zur Vorlesung ist unsere SeqRecordfile eine List von Tupeln, keine Menge. Das bedeutet, dass die Ordnung erhalten bleiben muss.
+	\item Achten Sie darauf, dass Sätze größer als ein Block sein können.
+	\item Achten Sie darauf, dass Sie für das Auslesen der fragmentierten Sätze die Länge bereits kennen müssen.
+		Es empfiehlt sich, die Länge der Sätze vor den eigentlichen Daten abzuspeichern.
+	\item Zum Zugriff auf die BlockFile soll der \texttt{DBBuffer} verwendet werden.
+	\item Ein \texttt{DataObject} ist eine Klasse, die sich um die Serialisierung und Deserialisierung kümmert.
+	\item Ein \texttt{DataObject::size} kann sich beim Aufruf von \texttt{DataObject::read} verändern.
+	\item Beim Aufruf von \texttt{DBString::copy} muss nicht zwangsläufig ein DBString zurückkommen, sondern ein beliebiges \texttt{DataObject}.
+			Achten Sie darauf, dass ein Cast nicht erfolgreich sein muss.
+	\item Beim fragmentierten Lesen eines \texttt{DataObjects} muss eine Liste von Tripel übergeben werden.
+		Achten Sie darauf, keine \textit{use-after-free} nach \texttt{DBBuffer::unfix} zu begehen. (Dies wird die Testfälle fehlschlagen lassen.)
+	\item Testen Sie Ihre Implementierung, indem Sie den Inhalt der Klasse \texttt{idb.Main} durch Testcode für ihre SeqRecordFile ersetzen.
+		Setzen Sie \texttt{Main} auf den orginalen Zustand zurück, sobald Sie sich von der Korrektheit überzeugt haben.
+	\item Zur Implementierung der View bietet sich die Verwendung einer inneren Klasse an, um Zugriff auf den Zustand der SeqRecordFile zu haben.
+	\item Um das Schreiben von Tupeln zu beschleunigen, lohnt es sich, im ersten Block Metadaten abzulegen, in welchem Block an welcher Stelle der freie Platz anfängt.
+	\item SeqRecordFile bietet keine Operation zum Löschen an und ist deswegen für die langfristige Speicherung nicht nützlich, sondern nur für spezifische Aufgaben in der Datenbank gedacht.
+\end{itemize}

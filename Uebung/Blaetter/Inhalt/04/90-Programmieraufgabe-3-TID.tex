@@ -1,0 +1,32 @@
+\section{Programmieraufgabe 3: TIDFile}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.record.DirectRecordFile} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in die Methode \texttt{generateTID()} ein. Achten Sie darauf, dass diese Methode sowohl mit neuen Dateien, als auch mit bereits mit Sätzen gefüllten Dateien umgehen kann.
+		Beachten Sie, dass die BlockFile zu diesem Zeitpunkt bereits geöffnet ist.
+	\item Sorgen Sie dafür, dass Sie alle Tests der Klasse \texttt{TIDTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein3| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür ihre Abgabe mit dem Tag "`Aufgabe-3"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Die für eine TID-Implementierung notwendige Information, in welchem Block wie viele Bytes noch frei sind, soll beim initialen Lesen der Datei gesammelt werden.
+	\item Um die TID-Eigenschaften einzuhalten und niemals mehr als 2 Blockzugriffe für einen unfragmentierten Satz zu benötigen, lohnt es sich, die \texttt{modify} Methode intern auf eine Methode abzubilden, die die neue (\textbf{interne}) TID zurückgibt. So kann ein moved-Verweis aktualisiert werden.
+	\item Achten Sie darauf, dass beim Hinzufügen neuer Blöcke zuerst die BlockFile mittels \texttt{append} erweitert werden muss, bevor die Seite in den Puffer geladen werden kann.
+	\item Für diese Implementierung lohnen sich einige Hilfsklassen, abgeleitet von DataObject: \begin{enumerate}
+		\item \texttt{TIDIndex} für das Schreiben und Auslesen des Byteoffsets und der Flags hinten in jedem TID-Block
+		\item \texttt{DataObjectPartialWrapper} für das Schreiben eines fragmentierten Restsatzes.
+	\end{enumerate}
+	\item Im DataObjectPartialWrapper ist es legitim, für die read-Operation eine Exception zu werfen.
+	\item Ein einfacher TIDIndex besteht aus 5 Byte, oftmals reichen jedoch weniger Bytes aus. Die Anzahl der benötigten Bytes lässt sich in Abhängigkeit der Pagesize a priori bestimmen.
+	\item Neben den offensichtlichen Bitflags \textit{moved} und \textit{fragmented} benötigen Sie in der Regel \texttt{exported}. \texttt{Exported} gibt an, ob die entsprechende TID jemals dem System bekannt gemacht worden ist. \texttt{isEnd} signalisiert, dass der Eintrag nicht auf einen Satz zeigt, sondern auf den Beginn des freien Speichers in diesem Block.
+	\item Achten Sie darauf, keine Sätze kleiner als eine TID zuzulassen. Diese Sätze könnten nicht stabil gehalten werden, wenn sie durch \texttt{modify} zu groß werden, da in diesem Fall eine TID zurückgelassen werden muss. Achten Sie daher darauf, in diesem Fall schon initial so viel Platz zu reservieren, dass eine TID anstelle der Daten abgelegt werden kann.
+	\item Achten Sie darauf, beim Einfügen nur Blöcke im Puffer zu allokieren, in denen auch genug Platz vorhanden ist.
+	\item Um die Daten in einem Block umsortieren zu können, müssen Sie jederzeit ermitteln können, wie groß der entsprechende Satz ist. Dafür ist die Verwendung von \texttt{DataObject.size} nicht möglich, da wir im Laufe des Semesters in einer DirectRecordFile verschiedene Sätze ablegen werden. In diesem Fall ist es unsere Aufgabe, bei \texttt{read} immer das richtige Format mitzugeben. Jedoch muss die TIDFile beim Umkopieren ohne ein DataObject, welches die Daten aufnehmen und wieder abgeben kann, auskommen.
+	\item Achten Sie bei der Implementierung der \texttt{View} darauf, keine Sätze doppelt auszugeben.
+	\item Bei der \texttt{View} ist keine Sonderbehandlung von fragmentierten Sätzen notwenig. Die Behandlung in der \texttt{TIDFile} kann wiederverwendet werden.
+	\item Achten Sie wie bei der SeqRecordFile darauf, dass Sie keine Blöcke nach \texttt{unfix()} verwenden und das sich \texttt{DataObject.size} nach einem erfolgreichen Lesevorgang ändern kann.
+\end{itemize}

@@ -1,0 +1,133 @@
+\section{Unnesting 2}
+\label{unnesting2}
+
+Gegeben seien folgende Relationen eines Datenbankschemas, die aus Aufgabe \ref{unnesting} bekannt sind:
+
+\texttt{Studierende (\underline{matrikelnr}, name)} \\
+\texttt{Noten (\underline{pruefungsnr, matrikelnr}, note, semester, datum)}
+
+Bauen Sie die folgenden SQL-Anfragen so um, dass keine korrelierten Unteranfragen mehr vorliegen.
+
+\cprotEnv
+\begin{normalText}
+Hinweis: Es ist sinnvoll, die Teilaufgaben in der gegebenen Reihenfolge zu bearbeiten, da jede Teilaufgabe eine neue Problemstellung zur vorhergehenden Teilaufgabe hinzufügt.
+
+\begin{enumerate}[a)]
+
+\item
+
+\begin{lstlisting}
+-- Die Matrikelnummern der besten Studierenden jedes Pruefungstags
+SELECT n.matrikelnr, n.datum
+FROM   Noten n
+WHERE  n.note = (SELECT min (n2.note)
+                 FROM   Noten n2
+                 WHERE  n.datum = n2.datum);
+\end{lstlisting} \label{first}
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}
+SELECT n.matrikelnr, n.datum
+FROM   Noten n,
+(
+ SELECT   min(n2.note) as min, n2.datum
+ FROM     Noten n2
+ GROUP BY n2.datum
+) m
+WHERE n.note = m.min AND n.datum = m.datum
+\end{lstlisting}
+\end{note}
+
+\item
+
+\begin{lstlisting}
+-- Zu jeder Pruefungsteilnahme die bis zu dem Datum
+-- besten Noten des Pruefungsteilnehmers
+SELECT n.matrikelnr, n.datum, n2.note, n2.pruefungsnr
+FROM   Noten n, Noten n2
+WHERE  n.matrikelnr = n2.matrikelnr
+AND    n2.datum < n.datum
+AND    n2.note = (SELECT min(n3.note)
+                  FROM   Noten n3
+                  WHERE  n3.datum < n.datum
+		  AND    n3.matrikelnr = n.matrikelnr)
+\end{lstlisting}
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}
+SELECT   n.matrikelnr, n.datum, n2.note, n2.pruefungsnr
+FROM     Noten n, Noten n2, Noten n3
+WHERE    n2.matrikelnr = n.matrikelnr
+AND      n3.matrikelnr = n.matrikelnr
+AND      n2.datum  < n.datum
+AND      n3.datum < n.datum
+GROUP BY n.matrikelnr, n.datum, n2.note, n2.pruefungsr
+HAVING   n2.note = min(n3.note)
+\end{lstlisting}
+
+Alternativ, näher an der ML:
+
+\begin{lstlisting}
+SELECT   n.matrikelnr, n.datum, n2.note, n2.pruefungsnr
+FROM     Noten n, Noten n2,
+(
+ SELECT   min(n3.note) as min, n3.datum, n3.matrikelnr
+ FROM     Noten n3
+ GROUP BY n3.datum, n3.matrikelnr
+) m
+WHERE    n.matrikelnr = n2.matrikelnr
+AND      m.matrikelnr = n.matrikelnr
+AND      m.datum  < n.datum
+AND      n2.datum < n.datum
+GROUP BY n.matrikelnr, n.datum, n2.note, n2.pruefungsr
+HAVING   n2.note = min(m.min)
+\end{lstlisting}
+\end{note}
+
+\item
+
+\begin{lstlisting}
+-- Fuer eine lustige Lotterie werden zu jeder Pruefung
+-- die Studierenden gesucht, deren Anzahl an
+-- Pruefungsteilnahmen vor dem Tag der Pruefung der
+-- Pruefungsnummer entspricht
+SELECT n.pruefungsnr, n.matrikelnr
+FROM Noten n
+WHERE n.pruefungsnr = (SELECT count(*)
+                       FROM   Noten n2
+                       WHERE  n2.matrikelnr = n.matrikelnr
+                       AND    n2.datum < n.datum)
+\end{lstlisting}
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}
+SELECT   n.matrikelnr, n.pruefungsnr
+FROM     Noten n, Noten n2
+WHERE    n2.matrikelnr = n.matrikelnr
+AND      n2.datum < n.datum
+GROUP BY n.matrikelnr, n.pruefungsnr
+HAVING   n.pruefungsnr = count(*)
+\end{lstlisting}
+
+Alternativ, näher an der ML:
+
+\begin{lstlisting}
+SELECT   n.matrikelnr, n.pruefungsnr
+FROM     Noten n,
+(
+SELECT   count(n2.note) as count, n2.matrikelnr, n2.datum
+FROM     Noten n2
+GROUP BY n2.datum, n2.matrikelnr
+) m
+WHERE    n.matrikelnr = m.matrikelnr
+AND      m.datum < n.datum
+GROUP BY n.matrikelnr, n.pruefungsnr
+HAVING   n.pruefungsnr = sum(m.count)
+\end{lstlisting}
+\end{note}
+
+\end{enumerate}
+\end{normalText}

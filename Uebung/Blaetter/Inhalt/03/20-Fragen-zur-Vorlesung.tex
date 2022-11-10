@@ -1,0 +1,47 @@
+\section{Fragen zur Vorlesung}
+\begin{enumerate}[a)]
+	\item Wozu dient die Abstraktion von Blöcken zu Sätzen?
+
+	\begin{solution}
+	Blöcke sind eine technische Abstraktion, die von der Hardware vorgegeben ist. Die Anwendung interessiert sich aber nicht für technische Details, sondern für Anwendungsgegenstände. So einen Anwendungsgegenstand nennen wir Satz. Insbesondere können Sätze variable Länge haben. Außerdem kann man z.\,B. die Blockgrößen ändern oder auf ein Gerät mit anderer Blockgröße umstellen, ohne dass die Anwendung von dieser Änderung betroffen ist.
+	\end{solution}
+
+
+	\item Wie funktioniert die sequenzielle Satzdatei und welche Einschränkungen ergeben sich hieraus?
+
+	\begin{solution}
+	Eine Satzdatei ist eine Menge von Sätzen mit fester oder variabler Länge ohne bestimmte Reihenfolge (d.\,h. ohne Sortierung).
+
+	Die sequenzielle Satzdatei zeichnet sich dadurch aus, dass kein wahlfreier Zugriff möglich ist, Löschen und Einfügen nur am Ende.
+	Man kann also nur von vorne nach hinten lesen oder schreiben, sowie Anfügen am Ende. Für Caches ist das ein Vorteil: Man weiß genau, welcher Block der nächste ist. Die Schreibreihenfolge entspricht also der Abspeicherungsreihenfolge und der Lesereihenfolge.
+	\end{solution}
+
+
+	\item Wann bezeichnet man eine Satzadresse als stabil?
+
+	\begin{solution}
+	Wenn sie beim Verschieben des Satzes gleich bleibt.
+
+	Das ist wichtig, wenn man Sätze umorganisieren können möchte (notwendig z.\,B. bei Größenänderungen) und man die Satzadressen nach außen weitergibt. Denn ein Aufrufer erwartet (zu Recht), dass er einen Satz unter einer einmal vergebenen Adresse auch wiederfindet. In die höheren Schichten muss man eine Satzadresse immer weitergeben (z.\,B. für die Zugriffspfade). Allerdings wird das später wieder vor den noch höheren Schichten verborgen. Der Anwender bekommt normalerweise keine Satzadressen zu sehen. Eine Ausnahme ist z.\,B. die Oracle-ROWID.
+	\end{solution}
+
+
+	\item Welche Aussagen über Satzadressen sind korrekt?
+
+    \begin{itemize}\setlength\itemsep{-0.2em}
+        \itemmc   Satzadressen sind zur Realisierung von sequenziellen Satzdateien nötig.
+        \itemmcsol Satzadressen ermöglichen wahlfreien Zugriff auf Sätze.
+        \itemmc   Eine Satzadresse ist ein vom Anwender gewählter Identifikator.
+        \itemmc   Eine Satzadresse kann mehrfach vergeben werden.
+        \itemmc   Die Satzadresse ändert sich bei Verschiebung des zugehörigen Satzes.
+    \end{itemize}
+
+	\begin{solution}
+	Eine Satzadresse allgemein ist ein Bezeichner, unter der man einen einzelnen Satz wiederfinden kann. Random Access ist nur so möglich. Eine Satzadresse wird immer vom System vergeben. Wenn man einen Satz einfügt, bekommt man dafür eine Adresse. Gibt man dem System diese Adresse wieder, findet es den Satz wieder.
+
+	Einmal vergebene Satzadressen dürfen auch nach dem Löschen des Satzes nicht wiederverwendet werden, da irgendwo noch eine Referenz darauf existieren könnte. Sie müssen stattdessen für die restliche Lebenszeit der Datenbank als ungültig markiert werden. Dies gilt insbesondere dann, wenn Satzadressen nicht nur innerhalb des Datenbankverwaltungssystems verwendet werden, sondern auch für den Anwender sichtbar sind. (In der Praxis wird von dieser reinen Lehre teilweise abgewichen. Beispielsweise behält sich Oracle vor, die ROWID eines gelöschten Satzes später wieder zu vergeben.\footnote{Oracle Database Online Documentation, 10g Release 2 (10.2), SQL Reference, Sect.\ ROWID Pseudocolumn, \url{https://docs.oracle.com/cd/B19306_01/server.102/b14200/pseudocolumns008.htm}})
+	\end{solution}
+\end{enumerate}
+
+
+

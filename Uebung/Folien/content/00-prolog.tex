@@ -1,0 +1,164 @@
+\title[Prolog -- UeIDB]{Prolog -- Übungen zu \glqq Implementierung von Datenbanksystemen\grqq}
+\author{Demian E. Vöhringer}
+
+\begin{document}
+\maketitle
+
+\quoteframe{Man hilft den Menschen nicht, wenn man für sie tut, was sie selbst tun können.}{Abraham Lincoln}{12.02.1809 -- 15.04.1865}
+
+\fullpictureframe[Sinn der Übung]{Pictures/IDB-00-Prolog/sinn_uebung}
+
+\begin{frame}{Präsenz im WS 2021/2022}
+\Large
+\begin{itemize}
+	\item OP-Maskenpflicht
+	\item Kontaktdatenerfassung mit Selbstauskunft\\
+	QR-Code oder Analog
+	\item Stichprobenhafte 3G Kontrolle bei 10\% der Anwesenden
+	\item Konsequenzen bei Teilnahme ohne 3G\\
+	Tutor muss Personalien aufnehmen und des Gebäudes verweisen.\\
+	Unileitung kann Verfahren wg. Ordnungswidrigkeit \alert{(Bußgeld 250€)} einleiten oder beschränktes \alert{Hausverbot} erteilen.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{StudOn}
+\Large
+Sind alle Anwesenden in StudOn angemeldet?
+\begin{itemize}
+\item Zugriff auf Unterlagen
+\item Möglichkeiten zur freiwilligen Abgabe von Übungsaufgaben
+\item Forum für Diskussionen und Ankündigungen
+\item Möglichkeit zur Benachrichtigung aller Teilnehmer per E-Mail
+\item Gleichmäßige Verteilung auf Übungsgruppen
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Das Übungsblatt}
+\Large
+\begin{itemize}
+\item Präsenzaufgaben
+\begin{itemize}
+\item Eigenständig vorbereiten
+\item Besprechung in der Tafelübung
+\item Musterlösung wird veröffentlicht
+\end{itemize}
+\item $\ast$ Vertiefungsaufgaben
+\begin{itemize}
+\item Vertiefen oder erweitern den Stoff
+\item Abgabe auf StudOn
+\item Korrektur durch Tutoren
+\item Keine Musterlösung
+\item \alert{Neu:} $\ast\ast$ Einige sind per Selbsttest abzugeben
+\begin{itemize}
+	\item Werden nicht durch Tutoren korrigiert.
+	\item Können öfter durchgeführt werden.
+\end{itemize}
+\end{itemize}
+\item $\ast$ Programmieraufgaben
+\begin{itemize}
+\item Praxiserfahrung
+\item Abgabe auf GitLab
+\item Korrektur durch Testcases und Tutor
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Übungswoche}
+\large
+\begin{itemize}
+\item Übungsblätter mit Präsenz- und Vertiefungsaufgaben auf StudOn\\
+{\small Nach der letzten Übung der Vorwoche}
+\item Eigenständiges Vorbereiten der Präsenzaufgaben
+\item Besprechung der Aufgaben in den Übungen\\
+{\small In der Übungswoche}
+\begin{itemize}
+\item Kein Monolog der Tutoren
+\item aktive Mitarbeit und Diskussion
+\item Fragen stellen
+\item Lösungsalternativen
+\end{itemize}
+\item Musterlösung der Präsenzaufgaben auf StudOn\\
+{\small Nach der letzten Übung der Übungswoche}
+\item Abgabe der Zusatzaufgaben bis zur Intensivierungsübung der Folgewoche\\
+\alert{Donnerstag 12 Uhr}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Unklarheiten}
+\Large
+\begin{minipage}{0.7\textwidth}
+Wen bzw. wo Fragen?
+\begin{enumerate}
+\item Kommilitonen
+\item Forum in StudOn
+\item Vorlesungsbesprechung
+\item Intensivierungsübung
+\item Sprechstunde Demian E. Vöhringer\\
+\href{https://cs6.tf.fau.de/dev}{cs6.tf.fau.de/dev}
+\item Sprechstunde Prof. Viktor Leis\\
+\href{https://cs6.tf.fau.de/leis}{cs6.tf.fau.de/leis}
+\end{enumerate}
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\begin{tikzpicture}
+\node[alice, monitor, minimum size=1.5cm, mirrored] (a) at (3,3) {};
+\node[cloud callout, draw, callout absolute pointer=(a.70)] (sql) at(4,5.5) {???};
+\end{tikzpicture}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Intensivierungsübung}
+
+\begin{tikzpicture}
+\node[alice, monitor, minimum size=1.5cm] (a) at (0,0) {};
+\node[rectangle callout, draw, fill=background, callout absolute pointer=(a.100), align=center, rounded corners=10] (Frage1) at(-3.5,5) {Fragen zum\\Vorlesungsstoff?};
+\node[rectangle callout, draw, fill=background, callout absolute pointer=(a.120), align=center, rounded corners=10] (Frage2) at(-3.5,2.5) {Offene Fragen\\nach der\\Besprechung\\des\\Übungsblatts?};
+\node[rectangle callout, draw, fill=background, callout absolute pointer=(a.140), align=center, rounded corners=10] (Frage3) at(-3.5,0) {Weitergehnde\\Fragen zum\\Übungsstoff?};
+
+\node[ellipse callout, draw, fill=background, callout absolute pointer=(a.60), align=center] (Antwort) at(3.5,2.5) {Intensivierungsübung\\Do 12:15\\ Bitte pünktlich zu Beginn \\ besuchen!};
+\end{tikzpicture}
+\end{frame}
+
+%\begin{frame}{Arbeitsaufwand \& Zeitmanagement}
+%Durchschnittliche Studierende sollten in zwei Stunden pro Woche die Aufgaben lösen und vertiefen können.
+%
+%{\small(Zzgl. Nachbereitung der Vorlesung: mind. 1h/w)}
+%
+%\end{frame}
+
+\section{Prüfung} \sectionpage
+\Large
+\begin{frame}{Prüfung}
+\begin{itemize}
+\item Schriftliche Prüfung
+\begin{itemize}
+\item Üblicherweise Freitag in der ersten Prüfungswoche
+\item 90 Min
+\end{itemize}
+\item Prüfungsstoff
+\begin{itemize}
+\item Vorlesung \alert{und} Übung
+\item Weder Übungsstoff alleine noch Vorlesungsstoff alleine reichen zum Bestehen!
+\end{itemize}
+\item Prüfungsvorbereitung:
+\begin{itemize}
+\item Nachbereiten der Vorlesung
+\item Selbstständiges bearbeiten der Aufgaben
+\item Übungsteilnahme
+\end{itemize}
+\item Anmeldung auf \href{https://www.campus.fau.de/}{meinCampus} nicht vergessen!
+\end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+\begin{center}
+\begin{tikzpicture}
+\node[bob, minimum size=3cm, mirrored, monitor] (b) {};
+\node[ellipse callout, draw, callout absolute pointer=(b.mouth)] (Fragen) at(-3.5,2.5) {Fragen?};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+\end{document}
+

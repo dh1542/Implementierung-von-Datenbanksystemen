@@ -1,0 +1,32 @@
+\section{Wechselpuffertechnik}
+Betrachten Sie die Wechselpuffertechnik, die im Skript auf den Folien~\Wechselpuffertechnik~beschrieben ist. In welchem Verhältnis muss die Zeit, die für die Bearbeitung eines Blocks im Hauptspeicher benötigt wird, zur Zeit stehen, die für den Transfer dieses Blocks in den Hauptspeicher benötigt wird, damit die CPU voll ausgelastet ist? Gehen Sie hierbei auch auf die Ergebnisse aus Aufgabe~2 des zweiten Übungsblattes ein.
+
+Gehen Sie davon aus, dass es nur eine CPU gibt, dass diese nur für die Blockbearbeitung und nicht für den Blocktransfer beansprucht wird und dass die Blöcke vom Externspeicher nur gelesen werden müssen.
+
+\begin{solution}
+Die Bearbeitungszeit für einen Block im Hauptspeicher muss mindestens so groß sein wie die Zeit, die für den Transfer eines Blocks vom Externspeicher in den Hauptspeicher benötigt wird.
+Dann ist der für die CPU nächste zu bearbeitende Satz bereits vorhanden, sobald diese mit dem vorherigen fertig ist.
+
+Im Allgemeinen Fall mit Transferdauer pro Block $a$ und Bearbeitungszeit pro Block $b$ gilt damit:
+\begin{itemize}
+	\item ohne Wechselpuffer $n(a+b)$
+	\item mit Wechselpuffer $n \cdot \max(a, b)+\hspace{-20pt}\underbrace{\min(a, b)}_{f"ur~den~n-ten~Block}\hspace{-20pt} = a + b + (n-1) \cdot \max(a,b)$
+\end{itemize}
+
+Referenz auf das zweite Übungsblatt:
+Wenn die Blöcke verstreut auf der Platte liegen, ist es nahezu unmöglich, die CPU auszulasten. Denn welche Operation ist so langsam, dass sie über 5\,ms (= mittlere Zugriffszeit (Seek- und Rotationslatenz-Zeit), die dann für jeden Block anfällt) CPU-Zeit braucht?
+
+Somit gilt: Sind wir I/O-bound und ist die Transferdauer pro Block $a$, sowie die Bearbeitungszeit pro Block $b$, so braucht man für $n$ Blöcke
+\begin{itemize}
+	\item ohne Wechselpuffer $n(a+b)$
+	\item mit Wechselpuffer $n \cdot a+\hspace{-35pt}\underbrace{b}_{f"ur~den~n-ten~Block}$
+\end{itemize}
+
+Je kleiner also das Verhältnis $\frac{b}{a}$, desto geringer fällt der Zugewinn bei der CPU-Auslastung aus. Die Praxis ist natürlich komplizierter; die Dauern gelten ja nur im Mittel.
+
+
+
+
+
+\end{solution}
+

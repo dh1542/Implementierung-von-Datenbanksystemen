@@ -1,0 +1,14 @@
+\item Erläutern Sie den Unterschied zwischen logischen Operatoren und Planoperatoren.
+
+	\begin{solution}
+		Logische Operatoren repräsentieren die Semantik eines Operators.
+		Sie sagen nichts darüber aus, wie der Operator implementiert ist, um diese Semantik zu erreichen.
+
+		Ein Planoperator repräsentiert eine bestimmte Implementierung eines logischen Operators oder einer Gruppe von benachbarten logischen Operatoren.
+	\end{solution}
+
+\item Warum betrachtet man verschiedene Implementierungen von Operatoren?
+
+	\begin{solution}
+		Unterschiedliche Implementierungen können Vor- und Nachteile haben. Einfachstes Beispiel: Index-Scan ist jenseits der Grenztrefferrate sinnlos. Außerdem können die Implementierungen weiteren Einschränkungen unterliegen (Index vorhanden? Speicherplatzverbrauch bei Joins?). Je nach Einsatzzweck kann also eine andere Implementierung die beste sein.
+	\end{solution}

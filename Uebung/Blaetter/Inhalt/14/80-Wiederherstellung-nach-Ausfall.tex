@@ -1,0 +1,12 @@
+\section{Wiederherstellung nach Ausfall}
+
+Nach einem Ausfall soll das Log verwendet werden, um die Datenbank in einen konsistenten Zustand zu bringen. In welcher Reihenfolge muss das Log für das Redo und in welcher für das Undo abgearbeitet werden?
+
+\begin{solution}
+\begin{itemize}
+	\item Redo:
+	Vorwärts, damit die letzte Änderung zuletzt wiederhergestellt wird.
+	\item Undo:
+	Rückwärts, da mehrere nicht committete Änderungen auf einem Element erfolgt sein können. Dann muss der älteste Zustand wiederhergestellt werden. Also will man die erste Änderung zuletzt rückgängig machen.
+\end{itemize}
+\end{solution}

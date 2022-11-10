@@ -1,0 +1,193 @@
+\section{\normaltxt{Bestimmung der }Zugriffslatenzen bei wahlfreiem oder sequentiellem Zugriff}
+
+\subsection{Festplatte}
+\label{ZugriffFestplatten}
+Stellen Sie sich vor, Sie haben eine Festplatte mit folgenden Leistungsdaten:
+\beamertxt{
+	\paragraph{Plattenlaufwerk Seagate Ironwolf Pro 18 TB (ST18000NE0000)}
+	\begin{itemize}
+		\item 480.000 Zylinder
+		\item 18 Spuren pro Zylinder
+		\item 4064 Sektoren pro Spur
+		\item 512 Byte pro Sektor
+		\item 7200 RPM
+		\item Positionierungszeit (Seek-Zeit) Annahme: 4 ms
+		\item Track-to-Track-Zeit Annahme: 0,2ms
+		\item Kosten 550€ (10/2021)
+	\end{itemize}
+	\pagebreak}
+\paragraph{Plattenlaufwerk Seagate Ironwolf Pro 18 TB (ST18000NE0000)}
+\begin{itemize}
+	\item 480.000 Zylinder
+	\item 18 Spuren pro Zylinder
+	\item 4064 Sektoren pro Spur
+	\item 512 Byte pro Sektor
+	\item 7200 RPM
+	\item Positionierungszeit (Seek-Zeit) Annahme: 4 ms
+	\item Track-to-Track-Zeit Annahme: 0,2ms
+	\item Kosten 550€ (10/2021)
+\end{itemize}
+
+\paragraph{Aufgabe}
+\begin{enumerate}[a)]
+	\item Wie lange benötigen Sie im Mittel, um
+	\label{ZugriffFestplattenDauern}
+
+	\begin{enumerate}[i)]
+		\item 10.000 aufeinander folgende Blöcke (4KiB) zu lesen?
+
+\begin{solution}
+	\begin{note}
+		Evtl vorher berechnen:
+		\begin{itemize}
+			\item Zeit pro Umdrehung (60s/7200) = 8,33ms
+			\item Blöcke pro Spur = 4064/8 = 508
+		\end{itemize}
+	\end{note}
+	Zur Berechnung benötigt man neben den obigen Zeitangaben noch die mittlere Zugriffszeit $T_{Zugriff}$.
+	Diese setzt sich zusammen aus der Seek-Zeit $T_{Seek}$ und der Rotationslatenzzeit $T_{Rotationslatenz}$, also der Zeit, die anfällt, wenn der Schreib-/Lesekopf schon über der richtigen Spur ist, bis die Blöcke mit den Zieldaten unter dem S/L-Kopf sind.
+	Wir nehmen für $T_{Rotationslatenz}$ die Hälfte der Dauer für eine Umdrehung an.
+	Daraus folgt:
+	\begin{align*}
+	T_{Zugriff} &= T_{Seek} + T_{Rotationslatenz}\\
+	&= 4ms + 0,5\cdot 60/7200 s  = 4ms + 4,16ms\\
+	&= 8,16ms
+	\end{align*}
+	Im Anschluss kann die ganze Spur in $T_{Rotation}$ gelesen werden.
+	Doch wie viele Spuren müssen gelesen werden?
+	\begin{align*}
+		\textit{Blöcke pro Spur} &= \textit{Sektoren pro Spur} / \textit{Sektoren pro Block} = 4064/8 = 508\\ 
+		\textit{Anzahl an Spuren} &= \textit{Anzahl an Blöcken} / \textit{Blöcke pro Spur}\\
+		&= 10.000 / 508 \approx 19,69
+	\end{align*}
+	Damit müssen 18 bis 19 volle Spuren und bis zu zwei Spuren im Anteil gelesen werden.
+	Im einfachsten Fall haben wir eine erste Spur, 18 volle Spuren und eine zusätzliche Spur für den Rest.
+	Um zwischen 2 benachbarten Spuren zu wechseln fällt keine ganze $T_{Seek}$ an, sondern lediglich eine $T_{Track2Track}$.
+	Die beiden unvollständigen Spuren haben in Summe $10.000 - 18*508 = 856$ Blöcke.
+	Damit erhalten wir:
+	\begin{align*}
+		T_{10.000} &= T_{erste Spur} + 18\cdot T_{ganze Zusätzliche Spur Lesen} + T_{letzte Spur}\\
+		&= T_{Zugriff} + T_{Lesen Erste Spur}\\
+		&+ 18 (T_{Track2Track} + T_{Rotationslatenz} + T_{Rotation})\\
+		&+ T_{Track2Track} + T_{Rotationslatenz} + T_{Lesen Letzte Spur}\\
+		&= T_{Zugriff} + T_{Lesen Erste Spur} + T_{Lesen Letzte Spur}\\
+		&+ 18 (T_{Track2Track} + T_{Rotationslatenz} + T_{Rotation})\\
+		&+ T_{Track2Track} + T_{Rotationslatenz}\\
+		&= 8,16ms + 856/508 \cdot 8,33 ms\\
+		&+ 18 \cdot (0,2ms + 4,16ms + 8,33ms)\\
+		&+ 0,2ms + 4,16ms\\
+		&\approx 22,2ms + 228,4ms + 4,4ms = 255ms
+	\end{align*}
+	Die 856 Blöcke können sich jedoch auch auf drei Spuren verteilen.
+	\nt{x, 508, y}
+	Hier fallen dann zusätzlich noch eine $T_{Track2Track}$ und eine $T_{Rotationslatenz}$ an.
+	\begin{align*}
+		T_{10.000} &= 255ms + 0.2ms + 4,16ms \approx 259ms
+	\end{align*}
+\end{solution}
+
+
+		\item 10.000 irgendwo über die Platte verstreute Blöcke (4KiB) zu lesen?
+		Gehen Sie davon aus, dass die Blöcke völlig zufällig verteilt sind.
+
+		\begin{solution}
+		Wir gehen in der Musterlösung vom Worst Case aus (= jeder der 10.000 gesuchten Blöcke liegt auf einer anderen zufälligen Spur, was bei 480.000 Spuren nicht unwahrscheinlich ist), d.h. für jeden Block muss $TZugriff$ aufgewendet werden.
+		Die Lesezeit für einen Block pro Spur beträgt $1/508$ einer Umdrehung, das ist vernachlässigbar klein.
+		Dauer insgesamt: 
+		\begin{align*}
+			T &= 10000 \cdot ( TZugriff + vernachlaessigbare Lesezeit)\\
+			&= 10000 \cdot 8,16ms = 81,6s
+		\end{align*}
+		\end{solution}
+
+		\begin{note}
+		Vielleicht kommt jemand auf die Idee, dass ja rein zufällig zwei Blöcke auf dem gleichen Zylinder liegen.
+		Das Geburtstagsparadoxon legt das Nahe.
+		Bei insgesamt 10000 Blöcken auf über 480.000 Zylindern (*18 Spuren) liegt die wslkt zwar $99,7\% $, jedoch machen bei 10000 Zugriffen eine Hand voll eingesparte Zugriffe auch keinen allzu großen Unterschied.
+		\end{note}
+
+	\end{enumerate}
+
+
+	\item Was sind die Vorteile beziehungsweise Nachteile von sehr kleinen und sehr großen Blockgrößen innerhalb eines Dateisystems?
+
+	\begin{solution}
+	\paragraph{I/O-Operationen}
+	Kleine Blockgrößen haben den Nachteil, dass sehr viele I/O-Operationen notwendig (teuer) sind, was bei großen Blockgrößen deutlich weniger wird.
+	Außerdem ist der Verwaltungsaufwand bei kleinen Blöcken größer.
+	Dafür ist die Platzverschwendung pro Block nicht so groß.
+
+	\paragraph{Speicherplatz}
+	Große Blöcke können Speicherplatzverschwendung sein, da man immer einen ganzen Block allokieren muss.
+	Wenn z.B. eine Relation sehr klein ist, nutzt sie nicht den ganzen Block aus.
+	Umgekehrt bleibt je Block aber im Mittel der Platz für einen halben Satz ungenutzt.
+	Somit verschwenden wir bei kleinen Blöcken weniger Platz.
+	Das sehen wir aber erst in der nächsten Übung.
+	\end{solution}
+\end{enumerate}
+
+\subsection{Flash-Speicher}
+Seit einigen Jahren werden zunehmend Solid State Disks (SSDs) als Festplattenersatz verwendet.
+Diese verwenden Flash-Speicher als Speichermedium.
+Die Funktionsweise von Festplatten und SSDs unterscheiden sich deutlich, so dass ein direkter Vergleich schwierig ist.
+Weitere Infos zu SSDs können Sie in diesem Blogbeitrag nachlesen: \href{http://databasearchitects.blogspot.com/2021/06/what-every-programmer-should-know-about.html}{databasearchitects.blogspot.com/2021/06/what-every-programmer-should-know-about.html}
+
+Vereinfacht nehmen wir folgende Werte an:
+
+\paragraph{SSD Seagate FireCuda 530 4TB (ZP4000GM30013)}
+\begin{itemize}
+	\item Random Read (Parallel): 1.000.000 IOPS\normaltxt{ (Input / Output Operations Per Second)}, 4KiB Einheiten
+	\item Sequential Read: 7300 MB/s, 128 KiB Einheiten
+	\item Leselatenz Annahme: 80µs
+	\item Kosten 890€ (10/2021)
+	\item Keine Einteilung in Spuren oder Zylinder.
+	Die 4KB Einheiten haben quasi eine fortlaufende Blocknummer.
+\end{itemize}
+
+\paragraph{Aufgabe}
+\begin{enumerate}[a)]
+	\item Bestimmen Sie die Lesedauern aus \ref{ZugriffFestplatten} \ref{ZugriffFestplattenDauern}) für die SSD.
+
+	\begin{solution}
+	\begin{enumerate}[i)]
+		\item Für 10.000 Blöcke der Größe 4KiB benötigen wir $10.000/(128/4) = 312,5$ also 313 bis 314 Einheiten.
+		Wie lange dauert es, eine Einheit zu lesen?
+		\begin{align*}
+			T_{SequenzielleEinheit} &= 128KiB/7300 MB/s\\
+			&= (128 \cdot 1024) /(7300 \cdot 1000\cdot 1000) s  \\
+			&\approx 18 \mu s
+		\end{align*}
+		Damit erhalten wir im schlechtesten Fall $18\mu s \cdot 314 = 5,6ms$
+		\item Da über jeden NAND-Channel unabhängig zugegriffen werden kann, muss hier der parallele Zugriff vom sequentiellen unterscheiden werden.
+		\begin{description}
+			\item[parallel] Beim lesen von 10.000 Blöcken benötigt die SSD jeweils eine IOP.
+			Damit $10.000/1.000.000 s = 1/100 s = 10 ms$
+			\item[sequentiel] Wenn die Blöcke nur einer nach dem anderen zugegriffen werden können, benötigt jeder Block die Leselatenz.
+			Damit $10.000\cdot 80\mu s = 800 ms$
+		\end{description}
+	\end{enumerate}
+	\end{solution}
+
+	\item Bestimmen Sie die Kosten für die genannten Datenspeicher in $\geneuro/GB$.
+	
+	\begin{solution}
+		\begin{description}
+			\item[HDD] $550\geneuro / 18TB = 550 / (1000*18) \cdot \geneuro/GB \approx 0,03 \geneuro/GB$
+			\item[SSD] $890\geneuro / 4TB = 890 /(1000*2) \cdot \geneuro/GB \approx 0,22 \geneuro/GB$
+		\end{description}
+	Wie Sie erkennen können ist SSD-Speicher etwa um eine Größeneinheit teurer als HDD-Speicher.
+	\end{solution}
+
+
+	\item Wie bereits erwähnt, sind SSDs nicht in Spuren und Zylinder eingeteilt.
+	Wie könnte eine einheitliche Schnittstelle aussehen, mit der man Blöcke sowohl von Festplatten als auch von SSDs lesen kann?
+
+	\begin{solution}
+	Als gemeinsame Schnittstelle kann man auf jedes Gerät über die Blocknummer zugreifen.
+	Das tut man mit LBA (Logical Block Adressing) auch seit über 20 Jahren (Win98 ist zwar noch auf 128\,GB beschränkt, aber schon mit LBA).
+
+	Das ist schon eine Abstraktion: Wir müssen nicht mehr das physische Layout der Daten auf einer Platte kennen; wenn wir die Größe eines Gerätes kennen, können wir alle Blöcke adressieren.
+	Diese Abstraktion war auch notwendig, da neuere Platten eine unterschiedliche Anzahl von Blöcken je Spur haben können.
+	Gleiches gilt für CDs (constant linear velocity vs. constant angular velocity).
+	\end{solution}
+\end{enumerate}

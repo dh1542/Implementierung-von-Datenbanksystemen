@@ -1,0 +1,79 @@
+\beamertxt{\pagebreak}
+\section{TID-Konzept}
+\begin{enumerate}[a)]
+	\item Wie erkennt man, ob es sich beim Blockinhalt um Nutzdaten, eine TID, einen Indexeintrag, einen Fragmentierungsheader oder einen gelöschten Eintrag handelt?
+
+	\begin{solution}
+	\begin{itemize}
+		\item Indexeinträge beginnen -- im Vergleich mit den Nutzdaten -- am jeweils anderen Ende eines Blocks.
+		In unseren Beispielen ist das immer das hintere Ende.
+		Man muss beim Lesen mit den Indexeinträgen beginnen, also wissen, an welchem Ende sie sich befinden.
+		Und man muss wissen, wie viele Indexeinträge es überhaupt gibt.
+		Dazu könnte man z.\,B.\ die Anzahl der Indexeinträge zu Beginn des Indexes ablegen.
+
+		\item Ob ein von einem Index referenzierter Satz Nutzdaten, einen Verweis oder ein Satzfragment enthält, muss irgendwo gespeichert werden.
+		Eine Möglichkeit ist, jedem Satz einen Header voranzustellen und diese Information darin zu speichern.
+		Ein anderer Ansatz ist, z.\,B.\ bei Indexeinträgen der Größe 2\,Byte die Blockgröße auf 8\,KiB zu beschränken.
+		Dadurch bleibt noch drei Bit in jedem Indexeintrag übrig.
+		In den ersten beiden kann gespeichert werden, ob der Satz einen Verweis bzw. Nutzdaten enthält oder nicht.
+		Hierdurch ergeben sich nun mehrere Kombinationen:
+		\begin{description}
+			\item[00] Satz gelöscht
+			\item[01] Satz enthält nur Nutzdaten
+			\item[10] Satz enthält nur einen Verweis
+			\item[11] Satz enthält einen Verweis und Nutzdaten, also ein Satzfragment mit Fragmentierungsheader
+		\end{description}
+		Lediglich das letzte Fragment eines fragmentierten Satzes wird mit dieser Methode nicht eindeutig als solches erkannt sondern kann mit normalen Nutzdaten verwechselt werden.
+		Hierfür eignet sich dann das letzte freie Bit.
+	\end{itemize}
+	\end{solution}
+
+	\begin{note}
+	Natürlich sind jeweils auch andere Lösungen und verschiedene Optimierungen denkbar.
+	\end{note}
+
+
+	\item Unter welchen Bedingungen kann man beim TID-Konzept Blöcke zusammenfassen? Wie kann man dabei vorgehen?
+	\label{TID_Zusammenfassen}
+
+	\begin{solution}
+	Verkleinern ist bei TID fast unmöglich, vor allem, wenn man (wie Oracle) die TIDs an den Benutzer herausgibt.
+
+	Wenn noch ein Satz existiert, der zunächst in einem hinteren Block stand, so muss in diesem Block der Zeiger auf die tatsächliche Adresse beibehalten werden und der Block wird noch benötigt.
+	Verschiebt man den Satz und ändert die TID, muss man das in allen Strukturen nachziehen, die auf diese TID verweisen (v.\,a. Indizes).
+	Das ist zwar prinzipiell möglich, aber mit enormem Aufwand verbunden.
+	\end{solution}
+
+  \item In \deepen wie weit kann man die resultierende Dateigröße von Aufgabe \ref{sec:TID_angewandt1}\,\ref{TID_erw_red}) optimieren?
+
+	\begin{note}
+		Den Satz mit TID(3,0) kann man in den Block 1 kopieren, wenn man die TID(0,1) entsprechend anpasst.
+
+		Das Verschieben des Satzes mit TID(2,0) würde keine Blockersparnis bringen, da Block 2 für die Stabilität der TID Einträge erhalten bleiben muss.
+	\end{note}
+
+
+	\item Eine alternative Möglichkeit zur Satzorganisation ist die sogenannte Database Key Translation Table (DBTT).
+	Hierbei wird ein k Blöcke großes Feld verwaltet, das zu jeder Satznummer die Blocknummer und die Byte-Positionen enthält.
+
+	Beim Einfügen wird stets eine neue Satznummer vergeben, beim Löschen die entsprechende Satznummer als ungültig markiert.
+	Es handelt sich um ein stabiles Verfahren, d.\,h. Satznummern bleiben bei Verschiebungen unverändert, da lediglich der Eintrag des Satzes im Feld verändert werden muss.
+	Dieser Database Key ist eine \emph{nicht sprechende Adresse}.	Das Feld kann am Anfang oder am Ende der Datei oder als separate Datei gespeichert werden.
+
+	Was sind die Nachteile dieses Konzepts, und wie löst das TID-Konzept diese?
+
+	\begin{solution}
+	Nachteile:
+	\begin{itemize}
+		\item Ein Zugriff erfordert immer mindestens zwei Blockzugriffe: einen für das Feld, einen für die Nutzdaten.
+		Bei TID kommt man (ohne Überlauf) mit einem Blockzugriff aus.
+		\item Will man einen Satz in einem Block oder auch über Blockgrenzen hinweg verschieben, so muss man auch das Feld ändern.
+		Das kann bei häufigen Änderungen oder hoher Nebenläufigkeit zu Engpässen führen, da das Feld ja persistent auf die Platte geschrieben werden muss.
+		Bei TID muss nur in den betroffenen Blöcken (Ursprungsblock und ggf. Überlaufblock) geschrieben werden
+	\end{itemize}
+	\end{solution}
+
+	\begin{note}
+	  Einen Vorteil hat das DBTT-Konzept aber auch: Blöcke lassen sich zusammenfassen (vgl. Aufgabe \ref{sec:TID_angewandt1}\,\ref{TID_Zusammenfassen}), da sich der Database Key durch das Verschieben eines Satzes in einen anderen Block nicht ändert.
+	\end{note}
+\end{enumerate}

@@ -1,0 +1,31 @@
+\section{Programmieraufgabe 6: NamedCombinedRecord}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.datatypes.NamedCombinedRecord} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+		Ein \texttt{NamedCombinedRecord} entspricht einem Tupel in klassischer Speicherungsart (kein C-Store) als ein Satz.
+		Wir behandeln ausschließlich die drei Typen \texttt{BOOL, STRING} und \texttt{INT}, die mit den Klasse \texttt{Bool, DBString} und \texttt{IntegerKey} aus \texttt{idb.datatypes} zusammengehören.
+		Ein \texttt{NamedCombinedRecord} besteht aus drei Teilen: Einer Datentypstruktur (z.B. erst zwei \texttt{INT}, dann zwei \texttt{STRING}, dann wieder ein \texttt{INT} und abschließend einen \texttt{BOOL}), einer Benennung (die erste Spalte heißt \texttt{Alter}, die zweite \texttt{Note}, die dritte \texttt{Wohnort}, ...),
+		und den Werten für diese Spalten (das Alter ist \texttt{21}, die Note \texttt{50}, der Wohnort \texttt{Erlangen}, ...)
+
+		Wie jedes \texttt{DataObject} bietet auch der \texttt{NamedCombinedRecord} die Möglichkeit der Serialisierung mit \texttt{write} und \texttt{read}.
+		Dabei sollen nur die Werte, nicht aber die Struktur oder die Namen abgespeichert werden.
+		Beim Auslesen von abgespeicherten Sätzen darf als sicher angenommen werden, dass die Struktur korrekt ist.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methoden \texttt{namedCombinedRecordFrom()} ein.
+		Diese Methoden nehmen einen Namen und einen Wert (einen \texttt{String}, eine \texttt{int} oder einen \texttt{boolean}) und sollen einen \texttt{NamedCombinedRecord} zurückgeben, der ausschließlich aus diesem einem Typen und dem mitgegebenen Wert besteht.
+	\item Tragen Sie außerdem einen Kontruktor Ihrer Klasse in \texttt{idb.construct.Util} in die Methode \texttt{getNCR()} ein.
+		Diese Methode nimmt ausschließlich eine Liste, Datentypen und Namen und erhält keine definierten Werte. Sie dürfen diese auf beliebige Werte initialisieren.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{NamedCombinedRecordTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein6| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür Ihre Abgabe mit dem Tag "`Aufgabe-6"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Achten Sie bei \texttt{combine, modifyValues, get} und \texttt{rename} darauf, die Struktur beizubehalten.
+	\item Bis auf \texttt{read / write} ist ein \texttt{NamedCombinedRecord} nicht veränderlich, stattdessen geben \texttt{combine, modifyValues, get, rename} Kopien mit entspechenden Anpassungen heraus. Achten Sie darauf, die Kopie vollständig durchzuführen (\texttt{DataObject::copy})
+	\item Eine Speicherung der Längen, wie es in Vorlesung und Übung betrachtet wird, ist in diesem Fall nicht nötig, da diese bereits in den zu verwendenden Klassen \texttt{DBString, Bool, IntegerKey} gehandhabt wird (falls relevant).
+	\item In \texttt{read / write} können Sie davon ausgehen, dass der Satz nicht fragmentiert ist.
+		Eine Fragmentierung würde anders (von \texttt{TID-File} oder \texttt{SeqRecordFile}) behandelt werden, sodass dies für den Satz transparent (= unsichtbar) passiert.
+\end{itemize}

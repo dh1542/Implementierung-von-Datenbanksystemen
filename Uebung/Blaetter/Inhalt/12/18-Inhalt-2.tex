@@ -1,0 +1,44 @@
+\item Erläutern Sie den Ablauf eines Nested-Loop Joins.
+
+\begin{solution}
+Siehe VL-Folie~\NestedLoopJoin
+\end{solution}
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}
+R,S: Relationen
+for s in S:
+  if(Vorbedingung auf S erfüllt):
+    for r in R:
+      if(Vorbedingung auf R erfüllt)
+        if(Verbundbedingung erfüllt):
+          Übernimm kombination in Ergebnis
+\end{lstlisting}
+Komplexität: $O(pages(R)\times pages(S))$
+\end{note}
+
+\item Erläutern Sie den Ablauf eines Hash Joins nach dem Classic-Hashing-Verfahren.
+
+\begin{solution}
+Siehe VL-Folie~\HashJoin
+\end{solution}
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}
+R: Kleinere Relation
+S: größere Reation
+Fragmentiere R, sodass Fragmente R_i, i=1, ..., p 
+	in Hauptspeicher passen
+forall R_i:
+  h: empty Hashtable
+  forall r in R_i:// Befüllen
+    insert r into h
+  forall s in S: // Probing
+    if(Verbundpartner in h):
+      verbinde r mit s;
+\end{lstlisting}
+Komplexität: $O(p\times pages(S))$\\
+Idealfall: p=1; R passt komplett in den Hauptspeicher.
+\end{note}

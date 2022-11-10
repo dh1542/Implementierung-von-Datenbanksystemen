@@ -1,0 +1,131 @@
+\section{Ausführungspläne und Optimierung 2}
+
+Gegeben sind folgende aus Aufgabe \ref{plan} bekannte Relationen:
+
+\texttt{Employee (\underline{num}, fname, lname, addr, mgr[employee], dep[department])}
+
+\texttt{Department (\underline{num}, name, mgr[employee])}
+
+\texttt{Project (\underline{num}, dep[department], mgr[employee])}
+
+\texttt{Works\_on (\underline{proj[project], empl[employee]})}
+
+Setzen Sie die folgenden SQL-Anweisungen in nicht-optimierte Operatorgraphen um.
+Verwenden Sie dafür die Baum-Notation von Vorlesungsfolie~\Operatorgraph.
+Optimieren Sie die Anweisungen anschließend und zeichnen Sie jeweils den optimierten Operatorgraph.
+
+\cprotEnv
+\begin{normalText}
+\begin{enumerate}[a)]
+	\item
+\begin{lstlisting}
+-- Alle MitarbeiterInnen mit Vorgesetzten in anderen
+-- Departments
+SELECT e.fname, e.lname
+FROM   employee e, employee s
+WHERE  e.mgr = s.num
+AND    NOT e.dep = s.dep
+\end{lstlisting}
+
+\cprotEnv
+\begin{note}
+Nicht optimiert:
+\begin{lstlisting}
+- PROJ( , (e.fname, e.lname))
+  - SEL( , (e.mgr = s.num AND NOT e.dep = s.dep))
+    - CROSS(employee e, employee s)
+\end{lstlisting}
+Optimiert:
+\begin{lstlisting}
+- PROJ( , (e.fname, e.lname))
+  - JOIN( , ,  (e.mgr = s.num AND NOT e.dep = s.dep))
+    - employee e
+    - employee s
+\end{lstlisting}
+Regel 9
+\end{note}
+
+\item
+
+\begin{lstlisting}
+-- Alle Vorgesetzen, die ein Department leiten, zu dem sie
+-- nicht selbst gehoeren
+SELECT   s.fname, s.lname
+FROM     employee s
+JOIN     department d
+ON       d.mgr = s.num
+JOIN     employee e
+ON       e.mgr = s.num
+WHERE    NOT d.num = s.dep
+GROUP BY s.fname, s.lname, s.num
+\end{lstlisting}
+\cprotEnv
+\begin{note}
+Nicht optimiert:
+\begin{lstlisting}
+-PROJ( , (s.fname, s.lname))
+  -GROUP( , (s.fname, s.lname, s.num))
+    -SEL( , (NOT d.num = s.dep))
+      -JOIN(employee e, , (e.mgr = s.num))
+        -JOIN(employee s, department d, (d.mgr = s.num))
+\end{lstlisting}
+  Optimiert: Sel durch äußeren Join ziehen, dann Sel und Join verschmelzen.
+  e vor dem Join auf mgr projizieren.\\
+\begin{lstlisting}
+-PROJ( , (s.fname, s.lname))
+  -GROUP( , (s.fname, s.lname, s.num))
+    -JOIN( , (e.mgr = s.num))
+      -PROJ(employee e, (e.mgr))
+      -JOIN( , , (d.mgr = s.num AND NOT d.num = s.dep))
+        -employee s
+        -department d
+
+\end{lstlisting}
+Regeln 1, 7, 9, 4, 9, 6
+\end{note}
+
+\item
+
+	\begin{lstlisting}
+-- Pro Department die durchschnittliche Anzahl der
+-- Mitarbeiter der von diesem Department durchgefuehrten
+-- Projekte fuer Departments, die von einem Mitarbeiter
+-- mit Nachnamen Smith geleitet werden
+SELECT   AVG(a.anzahl) as durchschnitt, d.name
+FROM     (
+          SELECT   count(*) as anzahl, proj
+          FROM     works_on
+          GROUP BY proj
+         ) a
+JOIN     project p
+ON       a.proj = p.num
+JOIN     department d
+ON       d.num = p.dep
+JOIN     employee m
+ON       m.num = d.mgr
+GROUP BY m.lname, d.num, d.name
+HAVING   m.lname = 'Smith'
+	\end{lstlisting}
+
+\begin{note}
+	Nicht optimiert:
+	\begin{equation*}
+\begin{split}
+	 & \pi_{durchschnitt, d.name}( \quad )                                                     \\
+	 & \quad \sigma_{m.lname = 'Smith'}(\quad)                                                 \\
+	 & \qquad \gamma_{(m.lname, d.num, d.name), avg(a.anzahl) \rightarrow durchschnitt}(\quad) \\
+	 & \qquad\quad \underset{a.proj = p.num}{\bowtie}                                          \\
+	 & \qquad \quad  \underset{d.num = p.dep}{\bowtie}                                         \\
+	 & \qquad \quad \underset{m.num = d.mgr}{\bowtie}                                          \\
+	 & \qquad\qquad \rho_{a}(\pi_{anzahl, proj}(\quad )                                        \\
+	 & \qquad\qquad\quad\gamma_{(proj), count(*) \rightarrow anzahl}(works\_on))               \\
+	 & \qquad\qquad \rho_{p}(project)                                                          \\
+	 & \qquad\qquad \rho_{d}(department)                                                       \\
+	 & \qquad\qquad \rho_{m}(employee)
+\end{split}
+\end{equation*}
+
+Optimierungen: Sicherlich vieles möglich, offensichtlich: HAVING durch GROUP ziehen, GROUP um lname kürzen.
+\end{note}
+\end{enumerate}
+\end{normalText}

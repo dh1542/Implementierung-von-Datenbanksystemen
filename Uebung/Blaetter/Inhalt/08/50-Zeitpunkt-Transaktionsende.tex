@@ -1,0 +1,154 @@
+\section{Geeignete Zeitpunkte des Transaktionsendes}
+
+Stellen Sie sich vor, Sie arbeiten an einem Teil eines Warenwirtschaftssystems für Supermärkte. Gegeben sei das folgende Datenbank-Schema:
+
+	\texttt{Artikel (\underline{ANr}, Bezeichnung, Anzahl, Preis)} \\
+	\texttt{Kasse (\underline{KNr}, Geldinhalt)}
+
+\begin{beamerText}
+\pagebreak
+\texttt{Artikel (\underline{ANr}, Bezeichnung, Anzahl, Preis)} \\
+\texttt{Kasse (\underline{KNr}, Geldinhalt)}
+\end{beamerText}
+
+	\begin{enumerate}[a)]
+		\item \label{lbl_Transaktionsende_Kasse} Das folgende Programm soll die Zahlungsvorgänge an den Kassen registrieren und bei Verkäufen von Artikeln auch deren Anzahl im System reduzieren.
+		\begin{lstlisting}
+double Summe;
+unsigned int Kasse;
+while(true) {
+	read(Kasse, Kunde); // neuer Kunde an Kasse
+	Summe = 0;
+	while(noch Waren auf dem Band) {
+		double Preis;
+		unsigned int Artikel, Anzahl;
+		read(Artikel, Anzahl);
+		exec sql SELECT Preis INTO :Preis 
+			FROM Artikel
+			WHERE ANr = :Artikel;
+		exec sql UPDATE Artikel
+			SET Anzahl = Anzahl - :Anzahl
+			WHERE ANr = :Artikel;
+		Summe = Summe + (Anzahl * Preis);
+	}
+	exec sql UPDATE Kasse SET
+		Geldinhalt = Geldinhalt + 
+			:Summe WHERE KNr = :Kasse;
+}
+\end{lstlisting}
+
+		Wo sollte man hier eine Transaktion beenden und eine Neue beginnen? Diskutieren Sie die verschiedenen Möglichkeiten!
+
+		\begin{solution}
+		\begin{itemize}
+			\item Ende innere Schleife (nach Zeile 16): Zu kurz, nur ein Update, für Regalfüllung OK, aber Kassenstand passt nicht dazu! Ware schon weg, aber kein Geld eingegangen.
+			\item Ende äußere Schleife (nach Zeile 20): Vermutlich am besten; Kunde vollständig abgearbeitet, Waren- und Kassenbestand sind konsistent.
+			\item Ende des Programms (Feierabend): Geht auch (wenn man die \texttt{while(true)}-Schleife beendet bekommt), nach dem letzten Kunden ist sicher alles konsistent, es gibt aber aber ein Problem: Was passiert, wenn z.B. ein Kunde nicht zahlen kann, oder die Datenbank crasht? Dann müssten alle Kunden des Tages zurückgerufen und ihre Produkte erneut eingescannt werden. Das ist nicht praktikabel.
+		\end{itemize}
+		\end{solution}
+
+		\beamertxt{\pagebreak}
+		\item \label{lbl_Transaktionsende_Pruefprogr} Es existiert ein Prüfprogramm, das in regelmäßigen Abständen überprüft, ob für Waren, die laut Warenwirtschaftssystem verkauft wurden, auch bezahlt wurde. Das Programm benutzt eine Gesamtsumme von Warenwerten und Kassenständen, die sich nicht ändern darf.
+\begin{lstlisting}
+double Summe;
+double Warenwert;
+double Kassenstand;
+exec sql SELECT Summe INTO :Summe
+	FROM Gesamtwert;
+exec sql SELECT SUM(Anzahl * Preis)
+	INTO :Warenwert
+	FROM Artikel;
+exec sql SELECT SUM(Geldinhalt)
+	INTO :Kassenstand
+	FROM Kasse;
+if (Summe != Warenwert + Kassenstand) {
+	Alarm();
+}
+\end{lstlisting}
+
+    Hier wird zunächst angenommen, dass nach jedem UPDATE ein COMMIT erfolgt (was sicherlich keine kluge Wahl ist, aber als sog.\ "`auto-commit"' durchaus in einigen DBMS vorkommt).
+
+		Wenn das Prüfprogramm gleichzeitig mit einigen Zahlungsvorgängen an den Kassen abläuft und sich die Zugriffe auf die Datenbank in einer bestimmten Reihenfolge mischen, dann kann es passieren, dass fälschlicherweise Alarm ausgelöst wird. Wie müssen sich dazu die Zugriffe der beiden Vorgänge anordnen?
+
+    Was ändert sich, wenn der empfohlene Commit-Zeitpunkt des Programms \ref{lbl_Transaktionsende_Kasse} verwendet wird?
+
+		\begin{solution}
+		Betrachtet werden nur die relevanten Zeilen, d.\,h.\ von Teilaufgabe \ref{lbl_Transaktionsende_Kasse} Zeile 13 und 18 (nicht 10, da nur Ermittlung des Preises pro Artikel) und von Teilaufgabe \ref{lbl_Transaktionsende_Pruefprogr} Zeilen 6 und 9. Zeile 4 bleibt unbeachtet, da dieser Wert stets konstant bleibt.
+
+		Notation wie folgt:
+		a13 = Programm \ref{lbl_Transaktionsende_Kasse}, Zeile 13; a18 = Programm \ref{lbl_Transaktionsende_Kasse}, Zeile 18; b6 = Programm \ref{lbl_Transaktionsende_Pruefprogr}, Zeile 6; b9 = Programm \ref{lbl_Transaktionsende_Pruefprogr}, Zeile 9
+
+		Es gibt offensichtlich 6 Fälle: Zunächst $4!=24$ Möglichkeiten, um die 4 potentiell konfligierenden Operationen anzuordnen, aber da a13 immer vor a18 und b6 immer vor b9 kommt, reduziert sich das um den Faktor 4.
+\newcommand{\preWare}{\item b6: Lese Warenwert aller Artikel (\emph{vor} Warenänderung aus akt. Einkauf).}
+\newcommand{\postWare}{\item b6: Lese Warenwert aller Artikel (\emph{nach} Warenänderung aus akt. Einkauf).}
+\newcommand{\preMoney}{\item b9: Lese Geldinhalt aller Kassen (\emph{vor} Geldänderung aus akt. Einkauf).}
+\newcommand{\postMoney}{\item b9: Lese Geldinhalt aller Kassen (\emph{nach} Geldänderung aus akt. Einkauf).}
+\newcommand{\ware}{\item a13: Reduziere Warenanzahl.}
+\newcommand{\money}{\item a18: Erhöhe Geldinhalt der Kasse.}
+\newcommand{\postSuccess}{\item[->] Prüfung erfolgreich. Der aktuelle Einkauf wurde berücksichtigt}
+\newcommand{\preSuccess}{\item[->] Prüfung erfolgreich, da aktueller Einkauf \emph{nicht} berücksichtigt wurde.}
+
+		\paragraph{\color{solutioncolor} a13 b6 b9 a18}
+		\begin{itemize}
+			\ware
+			\postWare
+			\preMoney
+			\money
+			\item[->] Prüfung \emph{nicht} erfolgreich, da Warenwert + Kassenstand zu niedrig.
+		\end{itemize}
+
+		\paragraph{\color{solutioncolor} b6 a13 a18 b9}
+		\begin{itemize}
+			\preWare
+			\ware
+			\money
+			\postMoney
+			\item[->] Prüfung \emph{nicht} erfolgreich, da Warenwert + Kassenstand zu hoch.
+		\end{itemize}
+
+		\paragraph{\color{solutioncolor} a13 a18 b6 b9}
+		\begin{itemize}
+			\ware
+			\money
+			\postWare
+			\postMoney
+			\postSuccess
+		\end{itemize}
+
+		\paragraph{\color{solutioncolor} a13 b6 a18 b9}
+		\begin{itemize}
+			\ware
+			\postWare
+			\money
+			\postMoney
+			\postSuccess
+		\end{itemize}
+
+		\paragraph{\color{solutioncolor} b6 a13 b9 a18}
+		\begin{itemize}
+			\preWare
+			\ware
+			\preMoney
+			\money
+			\preSuccess
+		\end{itemize}
+
+		\paragraph{\color{solutioncolor} b6 b9 a13 a18}
+		\begin{itemize}
+			\preWare
+			\preMoney
+			\ware
+			\money
+			\preSuccess
+		\end{itemize}
+
+		Wird der empfohlene Commit-Zeitpunkt von Teilaufgabe \ref{lbl_Transaktionsende_Kasse} verwendet, dann verändert sich das Bild:
+
+		a b6 b9: Prüfung erfolgreich, da Warenbestand (Warenwert) entsprechend reduziert, aber Kassenstand erhöht.
+
+		b6 a b9: Prüfung schlägt fehl, da Warenwert noch auf Stand vor Verkauf, aber Kassenstand nach dem Verkauf.
+
+		b6 b9 a: Prüfung erfolgreich, da Zustand vor dem Verkauf geprüft wird (dieser ist hoffentlich konsistent).
+		\end{solution}
+
+	\end{enumerate}

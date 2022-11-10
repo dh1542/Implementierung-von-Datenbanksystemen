@@ -1,0 +1,4 @@
+Absichtlich nicht geprüft, weil als Implementierungsdetail offengelassen:
+
+* live-Update der Größe einer Exisiterenden Block-File (Caching der Information bei open() soll erlaubt bleiben)
+	In diesem Fall muessen append() diese gecachte Groesse anpassen. Es geht hier ausschließlich um Änderungen im FS.

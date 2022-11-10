@@ -1,0 +1,66 @@
+\section{C-Store-Anwendung}
+
+Erstellen Sie zu den gegebenen Relationen "`Student"' und "`Studienfach"' für die gegebenen Beispielanfragen sinnvolle C-Store-Projektionen.
+Geben Sie zusätzlich an, welche Art der Komprimierung das System für die Spalten nutzen würde.
+
+\texttt{Student(\underline{Matrikelnr}, Name, Vorname, Wohnort, Geschlecht, Emailadresse,\\
+  Id[Studienfach])}\\
+\texttt{Studienfach(\underline{Id}, Fachname)}
+
+\begin{enumerate}
+	\item \texttt{Select distinct Vorname from Student;}
+	\item \texttt{Select Emailadresse from Student where Matrikelnr > 30000;}
+	\item \texttt{Select count(*) from Student where Geschlecht = 'w';}
+	\item \texttt{Select count(*) from Student where Geschlecht = 'm';}
+	\item \texttt{Select count(*) from Student where Wohnort = 'Erlangen';}
+	\item \texttt{Select Matrikelnr from Student natural join Studienfach\\
+		where Fachname = 'Physik';}
+\end{enumerate}
+
+Beachten Sie die folgenden Beispieltupel:
+
+\begin{tabular}{lllllp{3cm}l}
+	\hline\hline
+	Matnr. & Name         & Vorname  & Wohnort  & Geschlecht & Emailadresse                    & Id \\ \hline\hline
+	12345  & Pumpernickel & Heinrich & Bamberg  & m          & hini@pumper.de                  & 4  \\ \hline
+	23451  & Einstein     & Albert   & Nürnberg & m          & ali1stein@ gmail.com            & 2  \\ \hline
+	34512  & de Brudzewo  & Albert   & Erlangen & m          & albert.brudzewo@ fau.de         & 1  \\ \hline
+	45123  & Curie        & Marie    & Erlangen & w          & mary.c@yahoo.de                 & 2  \\ \hline
+	51234  & Hamilton     & Margaret & Nürnberg & w          & ham.ma@hot mail.com             & 0  \\ \hline
+	54321  & Lavoisier    & Marie    & Bamberg  & w          & marie.lavoisier@ studium.fau.de & 3  \\ \hline
+	43215  & Cavendish    & Margaret & Nürnberg & w          & cavendish.ma@ icloud.com        & 3  \\ \hline
+	32154  & Dürer        & Albrecht & Nürnberg & m          & me@duerer.de                    & 1  \\ \hline
+	21543  & Raymond      & Jade     & Bamberg  & w          & jade@myspace.com                & 0  \\ \hline
+	15432  & Hopper       & Grace    & Erlangen & w          & g.h@navy.gov                    & 0  \\ \hline
+	13524  & Turing       & Alan     & Nürnberg & m          & 616c616e@5475 72696e67.uk       & 0  \\ \hline
+\end{tabular}
+
+\begin{tabular}{|c|c|}
+	\hline
+	Id & Fachname \\
+	\hline
+	0 & Informatik \\
+	\hline
+	1 & Mathematik \\
+	\hline
+	2 & Physik \\
+	\hline
+	3 & Chemie \\
+	\hline
+	4 & Sport\\
+	\hline
+\end{tabular}
+
+\begin{note}
+	Siehe zur Komprimierung Folien~\CStoreMethode
+
+	Für dieses Aufgabe gibt es mehrere Lösungen, die aber sinnvoll begründet sein müssen. Eine wäre beispielhaft:
+
+	\texttt{Student1(Vorname | Vorname)} für Anfrage 1, Fall 3, 5\\
+	\texttt{Student2(Matrikelnr, Emailadresse | Matrikelnr)} für Anfrage 2, Matrikelnr: Fall 3, Emailadresse: Fall 4, 5\\
+	\texttt{Student3(Geschlecht | Geschlecht)} für Anfragen 3, 4, Fall 1\\
+	\texttt{Student4(Wohnort | Wohnort)} für Anfrage 5, Fall 1, 5\\
+	\texttt{Student5(Matrikelnr, Studienfach.Fachname | Studienfach.Fachname)} für Anfrage 6, Matrikelnr: Fall 4, Studienfach.Fachname: Fall 1, 5 \\
+	\texttt{Student6(Name, Id | Name)} restliche Attribute, Sortierung egal, da für die Beispielanfragen sowieso nicht genutzt, Name: Fall 3, 5, Id: Fall 2 \\
+	\texttt{Studienfach(Id, Fachname | Id)} Id: Fall 1, Fachname: Fall: 2
+\end{note}

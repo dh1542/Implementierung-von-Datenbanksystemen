@@ -1,0 +1,101 @@
+\section{Anzahl der Buckets}
+\label{sec:bucketanzahl}
+
+Häufig wird empfohlen,
+beim Hashing mit dem Divisions-Rest-Verfahren
+eine \emph{Primzahl} als Anzahl der Buckets zu verwenden.
+Woran könnte das liegen?
+
+\emph{Hinweis:}
+Stellen Sie sich vor, Sie speichern Schlüsselwerte in äquidistanten Abständen,
+$K_j = K_0 + j \cdot \Delta K \; (j \in \mathbb{N}_0, \Delta K \in \mathbb{N}^+)$,
+was in der Praxis häufig vorkommt.
+$K_j$ ist der $j$-te Schlüssel, den Sie einfügen.
+$K_0$ ist der erste eingefügte Schlüssel
+und $\Delta K$ der Abstand zwischen je zwei eingefügten Schlüsseln.
+
+Denken Sie daran, dass die Anzahl an Kollisionen (d.\,h.\ die Anzahl von Schlüsseln, die auf den gleichen Hashwert abgebildet werden) minimiert werden soll. Nehmen Sie folgende Tatsache zur Hilfe: Eine Kollision zwischen dem ersten und dem $j$-ten Schlüssel tritt genau dann auf, wenn $K_0 \bmod m = (K_0 + j \cdot \Delta K) \bmod m$.
+
+\begin{note}
+Anmerkung zu äquidistanten Schlüsseln: Surrogatschlüssel in mehreren Tabellen, die ihre Werte alle von der gleichen Sequenz beziehen (das ermöglicht dann das Tracing, in welcher Reihenfolge über Tabellengrenzen hinweg die Sätze eingefügt wurden).
+\end{note}
+
+\begin{solution}
+Bei einem äquidistanten Abstand der Schlüssel muss die angewandte Hashfunktion diese Regelmäßigkeit der Schlüssel eliminieren. Schafft sie dies nicht, würden ständig die gleichen Plätze in der Hashtabelle getroffen werden.
+Behauptung: Eine Primzahl in der Hashfunktion maximiert im Falle äquidistanter Schlüsselabstände die Distanz, nach der eine Kollision auftritt.
+Zum Beweis dafür gibt es verschiedene Herangehensweisen, die im Prinzip aufs Gleiche hinauslaufen.
+
+
+\subsection{\color{solutioncolor}Wann treten Kollisionen auf? (1)}
+
+Eine Kollision tritt auf, wenn wir eine ganzzahlige Anzahl von Umläufen durch die ganze Hashtabelle gemacht haben (das heißt, man ist wieder auf dem gleichen Bucket, in den man den ersten Wert eingefügt hat).
+Die Gesamtdistanz muss ein Vielfaches der Distanz zwischen zwei eingefügten Werten ($\Delta K$) sein.
+
+Für eine Kollision muss also die Gesamtdistanz das kleinste gemeinsame Vielfache der Tabellengröße $m$ und der Einzeldistanz $\Delta K$ sein.
+Wegen $\mathrm{kgV}(m,\Delta K) = \frac{m \cdot \Delta K}{\mathrm{ggT}(m,\Delta K)}$ ist das gerade maximal für $\mathrm{ggT}(m,\Delta K)=1$ und das ist genau der Fall wenn $m$ und $\Delta K$ teilerfremd sind.
+
+Eigentlich muss man also nur sicherstellen, dass $\Delta K$ und $m$ teilerfremd sind. Dies geht aber nur mit einer Primzahl für $m$, wenn $\Delta K$ im Voraus nicht bekannt ist.
+
+
+\subsection{\color{solutioncolor}Wann treten Kollisionen auf? (2)}
+
+Wie schon in der Aufgabe als Hilfestellung gegeben, tritt eine Kollision auf, wenn:
+\[K_{0} \bmod m = (K_{0} + j \cdot \Delta K) \bmod m\]
+
+Das heißt, für eine Kollision bei Schlüssel $j$ muss folgendes gelten:
+\[j \cdot \Delta K = n \cdot m,\, n \in \mathbb{N}^+ \]
+\[\frac{j \cdot \Delta K}{m} = n\]
+
+Das heißt, $j \cdot \Delta K$ ist ein vielfaches von $m$. Ein Vielfaches von $m$ enthält alle Primfaktoren von $m$. $\Rightarrow$ $j \cdot \Delta K$ muss alle Primfaktoren von $m$ enthalten.
+
+Wenn $m$ und $\Delta K$ teilerfremd sind, enthält $\Delta K$ keine Primfaktoren von $m$. \\ $\Rightarrow$ $j$ enthält alle Primfaktoren von $m$ \\
+$\Rightarrow$ $j$ ist Vielfaches von $m$ \\
+$\Rightarrow$ Erste Kollision bei $j = m$
+
+Bei einer Hashtabelle mit $m$ Buckets erfolgt spätestens beim $m$-ten Einfügen nach dem Einfügen des ersten Wertes eine Kollision. $\Rightarrow$ Wenn $m$ und $\Delta K$ teilerfremd sind, tritt eine Kollision zum spätest möglichen Zeitpunkt auf.
+
+
+\paragraph{\color{solutioncolor}Beispiel}
+
+\begin{enumerate}[a)]
+	\item $\Delta K$ = 3, $m$ = 6 \\
+	$\Rightarrow$ Kollision mit erstem eingefügten Schlüssel $K_0$, wenn $j \cdot 3 = n \cdot 6 \Leftrightarrow j = n \cdot 2$:
+
+	$j$ = 1: keine Kollision \\
+	$j$ = 2: Kollision 1 \\
+	$j$ = 3: keine Kollision \\
+	$j$ = 4: Kollision 2 \\
+	$j$ = 5: keine Kollision \\
+	$j$ = 6: Kollision 3 \\
+	$j$ = 7: keine Kollision \\
+	$j$ = 8: Kollision 4 \\
+
+	\item $\Delta K$ = 3, $m$ = 7 \\
+	$\Rightarrow$ Kollision mit erstem eingefügten Schlüssel $K_0$, wenn $j \cdot 3 = n  \cdot 7$:
+
+	$j$ = 1: keine Kollision \\
+	$j$ = 2: keine Kollision \\
+	$j$ = 3: keine Kollision \\
+	$j$ = 4: keine Kollision \\
+	$j$ = 5: keine Kollision \\
+	$j$ = 6: keine Kollision \\
+	$j$ = 7: Kollision 1 \\
+	$j$ = 8: keine Kollision \\
+\end{enumerate}
+
+\subsection{\color{solutioncolor}Welche Buckets werden gefüllt?}
+
+O.\,B.\,d.\,A.\ nehmen wir an: $K_0 = 0$
+
+Dann kommt ein Satz genau dann in Bucket $a$, wenn
+$j \cdot \Delta K \bmod m = a$ .
+
+$\Leftrightarrow$ Es existiert ein $n$, so dass $j \cdot \Delta K = n  \cdot m + a\Leftrightarrow a = j  \cdot \Delta K - n \cdot m$ .
+
+Haben nun $m$ und $\Delta K$ den gemeinsamen Teiler $t$, so ist $a = t \cdot (j \cdot \Delta K' - n \cdot m')$ \\
+Da der Term in Klammern eine Ganzzahl ist, kann $a$ nur ein Vielfaches von $t$ sein. Alle anderen Buckets bleiben leer.
+\end{solution}
+
+\begin{note}
+Wenn man die Hashtabelle vergrößert, dann verdoppelt man die Bucket-Zahl, was dazu führt, dass $m$ keine Primzahl mehr ist. Gibt es alternative Vergrößerungen der Hashtabelle, außer Verdoppelung? Zumindest alle verbreiteten dynamischen Hashverfahren verdoppeln die Bucketzahl mit der neuen Hashfunktion (wobei sie die Buckets nicht alle auf einmal reservieren).
+\end{note}

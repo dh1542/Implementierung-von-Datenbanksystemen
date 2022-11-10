@@ -1,0 +1,45 @@
+\section{Pufferverwaltung}
+Die Pufferverwaltung bestimmt, welche Seiten im Puffer gehalten werden. Um die Seiten im Puffer wiederfinden zu können, muss sie auch verwalten, welche Seiten gerade im Puffer liegen und wo. Benötigt wird z.\,B. eine Funktion wie die folgende:
+
+\texttt{/* liefert entweder die Adresse der Seite im Puffer \beamertxt{\linebreak}
+oder null, wenn die \normaltxt{\linebreak}
+Seite nicht im Puffer liegt */\\
+	void* findPage(int pageNo); }
+
+Mittels welcher Hilfsstrukturen könnte man so eine Funktion implementieren? Denken Sie an Ihnen bekannte Datenstrukturen sowie die Verfahren zur Satzadressierung, die wir in dieser Veranstaltung kennengelernt haben. Welche dieser Strukturen sind gut geeignet? Berücksichtigen Sie folgende Randbedingungen:
+\begin{itemize}
+	\item Die Suche im Puffer kommt relativ häufig vor, muss also schnell gehen.
+	\item Das Einfügen oder Löschen einer Seite im Puffer kommt etwa 1--2 Größenordnungen seltener vor als die Suche, also immer noch häufig. In diesem Fall muss außerdem die neue Seite vom Hintergrundspeicher geladen werden.
+\end{itemize}
+
+\begin{solution}
+\underline{Hinweis:} Bei der Laufzeit des Löschens nehmen wir an, dass wir den Eintrag in der jeweiligen Struktur bereits gefunden haben.
+\begin{itemize}
+	\item Einfachste Idee: man schreibt die Nummer der Seite, die in einer Kachel liegt, direkt mit in die Kachel. Zur Suche durchläuft man alle Kacheln sequentiell. Das hat zwei gravierende Nachteile:
+	\begin{itemize}
+		\item Die Kacheln müssen jetzt um ein geringes größer sein als eine Seite. Das führt zu Caching-Problemen (die Kachelgrenzen fallen z.B. nicht mehr auf Betriebssystem-Seitengrenzen).
+
+		\item Außerdem kann uns die Speicherverwaltung des BS ja Seiten in den Hintergrundspeicher auslagern. Wenn wir nun in einer Kachel nachschauen, welche Seite drin ist, muss das BS sie evtl. erst wieder einlagern. Das ist viel zu teuer.
+	\end{itemize}
+	Aufwände: Suche: O(n), Ändern O(1)
+
+	\item Verbesserung: da wir die Seitennummern nicht in die Kacheln schreiben können, ziehen wir sie in eine eigene Verwaltungsstruktur heraus. Das kann z.\,B. eine Liste sein. Da i.\,A. die Puffergröße fest ist, kann man ein einfaches Array verwenden, das genauso viele Einträge hat wie der Puffer Kacheln. Hier gibt es nun zwei Varianten: a) unsortiert oder b) sortiert (nach Seitennummer).
+
+	Aufwände: a) Suche: O(n), Ändern O(1); b) Suche: O($log_2(n)$) (binäre Suche), Ändern O(n) (Es muss im Mittel die Hälfte der Einträge nach unten verschoben werden.), meist besser, da Suche häufiger als Änderung.
+
+	\item Verkettete Liste: Einfügen/Löschen geht in O(1) (da man nicht mehr umkopieren muss, sondern nur zwei Zeiger umbiegen), Suche in O(n) (Liste kann zwar sortiert sein, aber man kann nicht mehr binär suchen. Bei Misserfolg im Mittel n/2 wenn sortiert, sonst n.
+
+	\item In Analogie zu DBTT kann man die Liste umkehren: Jede denkbare Seite bekommt einen Eintrag und man kann direkt nachschauen, wo die Seite liegt.
+
+	Aufwände: Suche O(1), Ändern O(1).
+
+	Gravierender Nachteil: Die Größe der Tabelle. Sie wird in der Größenordnung von 1/1000 der gesamten Datenbankgröße liegen. Für ein Terabyte Daten muss man also mit der Größenordnung von 1\,GB für die Tabelle rechnen (und die muss immer im Speicher liegen). Das ist nicht praktikabel.
+
+	\item Eine Analogie zu TID erscheint nicht sinnvoll.
+
+	\item Hashing: Für diesen Zweck das beste Verfahren, das auch häufig verwendet wird. Üblicherweise in der Variante mit Überlaufbuckets.
+
+	Aufwände: Suche O(1), Ändern O(1)
+
+\end{itemize}
+\end{solution}

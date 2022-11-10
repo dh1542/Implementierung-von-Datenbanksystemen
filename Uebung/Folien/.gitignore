@@ -1,0 +1,8 @@
+*.*
+!*.tex
+!*.sty
+!Makefile
+!Pictures/**/*.*
+!art/**/*.*
+!.gitignore
+

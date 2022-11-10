@@ -1,0 +1,44 @@
+<project name="IDB-private" basedir="." default="main">
+
+    <property name="src.dir"     value="src-modified"/>
+    <property name="base-src.dir"     value="src"/>
+    <property name="vorgabe.dir"   value="angabe"/>
+
+    <import file="build.xml"/>
+
+     <target name="package">
+        <defaultexcludes remove="**/.gitignore"/>
+        <delete dir="${vorgabe.dir}"/>
+        <mkdir dir="${vorgabe.dir}"/>
+        <copy todir="${vorgabe.dir}" overwrite="true">
+            <fileset dir="." >
+                <include name="${base-src.dir}/**/*.java"/>
+                <include name="build.xml"/>
+                <include name="${test.dir}/**/*.java"/>
+                <include name="libs/*.jar"/>
+                <include name="README.md"/>
+                <include name=".gitignore"/>
+                <exclude name="**/*.private.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <ant antfile="build.xml" target="clean"/>
+        <delete dir="${src.dir}"/>
+        <delete dir="${vorgabe.dir}"/>
+    </target>
+
+	<target name="init">
+        <ant antfile="./build.xml" target="init"/>
+        <delete dir="${src.dir}"/>
+        <mkdir dir="${src.dir}"/>
+		<copy todir="${src.dir}">
+				<fileset dir="${base-src.dir}/"/>
+				<mapper type="glob" from="*.private.java" to="*.java" />
+		</copy>
+		<copy todir="${src.dir}">
+				<fileset dir="${base-src.dir}/" excludes="**/*.private.java"/>
+		</copy>
+    </target>
+</project>

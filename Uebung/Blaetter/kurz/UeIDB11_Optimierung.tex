@@ -1,0 +1,63 @@
+\usetikzlibrary{arrows, calc}
+
+\begin{document}
+\lecture{Implementierung von Datenbanksystemen}{IDB}
+\title{Übungsblatt~11}
+\subtitle{Optimierung, Planoperatoren}
+\maketitle
+
+
+\lstset{basicstyle=\ttfamily,
+	language=SQL,
+	deletekeywords={NUMBER} % number ist ein Attribut in diesem Blatt
+}
+
+
+\section*{Lernziele}
+\begin{itemize}
+    \item Erstellung und algebraische Optimierung von Ausführungsplänen mit Sichten
+    \item Planoperatoralgorithmen
+    \item Kosten von Planoperatoren
+\end{itemize}
+
+
+\section*{Literatur}
+\HaerderNintyNine{11, 12}
+
+\ElmasriFive{16}
+
+\GarciaMolinaSecond{8, 15, 16}
+
+\NeumannFifteen
+
+
+\section{Einstieg}
+\begin{enumerate}[a)]
+\item \input{Inhalt/11/15-Einstiegsinhalt.tex}
+
+\input{Inhalt/12/15-Inhalt.tex}
+\end{enumerate}
+
+\input{Inhalt/11/20-Ausfuehrungsplaene.tex}
+
+\begin{deeper}
+\input{Inhalt/11/30-Unnesting.tex}
+\end{deeper}
+
+\begin{deeper}
+\input{Inhalt/11/40-Unnesting-2.tex}
+\end{deeper}
+
+\begin{deeper}
+\input{Inhalt/11/60-Schichtenmodell.tex}
+\end{deeper}
+
+\beamertxt{\pagebreak}
+\input{Inhalt/12/20-Sort-Merge-Join.tex}
+
+\beamertxt{\pagebreak}
+\begin{deeper}
+\input{Inhalt/12/30-Sort-Merge-Join-2.tex}
+\end{deeper}
+
+\end{document}

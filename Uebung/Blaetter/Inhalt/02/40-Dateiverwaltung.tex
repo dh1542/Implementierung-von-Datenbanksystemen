@@ -1,0 +1,25 @@
+\section{Dateiverwaltung}
+Welche Operationen müssen in welcher Reihenfolge ausgeführt werden um einen Block einer (blockorientierten) Datei zu lesen?
+
+\begin{enumerate}[\alph{enumi})]
+\item Beim öffnen der Datei.
+\begin{solution}
+\begin{enumerate}
+	\item Master File Table bzw. Dateikatalog von der Festplatte über die Gerätesteuerung lesen.
+	Dieser Dateikatalog liegt an einer fest definierten Stelle auf der Festplatte.
+	\item Solange die angeforderte Datei nicht gefunden wurde, gehe die Hierarchie des Dateikatalogs durch.
+	Dies ist abhängig vom Dateisystem (vgl. Vorlesungsfolien~\Katalogeintraege~und SP2).
+	\item Überprüfe ob die Zugriffsrechte des Benutzers mit der angeforderten Zugriffsart übereinstimmen.
+	\item Lege den Dateikontrollblock für die Datei an.
+\end{enumerate}
+\end{solution}
+\item Beim lesen aus der geöffneten Datei.
+\begin{solution}
+\begin{enumerate}
+	\item Lese aus dem Dateikontrollblock für die Datei die Referenz zum geforderten Block.
+	\item Fordere über die Gerätesteuerung den gewünschten Block an.
+	\item Die Gerätesteuerung setzt die Blocknummer in den entsprechenden Zugriffsbefehl für den Hintergrundspeicher um und liefert den Block zurück.
+	Bei einer HDD beinhaltet dies die Umwandlung der Blocknummer in Slot, Zylinder und Spur.
+\end{enumerate}
+\end{solution}
+\end{enumerate}

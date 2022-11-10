@@ -1,0 +1,77 @@
+\section{Function Based Index}
+\begin{enumerate}[a)]
+\item \label{item:fbi} Betrachten Sie folgenden Ausschnitt aus der Relation \textit{sortiment}:
+
+\begin{center}
+$\begin{tabular}{cc|c|c|c}
+~&\underline{artikelnummer} & bezeichnung & nettopreis & mwst\_satz\\
+\cline{2-5} \\
+\textit{1}: & 110242 & Rechenblock & 0,99 & 0,07\\
+\textit{2}: & 000815 & Datenbanken leicht gemacht & 24,89 & 0,07\\
+\textit{3}: & 546813 & 15 Inner-Joins & 10,00 & 0,19\\
+\textit{4}: & 123123 & Datenbankfestplatte & 149,99 & 0,19\\
+~ & ... & ... & ... & ...
+\end{tabular}$
+\end{center}
+
+Wie können Anfragen, die Produkte mit einem bestimmten Bruttopreis ermitteln, beschleunigt werden?
+
+\begin{note}
+Nicht aus der Vorlesung bekannt.
+\end{note}
+
+\begin{solution}
+Eine Möglichkeit sind die zusätzliche Speicherung des Bruttopreises und das Anlegen eines Indexes über diesem Attribut.
+Dies hat allerdings den gravierenden Nachteil der Redundanz.
+Wenn das Attribut nicht automatisch berechnet wird, können widersprüchliche Daten abgelegt werden.
+Außerdem wird das Schema zum Zwecke der Optimierung verändert und diese somit nach außen sichtbar.
+Bestehende Anfragen müssten geändert werden, damit sie von dem neuen Index profitieren.
+
+Eine Lösung, die diese Probleme nicht hat, ist ein Index, der als Schlüssel einen berechneten Wert verwendet, der nicht in der Datenbank gespeichert ist.
+Einen solchen Index nennt man Function Based Index.
+Als Indexstruktur kann z.\,B. ein B-Baum oder ein Hashindex verwendet werden.
+
+Im vorliegenden Fall wird ein Function Based Index über den Bruttopreis benötigt.
+
+\paragraph{Zusatzfrage} Wie lauten die Funktion für den Function Based Index und wie die Schlüssel zu jedem Tupel der Beispieltabelle, die im Index abgelegt werden?
+
+Funktion:
+\begin{equation*}
+bruttopreis~ =~ nettopreis~ \cdot~ (1 + mwst\_satz)
+\end{equation*}
+
+Zu Zeile \textit{1}: 1,06
+
+Zu Zeile \textit{2}: 26,63
+
+Zu Zeile \textit{3}: 11,90
+
+Zu Zeile \textit{4}: 178,49
+\end{solution}
+
+\item Bei welcher Art von Anfragen und bei welchem Nutzungsverhalten ist der Einsatz eines Function Based Index sinnvoll?
+
+\begin{solution}
+Der Einsatz eines solchen Index ist sinnvoll, wenn nach bestimmten Werten, wie dem Bruttopreis im Beispiel, die sich zwar aus anderen Attributen berechnen lassen, allerdings nicht in der Relation gespeichert sind, häufig gefiltert oder sortiert wird.
+
+Ein Function Based Index beschleunigt nur Abfragen, die den Wert des Function Based Index benötigen.
+Wie jeder Index muss dieser beim Einfügen und Ändern angepasst und dabei die Funktion erneut berechnet werden.
+Dies verlangsamt die Einfüge- und Änderungsoperationen. Es muss also auch bei diesem Indextyp abgewogen werden, ob der Nutzen des Index den Pflegeaufwand rechtfertigt.
+\end{solution}
+
+\begin{note}
+Bei Einfügen und Ändern kann die Änderung des Function Based Index abhängig von der Funktion übermäßig viel Zeit beanspruchen, da z.\,B. die Analyse von Bildern, Videos oder Audiodateien sehr aufwändig sein kann.
+\end{note}
+
+\item Diskutieren Sie weitere Beispiele, die ähnliche Anforderungen haben wie das aus Teilaufgabe \ref{item:fbi}). Denken Sie dabei etwa an Multimedia-Anwendungen.
+
+\begin{solution}
+Ein möglicher Einsatz ist ein Function Based Index über die durchschnittliche Helligkeit eines Bildes oder über die Frequenzverteilung eines Audiostücks.
+\end{solution}
+
+\begin{note}
+Ein Beispiel für den praktischen Einsatz eines Function Based Index (in Oracle) findet sich unter folgendem Link:\\
+\href{https://docs.oracle.com/cd/E11882\_01/server.112/e40540/indexiot.htm\#CNCPT721}{https://docs.oracle.com/cd/E11882\_01/server.112/e40540/indexiot.htm\#CNCPT721}.
+\end{note}
+
+\end{enumerate}

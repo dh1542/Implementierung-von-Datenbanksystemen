@@ -1,0 +1,108 @@
+\section{Unnesting}
+\label{unnesting}
+
+Gegeben seien folgende Relationen eines Datenbankschemas:
+
+\texttt{Studierende (\underline{matrikelnr}, name)} \\
+\texttt{Noten (\underline{pruefungsnr, matrikelnr}, note, semester, datum)}
+
+Eine Anfrage, die für jede(n) Studierende(n) die beste Prüfungsleistung ermittelt,
+könnte wie folgt aussehen:
+
+\cprotEnv
+\begin{normalText}
+\begin{lstlisting}
+SELECT s.name, n.pruefungsnr, n.note
+FROM   Studierende s, Noten n
+WHERE  s.matrikelnr = n.matrikelnr AND
+       n.note = (SELECT min(n2.note)
+                 FROM Noten n2
+                 WHERE s.matrikelnr = n2.matrikelnr);
+\end{lstlisting}
+\end{normalText}
+
+\cprotEnv
+\begin{beamerText}
+\begin{lstlisting}
+SELECT s.name, n.pruefungsnr, n.note
+FROM   Studierende s, Noten n
+WHERE  s.matrikelnr = n.matrikelnr AND
+    n.note = (SELECT min(n2.note)
+              FROM Noten n2
+              WHERE s.matrikelnr = n2.matrikelnr);
+\end{lstlisting}
+\end{beamerText}
+
+
+\begin{note}
+Für jede eingetragene Note wird geprüft,
+ob es die jeweils beste der/des aktuellen Studierenden ist.
+\end{note}
+
+\begin{enumerate}[a)]
+
+  \item \label{a} Bewerten Sie die Anfrage im Hinblick auf das zu erwartende Leistungsverhalten
+    und die Optimierungsmöglichkeiten.
+
+\begin{solution}
+Aus Sicht des Leistungsverhaltens ist diese Anfrage problematisch,
+weil die Unteranfrage für jedes einzelne Studierende-Noten-Paar
+komplett wiederholt werden muss.
+\end{solution}
+
+  \item Schreiben Sie die Anfrage so um, dass es die unter \ref{a}) genannten
+    Probleme löst und die Bearbeitung optimiert werden kann.
+
+\cprotEnv
+\begin{solution}
+Das Problem ist, wie bereits oben genannt, die Abhängigkeit der Unteranfrage
+von \texttt{s.matrikelnr} der oberen Anfrage.
+Es handelt sich also, wie im ersten Übungsblatt bereits kennengelernt,
+um eine \emph{korrelierte Unteranfrage}.
+
+Ziel ist es also, die Anfrage so umzuschreiben,
+dass die Abhängigkeit eliminiert wird.
+Das ist in diesem Fall relativ einfach.
+Die Grundidee besteht darin, die beste Note jedes Studierenden bereits
+in der Notentabelle zu ermitteln und das Ergebnis mithilfe eines Kreuzprodukts
+mit der Studierenden-Relation zu verbinden:
+
+\begin{lstlisting}
+SELECT s.name, n.pruefungsnr, n.note
+FROM   Studierende s, Noten n,
+       (SELECT  n2.matrikelnr as matrikelnr,
+                min(n2.note) as beste
+        FROM    Noten n2
+        GROUP BY n2.matrikelnr) m
+WHERE  s.matrikelnr = n.matrikelnr AND
+       s.matrikelnr = m.matrikelnr AND
+       n.note = m.beste;
+\end{lstlisting}
+
+\cprotEnv
+\begin{note}
+Die ganze Anfrage lässt sich auch alternativ komplett ohne Unteranfrage schreiben:
+
+\begin{lstlisting}
+SELECT   s.name, n.pruefungsnr, n.note
+FROM     Studierende s, Noten n, Noten n2
+WHERE    n.matrikelnr = n2.matrikelnr
+AND      s.matrikelnr = n.matrikelnr
+GROUP BY n.matrikelnr, s.name, n.pruefungsnr, n.note
+HAVING   n.note = min(n2.note)
+\end{lstlisting}
+\end{note}
+
+Nun muss die Unteranfrage nur noch einmal evaluiert werden.
+Das Ergebnis kann mittels bereits kennengelernter JOIN-Mechanismen dann
+mit den beiden Relationen \texttt{Studierende} und \texttt{Noten} verknüpft werden.
+
+Diese Optimierung kann so vom DBMS automatisch durchgeführt werden.
+Sie ist vergleichsweise leicht erkennbar und wie man sieht, wurde die Unteranfrage
+nur in die FROM-Klausel verschoben und durch ein Symbol (\texttt{m.beste}) ersetzt.
+
+Wird eine korrelierte Unteranfrage auf diese Art aufgelöst,
+spricht man von \emph{Unnesting}.
+\end{solution}
+
+\end{enumerate}

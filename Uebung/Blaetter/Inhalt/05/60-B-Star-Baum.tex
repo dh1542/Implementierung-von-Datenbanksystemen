@@ -1,0 +1,351 @@
+\section{B*-Baum}
+\label{B*}
+
+Gegeben ist ein anfangs leerer B*-Baum. Die maximale Zahl der Einträge für einen inneren Knoten beträgt $2k$, $k = 2$. Die maximale Zahl der Einträge in einem Blattknoten beträgt $2k^*$, $k^* = 1$. Es sollen Tupel bestehend aus dem Schlüssel (einer Ganzzahl) und einem String der Länge $3$ gespeichert werden. Führen Sie die im Folgenden angegebenen Einfüge- und Löschoperationen im B*-Baum durch. Wenn sich dessen Struktur dabei ändert, zeichnen Sie den B*-Baum neu!
+
+\begin{enumerate}[a)]
+  \item Fügen Sie die folgenden Tupel in der angegeben Reihenfolge in den B*-Baum ein: \textit{(1,fan), (13,gct), (7,xxe), (8,lwc), (22,vkw), (5,wym), (2,gzw), (10,ycc)}
+
+	\begin{solution}
+Einfügen der Tupel mit Schlüssel 1 und 13. Der Wurzelknoten ist initial noch ein Blattknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstLeafNode={1}{(fan)}{13}{(gct)}{0}{0}{0}};
+
+		\end{tikzpicture}
+  \end{center}
+
+Durch Einfügen des Tupels mit Schlüssel 7 entsteht ein Überlauf im Wurzelknoten.
+Es kommt zum Splitt im Wurzelknoten.
+Dadurch ist der Wurzelknoten jetzt ein innerer Knoten und es existieren zwei Blattknoten.
+Der Baum wächst um eins.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{2}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{7}{(xxe)}{1}{1}{0}};
+            \draw pic {leafNode={13}{(gct)}{}{}{1}{2}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+
+		\end{tikzpicture}
+    \end{center}
+
+Einfügen des Tupels mit Schlüssel 8.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{2}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{7}{(xxe)}{1}{1}{0}};
+            \draw pic {leafNode={8}{(lwc)}{13}{(gct)}{1}{2}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+
+    \end{tikzpicture}
+    \end{center}
+
+Einfügen des Tupels mit Schlüssel 22. Im zweiten Blattknoten entsteht ein Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{13}{}{}{0}{0}{3}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{7}{(xxe)}{1}{1}{0}};
+            \draw pic {leafNode={8}{(lwc)}{13}{(gct)}{1}{2}};
+            \draw pic {leafNode={22}{(vkw)}{}{}{1}{3}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+            \draw pic {connect={0}{2}{3}};
+
+		\end{tikzpicture}
+    \end{center}
+
+Einfügen des Tupels mit Schlüssel 5. Im ersten Blattknoten entsteht ein Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={5}{7}{13}{}{0}{0}{4}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{5}{(wym)}{1}{1}{0}};
+            \draw pic {leafNode={7}{(xxe)}{}{}{1}{2}};
+            \draw pic {leafNode={8}{(lwc)}{13}{(gct)}{1}{3}};
+            \draw pic {leafNode={22}{(vkw)}{}{}{1}{4}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+            \draw pic {connect={0}{2}{3}};
+            \draw pic {connect={0}{3}{4}};
+
+		\end{tikzpicture}
+    \end{center}
+
+Einfügen des Tupels mit Schlüssel 2. Im ersten Blattknoten entsteht ein Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={2}{5}{7}{13}{0}{0}{5}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{1}{1}{0}};
+            \draw pic {leafNode={5}{(wym)}{}{}{1}{2}};
+            \draw pic {leafNode={7}{(xxe)}{}{}{1}{3}};
+            \draw pic {leafNode={8}{(lwc)}{13}{(gct)}{1}{4}};
+            \draw pic {leafNode={22}{(vkw)}{}{}{1}{5}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+            \draw pic {connect={0}{2}{3}};
+            \draw pic {connect={0}{3}{4}};
+            \draw pic {connect={0}{4}{5}};
+
+		\end{tikzpicture}
+    \end{center}
+
+Einfügen des Tupels mit Schlüssel 10. Im vierten Blattknoten entsteht ein Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt. Es kommt zum Überlauf im Wurzelknoten. Es werden zwei neue innere Knoten erzeugt mit jeweils zwei Einträgen. Der Wurzelknoten hat einen Eintrag.
+
+	\begin{center}
+        \scalebox{0.9}{%
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				start chain=2 going right,
+				defaultNode/.style={defaultNode1}
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{6}};
+
+			%Level1
+			\draw pic {firstInnerNode={2}{5}{}{}{1}{1}{4}};
+			\draw pic {innerNode={10}{13}{}{}{1}{2}};
+
+			%Level2
+			\draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{2}{3}{0}};
+			\draw pic {leafNode={5}{(wym)}{}{}{2}{4}};
+			\draw pic {leafNode={7}{(xxe)}{}{}{2}{5}};
+			\draw pic {leafNode={8}{(lwc)}{10}{(ycc)}{2}{6}};
+			\draw pic {leafNode={13}{(gct)}{}{}{2}{7}};
+			\draw pic {leafNode={22}{(vkw)}{}{}{2}{8}};
+
+			%Verbindungspfeile
+			%Level 0 -> 1
+			\draw pic {connect={0}{0}{1}};
+			\draw pic {connect={0}{1}{2}};
+			%Level 1->2
+			\draw pic {connect={1}{0}{3}};
+			\draw pic {connect={1}{1}{4}};
+			\draw pic {connect={1}{2}{5}};
+			\draw pic {connect={2}{0}{6}};
+			\draw pic {connect={2}{1}{7}};
+			\draw pic {connect={2}{2}{8}};
+
+		\end{tikzpicture}
+        }
+    \end{center}
+	\end{solution}
+
+	\item Löschen Sie jetzt den Datensatz mit Schlüssel $10$, danach den mit Schlüssel $13$.
+
+	\begin{solution}
+	Löschen des Tupels mit Schlüssel 10 (also $(10,ycc)$) aus dem vierten Blattknoten.\\
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				start chain=2 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{6}};
+
+			%Level1
+			\draw pic {firstInnerNode={2}{5}{}{}{1}{1}{4}};
+			\draw pic {innerNode={10}{13}{}{}{1}{2}};
+
+			%Level2
+			\draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{2}{3}{0}};
+			\draw pic {leafNode={5}{(wym)}{}{}{2}{4}};
+			\draw pic {leafNode={7}{(xxe)}{}{}{2}{5}};
+			\draw pic {leafNode={8}{(lwc)}{}{}{2}{6}};
+			\draw pic {leafNode={13}{(gct)}{}{}{2}{7}};
+			\draw pic {leafNode={22}{(vkw)}{}{}{2}{8}};
+
+			%Verbindungspfeile
+			%Level 0 -> 1
+			\draw pic {connect={0}{0}{1}};
+			\draw pic {connect={0}{1}{2}};
+			%Level 1->2
+			\draw pic {connect={1}{0}{3}};
+			\draw pic {connect={1}{1}{4}};
+			\draw pic {connect={1}{2}{5}};
+			\draw pic {connect={2}{0}{6}};
+			\draw pic {connect={2}{1}{7}};
+			\draw pic {connect={2}{2}{8}};
+
+		\end{tikzpicture}
+    \end{center}
+
+	Löschen von 13 führt zu Unterlauf in Blattknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				start chain=2 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{5}};
+
+			%Level1
+			\draw pic {firstInnerNode={2}{5}{}{}{1}{1}{3}};
+			\draw pic {innerNode={10}{13}{}{}{1}{2}};
+
+			%Level2
+			\draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{2}{3}{0}};
+			\draw pic {leafNode={5}{(wym)}{}{}{2}{4}};
+			\draw pic {leafNode={7}{(xxe)}{}{}{2}{5}};
+			\draw pic {leafNode={8}{(lwc)}{}{}{2}{6}};
+			\draw pic {leafNode={}{}{}{}{2}{7}};
+			\draw pic {leafNode={22}{(vkw)}{}{}{2}{8}};
+
+			%Verbindungspfeile
+			%Level 0 -> 1
+			\draw pic {connect={0}{0}{1}};
+			\draw pic {connect={0}{1}{2}};
+			%Level 1->2
+			\draw pic {connect={1}{0}{3}};
+			\draw pic {connect={1}{1}{4}};
+			\draw pic {connect={1}{2}{5}};
+			\draw pic {connect={2}{0}{6}};
+			\draw pic {connect={2}{1}{7}};
+			\draw pic {connect={2}{2}{8}};
+
+
+		\end{tikzpicture}
+    \end{center}
+
+Untergelaufenen Blattknoten mit benachbartem Knoten mischen (hier mit rechtem Nachbarknoten). Entfernen des entsprechenden Eintrags im inneren Knoten. Führt zu Unterlauf im inneren Knoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				start chain=2 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={7}{}{}{}{0}{0}{5}};
+
+			%Level1
+			\draw pic {firstInnerNode={2}{5}{}{}{1}{1}{3}};
+			\draw pic {innerNode={10}{}{}{}{1}{2}};
+
+			%Level2
+			\draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{2}{3}{0}};
+			\draw pic {leafNode={5}{(wym)}{}{}{2}{4}};
+			\draw pic {leafNode={7}{(xxe)}{}{}{2}{5}};
+			\draw pic {leafNode={8}{(lwc)}{}{}{2}{6}};
+			\draw pic {leafNode={22}{(vkw)}{}{}{2}{7}};
+
+			%Verbindungspfeile
+			%Level 0 -> 1
+			\draw pic {connect={0}{0}{1}};
+			\draw pic {connect={0}{1}{2}};
+			%Level 1->2
+			\draw pic {connect={1}{0}{3}};
+			\draw pic {connect={1}{1}{4}};
+			\draw pic {connect={1}{2}{5}};
+			\draw pic {connect={2}{0}{6}};
+			\draw pic {connect={2}{1}{7}};
+
+		\end{tikzpicture}
+    \end{center}
+
+Beide inneren Knoten mischen. Führt zu Unterlauf im Wurzelknoten. Baum schrumpft um eins.
+
+	\begin{center}
+		\begin{tikzpicture}[
+				start chain=0 going right,
+				start chain=1 going right,
+				defaultNode/.style={defaultNode1},
+			]
+
+			%Level0
+			\draw pic {firstInnerNode={2}{5}{7}{10}{0}{0}{5}};
+
+            %Level1
+            \draw pic {firstLeafNode={1}{(fan)}{2}{(gzw)}{1}{1}{0}};
+            \draw pic {leafNode={5}{(wym)}{}{}{1}{2}};
+            \draw pic {leafNode={7}{(xxe)}{}{}{1}{3}};
+            \draw pic {leafNode={8}{(lwc)}{}{}{1}{4}};
+            \draw pic {leafNode={22}{(vkw)}{}{}{1}{5}};
+
+            %Verbindungspfeile 0 - 1
+            \draw pic {connect={0}{0}{1}};
+            \draw pic {connect={0}{1}{2}};
+            \draw pic {connect={0}{2}{3}};
+            \draw pic {connect={0}{3}{4}};
+            \draw pic {connect={0}{4}{5}};
+
+		\end{tikzpicture}
+    \end{center}
+
+	\end{solution}
+
+\end{enumerate}
+

@@ -1,0 +1,18 @@
+Was ist der Unterschied zwischen einfachen (virtuellen) Sichten
+und materialisierten Sichten?
+
+\begin{solution}
+Virtuelle Sichten (\emph{Virtual Views})
+geben dem Ergebnis einer SQL-SELECT-Anfrage einen Namen
+und beschreiben damit lediglich logisch
+eine Anfrage auf einer bestehenden Relation (Basis-Relation)
+oder mehreren bestehenden Relationen.
+
+Materialisierte Sichten (\emph{Materialized Views})
+bilden ebenfalls die Daten einer bestehenden Relation
+oder mehrerer bestehender Relationen
+anders ab,
+werden selbst aber tatsächlich physisch gespeichert,
+so dass Anfragen auf Basis der materialisierten Sicht beschleunigt werden können,
+wohingegen bei virtuellen Sichten lediglich die Anfrage umgeschrieben wird.
+\end{solution}

@@ -1,0 +1,45 @@
+\section{Überlaufbehandlung}
+
+\begin{enumerate}[a)]
+\item Was sind die Probleme des Hashings ohne Reorganisation in Bezug auf den Speicher?
+
+\begin{solution}
+Nicht erweiterbar, d.\,h.\ man muss den gesamten Speicher im Voraus belegen. Wählt man ihn zu groß, verschwendet man Platz. Wählt man ihn zu klein, reicht er nicht und es können viele Überläufer entstehen.
+\end{solution}
+
+\begin{note}
+Es bietet sich an, die Verfahren zu Frage \ref{item:ueberlaufbehandlung} und \ref{item:reorganisation} exemplarisch mit den Werten aus Aufgabe \ref{sec:simple_hashing} zu illustrieren.
+\end{note}
+
+\item Welche Verfahren zur Behandlung von Überläufern kennen Sie? Was sind ihre Vor- und Nachteile?
+\label{item:ueberlaufbehandlung}
+
+\begin{solution}
+Overflow-Buckets wie in Aufgabe \ref{sec:simple_hashing}.
+Das kann aber zu langen Überlaufketten führen, was den Zugriff deutlich verlangsamt.
+
+Open Addressing oder Sondieren, bei dem nach einem bestimmten Prinzip Überläufer in Nachbarbuckets abgelegt werden.
+Das Sondieren kann mitunter lange dauern, wenn auch die Ausweichbuckets zum großen Teil schon gefüllt sind.
+Man erhält also auch hier unter Umständen lange Zugriffsketten.
+Besonders problematisch stellt sich beim Sondieren das Löschen dar, da Überläufer zurückgeholt oder Löschmarken gesetzt werden müssen.
+Ein Vorteil ist die gute Ausnutzung des Speichers, da Überlaufbuckets komplett vermieden werden, indem reguläre Buckets als Überlaufbuckets benutzt werden. Das kann sich aber auch als Nachteil erweisen, wenn die regulären Buckets dann hauptsächlich mit Überläufern gefüllt sind und keinen Platz mehr für die eigentlich vorgesehenen Schlüssel bieten.
+\end{solution}
+
+\item Wie lassen sich die Probleme zu vieler Überläufer trotz unbekannter Zahl zu erwartender Einträge vermeiden?
+Wie unterscheiden sich die verschiedenen Verfahren?
+\label{item:reorganisation}
+
+\begin{solution}
+Durch regelmäßige oder kontinuierliche Reorganisation.
+
+Die Tabelle kann regelmäßig, z.\,B.\ bei einer bestimmten Zahl an Überläufern oder ab einem bestimmten Belegungsfaktor, komplett neu aufgebaut werden. Das dauert aber lange und der Index steht in dieser Zeit nicht zur Verfügung.
+
+Das virtuelle Hashing mit Bitliste, auch VH\,1 genannt, bei dem zwei Hashfunktionen parallel zum Einsatz kommen, löst dieses Problem durch kontinuierliche Reorganisation. Dabei wird beim Einfügen allenfalls ein Bucket neu verteilt. Allerdings ist der reservierte Speicherplatz zeitweise sehr dünn besetzt, da immer verdoppelt wird. Beim Neuhashing ist man bei der Wahl der neuen Hashfunktion hingegen frei und muss nicht notwendigerweise verdoppeln.
+
+Lineares Hashing bietet kontinuierliche Reorganisation und erweitert die Hashtabelle immer nur um einen Bucket.
+Es benötigt keine zusätzlichen Strukturen, splittet aber "`unintelligent"', d.\,h.\ nicht immer an der optimalen Position.
+
+Sowohl bei VH\,1 als auch bei linearem Hashing bleiben Überläufer möglich.
+\end{solution}
+
+\end{enumerate}

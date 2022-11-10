@@ -1,0 +1,210 @@
+\section{Grundlagen}
+\begin{enumerate}[a)]
+	\item Grenzen Sie die Begriffe Datenbank, Datenbankverwaltungssystem und Datenbanksystem voneinander ab.
+
+	\begin{solution}
+	Vorlesungsfolie~\DBSvsDBvsDBMS:
+	\begin{description}
+		\item[Datenbanksystem (DBS)] System zur Beschreibung, Speicherung u. Wiedergewinnung von umfangreichen Datenmengen, die von mehreren Anwendungsprogrammen benutzt werden.
+	\end{description}
+	Komponenten eines DBS:
+	\begin{description}
+		\item[Datenbank (DB)] in der die Daten abgelegt werden
+		\item[Datenbank-Verwaltungssystem (DBVS)] Software, die die Daten entsprechend den vorgegebenen Beschreibungen abspeichert, auffindet oder weitere Operationen mit den Daten durchführt
+	\end{description}
+	\end{solution}
+
+
+	\item Definieren Sie die Operationen Projektion, Selektion/Restriktion, Kreuzprodukt und Join der relationalen Algebra entweder beispielhaft anhand von Tabellenrepräsentationen von Relationen oder formal.
+
+	\begin{solution}
+	Es seien:
+	\begin{itemize}
+		\item $R$ und $S$ Relationen
+		\item $r = (r_1, r_2, \ldots r_n)$, $s = (s_1, s_2, \ldots, s_m)$ Tupel aus $R$ bzw. $S$
+		\item $P: R \mapsto \{\textit{wahr}, \textit{falsch}\}$ ein Prädikat
+	\end{itemize}
+
+	Definitionen der Operationen:
+
+	\begin{itemize}
+		\item Projektion: \texttt{SELECT name FROM r1}
+
+		r1: \\
+		\begin{tabular}{ | c | c | }
+			\hline
+			name 	& 		age	\\
+			\hline
+			Hans 	& 		17 	\\
+			\hline
+			Peter 	& 		25 	\\
+			\hline
+		\end{tabular}
+		$\rightarrow$
+		\begin{tabular}{ | c | }
+			\hline
+			name \\
+			\hline
+			Hans \\
+			\hline
+			Peter \\
+			\hline
+		\end{tabular}
+
+		Formale Definition:
+
+		\(project[B](R) = _{def} \{project[B](r) | r \in R\}\) \\
+		wobei\\
+		$B = (A_1, A_2, \ldots, A_k)$ eine Folge von Attributen aus der Menge der Attribute von $R$ ist,\\
+		$r_{A_i}$ der Wert des Attributs $A_i$ im Tupel $r$
+		und\\
+		\(project[B](r) = _{def} (r_{A_1}, r_{A_2}, \ldots, r_{A_k})\)
+
+		\item Selektion: \texttt{SELECT * FROM r1 WHERE age $>=$ 18}
+
+		r1: \\
+		\begin{tabular}{ | c | c | }
+			\hline
+			name 	& 		age	\\
+			\hline
+			Hans 	& 		17 	\\
+			\hline
+			Peter 	&		25	\\
+			\hline
+		\end{tabular}
+		$\rightarrow$
+		\begin{tabular}{ | c | c | }
+			\hline
+			name 	&		age	\\
+			\hline
+			Peter		&		25	\\
+			\hline
+		\end{tabular}
+
+		Formale Definition:
+
+		\(select[P (A_1, A_2, ... , A_n)] (R) = _{def} \{r | r = (a_1, a_2, ... , a_n) \in R \wedge P (a_1, a_2, ... , a_n)\}\)
+
+
+		\item Kreuzprodukt: \texttt{SELECT * FROM r1 CROSS JOIN r2}
+
+		\begin{tabular}{ | c | c | }
+			\hline
+			a11		&		a12		\\
+			\hline
+			1 		& 		2 		\\
+			\hline
+			3 		& 		4 		\\
+			\hline
+		\end{tabular}
+		\begin{tabular}{ | c | c | }
+			\hline
+			a21 	&		a22	\\
+			\hline
+			5 		& 		6 		\\
+			\hline
+			7 		& 		8 		\\
+			\hline
+		\end{tabular}
+		$\rightarrow$
+		\begin{tabular}{ | c | c | c | c | }
+			\hline
+			a11 	& 		a12 	&		a21 	& 		a22	\\
+			\hline
+			1 		& 		2 		&		5		& 		6 		\\
+			\hline
+			1 		& 		2 		&		7 		&		8 		\\
+			\hline
+			3 		& 		4 		& 		5 		& 		6 		\\
+			\hline
+			3 		& 		4		& 		7 		& 		8 		\\
+			\hline
+		\end{tabular}
+
+		Formale Definition:
+
+		\(crossproduct(R, S) = _{def} \{concat (r, s) | r \in R \wedge s \in S\}\) \\
+		mit
+		\(concat(r, s) =_{def} (r_1, r_2, \ldots r_n, s_1, s_2, \ldots, s_m) \)
+
+		\item Join: \texttt{SELECT * FROM r1 JOIN r2 ON r1.a11 = r2.a21}
+
+		\begin{tabular}{ | c | c | }
+			\hline
+			a11 	& 		a12		\\
+			\hline
+			1 		& 		2 		\\
+			\hline
+			3 		& 		4 		\\
+			\hline
+		\end{tabular}
+		\begin{tabular}{ | c | c | }
+			\hline
+			a21 	&		a22	\\
+			\hline
+			1 		& 		6 		\\
+			\hline
+			1 		& 		8 		\\
+			\hline
+		\end{tabular}
+		$\rightarrow$
+		\begin{tabular}{ | c | c | c | c | }
+			\hline
+			a11 	&		a12 	& 		a21 	&		a22	\\
+			\hline
+			1 		& 		2 		& 		1 		& 		6 		\\
+			\hline
+			1 		& 		2 		& 		1		& 		8 		\\
+			\hline
+		\end{tabular}
+
+		Formale Definition:
+
+		\(join[P (A_1, ... , A_n, B_1, ... , B_m)](R, S) \)\\ \(= _{def} select [P (A_1, ... , A_n, B_1, ... , B_m)] (crossproduct (R, S))\)
+	\end{itemize}
+
+	Für Details zu den formalen Definitionen siehe KonzMod-Foliensatz zur Relationenalgebra.
+	\end{solution}
+
+
+	\item Welche Teile eines SQL-Statements entsprechen welchen Operatoren der relationalen Algebra?
+
+	\begin{solution}
+	\texttt{SELECT}: Projektion \\
+	\texttt{WHERE}, \texttt{HAVING}: Selektion \\
+	\texttt{FROM} mit mehreren Tabellen: Kreuzprodukt \\
+	\texttt{JOIN}: Join \\
+	\texttt{GROUP BY}, \texttt{ORDER BY}: Entsprechen keiner der klassischen relationalen Operatoren \\
+	\texttt{UNION}, \texttt{INTERSECTION}, \texttt{EXCEPT}: Mengenoperatoren
+
+	Die SQL-Operationen sind jedoch nicht identisch mit den relationalen Operatoren, da sie auf Multimengen arbeiten und teilweise weitergehende Möglichkeiten bieten.
+	\end{solution}
+
+
+	\item Geben Sie die logische Abarbeitungsreihenfolge der Teile eines SQL-Statements an.
+
+	\begin{solution}
+	\texttt{FROM} $\Rightarrow$ \texttt{WHERE} $\Rightarrow$ \texttt{GROUP BY} $\Rightarrow$ \texttt{HAVING} $\Rightarrow$ \texttt{SELECT} $\Rightarrow$ \texttt{ORDER BY}
+
+	Vergleiche KonzMod-SQL-Foliensatz.
+
+	An welcher Stelle der logischen Abarbeitungsreihenfolge wäre ein \texttt{JOIN} einzuordnen?
+
+	An der Stelle von \texttt{FROM} $\Rightarrow$ \texttt{WHERE}, da ein \texttt{JOIN} folgender Definition in der Relationenalgebra entspricht:	Kreuzprodukt (\texttt{FROM}) mit anschließender Selektion(\texttt{WHERE}).
+	Zusätzlich kann noch eine \texttt{WHERE}-Klausel folgen.
+	Aus Performance-Gründen wird in der Praxis nie ein volles Kreuzprodukt bei der Umsetzung eines \texttt{JOIN} berechnet.
+	Mehr dazu im Abschnitt Anfrageverarbeitung im weiteren Verlauf der Vorlesung.
+
+	Warum könnte es sinnvoll sein, das \texttt{ORDER BY} in der logischen Abarbeitungsreihenfolge dem \texttt{SELECT} vorzuziehen?
+
+	\texttt{ORDER BY} kann Spalten enthalten, die in \texttt{SELECT} nicht ausgewählt wurden und damit eigentlich danach nicht mehr zur Verfügung stehen.
+	Andererseits ist \texttt{SELECT} eine Mengenoperation und erhält damit die von \texttt{ORDER BY} hergestellte Reihenfolge nicht.
+	\end{solution}
+
+	\item Nennen \deepen Sie wichtige Konzepte und Aufgaben, die in der Implementierung von Datenbanksystemen zur Anwendung kommen können bzw. umgesetzt werden müssen.
+
+	\begin{note}
+		Vorlesungsfolie~\DBSKonzepteAufgaben
+	\end{note}
+\end{enumerate}
+

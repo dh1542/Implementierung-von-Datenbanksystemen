@@ -1,0 +1,57 @@
+\section{Programmieraufgabe 1: Blockfile}
+
+\subsection{Generelles}
+Sinn der Programmieraufgabe ist es, im Laufe des Semester eine single-threaded Datenbank selbst zu implementieren.
+Die Vorlage, die Sie auf GitLab\footnote{\url{https://gitlab.cs.fau.de/idbprog/vorlage}} herunterladen können, beinhaltet einige Schnittstellen, Hilfsklassen und Testfälle.
+Achten Sie darauf, Ihre Implementierung verständlich zu halten, da Sie ggf. im Laufe des Semesters mehrfach bereits gelöste Aufgaben nach versteckten Fehlern durchsuchen müssen.
+Wir empfehlen eine Gruppengröße von 2-3 Personen.
+
+Zur Abgabe verwenden wir Git-Repositorys des GitLab der Informatik\footnote{\url{https://gitlab.cs.fau.de}}, auf welche sowohl Sie, als auch die Tutoren Zugriff haben.
+Dies erstellen wir für Sie, loggen Sie sich hierfür erstmalig auf der GitLab-Weboberfläche ein und schreiben Sie eine E-Mail mit den Namen und GitLab-Kennungen aller Gruppenmitglieder an \href{mailto:demian.voehringer@fau.de}{demian.voehringer@fau.de}.
+Wir empfehlen, dieses auch für Ihre gemeinsame Arbeit zu verwenden.
+
+Die Programmieraufgabe verwendet \textit{ant} und \textit{junit5}.
+Sie sollte im CIP direkt funktionieren.
+Der CIP dient auch als Referenzsystem, auf dem Ihre Abgabe laufen sollte. %muss.
+Zur Übersetzung und Ausführung der \texttt{idb.Main} führen Sie \texttt{ant} in Toplevel aus, für die Testfälle \texttt{ant test}.
+
+Zögern Sie nicht, uns bei Unklarheiten eine Frage im Forum auf StudOn zu stellen.
+Mithilfe Ihrer Rückmeldung können die Aufgaben verbessert und Unklarheiten beseitigt werden.
+Bitte halten Sie für solche Fragen Ihr Git-Repository auf dem aktuellen Stand, sodass für uns die Möglichkeit besteht, Ihren Code zu betrachten und Ihnen Rückmeldungen zu geben.
+%Zusätzlich können Sie sich an die Intensivierungsübung zur Klärung von Fragen wenden.
+
+Die genauen Definitionen sind in den Schnittstellen und durch die Testfälle gegeben.
+Ziel ist es, bis zum Ende des Semesters alle Testfälle zu bestehen, wobei ggf. weitere Testfälle während des Semesters entwickelt und an Sie verteilt werden können.
+%Zusätzlich schauen wir Stichprobenweise auf die Implementierung, um ein reines Implementieren bis alle Tests klappen zu vermeiden.
+%Versuchen Sie auch deswegen einen verständlichen Stil einzuhalten.
+
+
+Die Aufgaben bestehen aus der Aufgabenstellung und Hinweisen, die bei der Implementierung helfen können.
+Die Hinweise sind \textbf{nicht bindend} und als Hilfestellung gedacht, um ein paar übliche Probleme zu vermeiden.
+Eine richtige Lösung muss die Hinweise nicht zwingend umsetzen, solange sie die Aufgabenstellung erfüllt.
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.block.BlockFile} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{generateBlockFile(int blockSize)} ein.
+		\texttt{generateBlockFile(int blockSize)} soll die Blockgröße als Integer aufnehmen und ein neue Blockfile mit dieser Blockgröße zurückgeben.
+		Beachten Sie, dass die BlockFile zu diesem Zeitpunkt keine Datei im Dateisystem geöffnet hat.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{BlockTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein1| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür ihre Abgabe mit dem Tag "`Aufgabe-1"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Die Interaktion mit dem Dateisystem aus Java kann in unserem Fall \normaltxt{\linebreak}\texttt{java.io.RandomAccessFile} übernehmen.
+	\item Ein \texttt{java.nio.ByteBuffer} ist das, was in Java am ehesten an ein \texttt{char*} aus C herankommt.
+		Er übernimmt die Rolle des Speichers, in den die Daten von der Festplatte gelesen werden können.
+	\item Für diese Aufgabe sind ausschließlich die Klassen in den Paketen \texttt{idb.block} und (zum Testen) \texttt{idb.datatypes} interessant.
+		Nutzen Sie diese Aufgabe, um sich mit den Klassen in diesen Paketen vertraut zu machen.
+	\item Eine nebenläufige Änderung der Dateigröße im Dateisystem muss nicht beachtet werden.
+	\item Seien Sie vorsichtig mit \texttt{RandomAccessFile::read}. \texttt{read} liest nicht n bytes, sondern bis zu n bytes.
+		Wenn Sie solange warten möchten, bis alle n bytes vorrätig sind, empfiehlt sich \texttt{readFully}.
+	\item Testen Sie Ihre Implementierung, indem Sie den Inhalt der Klasse \texttt{idb.Main} durch Testcode für ihre BlockFile ersetzen.
+		Setzen Sie \texttt{Main} auf den orginalen Zustand zurück, sobald Sie sich von der Korrektheit überzeugt haben.
+\end{itemize}

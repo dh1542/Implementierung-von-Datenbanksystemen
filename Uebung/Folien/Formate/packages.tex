@@ -1,0 +1,147 @@
+% English version FAU Logo
+%\usepackage[english]{babel}
+% German version FAU Logo
+\usepackage[ngerman]{babel}
+\usepackage{tikz}
+\usepackage{tikzpeople}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.callouts}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[percent]{overpic}
+%\usepackage[style=ieee,natbib=true,backend=bibtex]{biblatex}
+%\defbibheading{bibliography}{}
+%\addbibresource[label=primary]{references.bib}
+\PassOptionsToPackage{table}{xcolor}
+\usepackage[warn]{textcomp}
+
+
+% Enable semi-transparent animation preview
+%\setbeamercovered{transparent}
+\setbeamercovered{invisible}
+
+\usepackage{listingsutf8}
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily
+}
+
+\lstset{
+  literate={ö}{{\"o}}1
+           {ä}{{\"a}}1
+           {ü}{{\"u}}1
+}
+
+\setbeamercolor{quote}{fg=faublue}
+
+% Renew underline command
+\usepackage{contour}
+\usepackage[normalem]{ulem}
+\renewcommand{\ULdepth}{2.1pt}
+\contourlength{0.8pt}%
+\renewcommand{\underline}[1]{%
+\uline{\phantom{#1}}%
+\llap{\contour{white}{#1}}%
+}
+
+%what, who, where?
+\newcommand{\quoteframe}[3]
+{{
+\setbeamertemplate{logo}{}
+	\begin{frame}
+	\begin{quote}
+		\Huge#1
+	\end{quote}
+	\vskip0pt plus 1filll
+	\begin{minipage}{\textwidth}
+		\begin{flushright}
+			{\LARGE#2 }
+			\\
+			{\normalsize#3 }
+		\end{flushright}
+	\end{minipage}
+\end{frame}
+}}
+
+%picture, author, source
+\newcommand{\pictureframe}[3]
+{{
+\setbeamertemplate{logo}{}
+	\begin{frame}
+	#1
+	\vskip0pt plus 1filll
+	\begin{minipage}{\textwidth}
+		\begin{flushright}
+			{\LARGE#2\hspace{70pt} }
+			\\
+			{\normalsize#3\hspace{70pt} }
+		\end{flushright}
+	\end{minipage}
+\end{frame}
+}}
+\newcommand{\fullpictureframe}[2][]{
+\begin{frame}[c]{#1}
+\begin{center}
+	\includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{#2}
+\end{center}
+\end{frame}
+}
+
+% Args: Picturlocation, Scaling factor, Text, Textheight
+\newcommand{\picturetitleframe}[4]{
+\begin{frame}[c]
+\begin{overpic}[scale=#2, tics=10]{#1}
+	\put (5,#4){\LARGE \underline{#3}}
+\end{overpic}
+\end{frame}
+}
+
+\usetheme[%
+  image,%
+  longtitle%
+]{fau}
+
+\newcommand{\usedarkTheme}{
+\setbeamercolor{quote}{fg=faublue!60!white}
+\setbeamercolor{structure}{fg=faublue!60!white}
+\setbeamercolor{normal text}{fg=white}
+\usebeamercolor[fg]{normal text}
+\setbeamercolor{footline}{fg=faublue!60!white}
+\setbeamercolor{background canvas}{bg=black}
+\definecolor{background}{HTML}{000000}
+
+% Renew underline command
+\renewcommand{\underline}[1]{%
+\uline{\phantom{##1}}%
+\llap{\contour{black}{##1}}%
+}
+}
+
+\newcommand{\uselightTheme}{
+\setbeamercolor{quote}{fg=faublue}
+\setbeamercolor{structure}{fg=faublue}
+\setbeamercolor{normal text}{fg=black}
+\usebeamercolor[fg]{normal text}
+\setbeamercolor{footline}{fg=faublue}
+\setbeamercolor{background canvas}{bg=white}
+\definecolor{background}{HTML}{FFFFFF}
+
+% Renew underline command
+\renewcommand{\underline}[1]{%
+\uline{\phantom{##1}}%
+\llap{\contour{white}{##1}}%
+}
+}

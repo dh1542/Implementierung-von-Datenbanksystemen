@@ -1,0 +1,37 @@
+% Title page
+\title{Programmzugriff}
+\subtitle[IDB]{Implementierung von Datenbanksystemen}
+\author{Demia E. Vöhringer}
+
+\institute{Lehrstuhl f\"ur Informatik 6}
+
+% Set additional logo (overwrites FAU seal)
+\logo{\includegraphics[width=.1\textwidth]{art/i6_icon.pdf}}
+
+\setbeamercolor{quote}{fg=faublue}
+
+\defbeamertemplate*{section in toc}{my theme}
+	{\leavevmode\leftskip=0.5em\large \inserttocsection\par}
+
+\defbeamertemplate*{subsection in toc}{my theme}
+	{\leavevmode\leftskip=2em\normalsize \inserttocsubsection\par}
+
+\setbeamertemplate{sectioncontent}
+{\scriptsize{
+	\tableofcontents[
+	currentsection,
+	subsectionstyle=hide,
+	]}}
+
+\setbeamertemplate{subsectioncontent}
+{\scriptsize{
+	\tableofcontents[
+	currentsection,
+	currentsubsection,
+	hideothersubsections,
+	]}}
+
+
+\newcommand{\mycite}[1]{
+	\textbf{
+	\citetitle{#1} --- \citeauthor{#1}, \citeyear{#1}, \autocite{#1}}}

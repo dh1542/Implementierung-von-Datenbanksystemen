@@ -1,0 +1,270 @@
+\section{B*-Baum die Zweite}
+
+Es gelten die selben Voraussetzungen wie in \ref{B*}.
+
+\begin{enumerate}[a)]
+	\item Fügen Sie die folgenden Tupel in der angegebenen Reihenfolge in den B*-Baum ein:\\
+\textit{(2,wel), (71,swo), (82,st?), (13,aha), (81,hli), (8,che), (28,zah), (42,ble), (45,lda), (22,nei)
+}
+\begin{note}
+	Einfügen der Tupel mit Schlüssel 2 und 71. Der Wurzelknoten ist initial noch ein Blattknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstLeafNode={2}{(wel)}{71}{(swo)}{0}{0}{0}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Durch Einfügen des Tupels mit Schlüssel 82 entsteht ein Überlauf im Wurzelknoten.
+Es kommt zum Splitt im Wurzelknoten.
+Dadurch ist der Wurzelknoten jetzt ein innerer Knoten und es existieren zwei Blattknoten.
+Der Baum wächst um eins.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={71}{}{}{}{0}{0}{2}};
+
+		%Level1
+		\draw pic {firstLeafNode={2}{(wel)}{71}{(swo)}{1}{1}{0}};
+		\draw pic {leafNode={82}{(st?)}{}{}{1}{2}};
+
+		%Verbindungspfeile 0 - 1
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Das Einfügen des Tupels mit Schlüssel 13 führt wieder zu einem Überlauf und Splitt im Blattknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={13}{71}{}{}{0}{0}{2}};
+
+		%Level1
+		\draw pic {firstLeafNode={2}{(wel)}{13}{(aha)}{1}{1}{0}};
+		\draw pic {leafNode={71}{(swo)}{}{}{1}{2}};
+		\draw pic {leafNode={82}{(st?)}{}{}{1}{3}};
+
+		%Verbindungspfeile 0 - 1
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+		\end{tikzpicture}
+	\end{center}
+
+Einfügen des Tupels mit Schlüssel 81.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={13}{71}{}{}{0}{0}{2}};
+
+		%Level1
+		\draw pic {firstLeafNode={2}{(wel)}{13}{(aha)}{1}{1}{0}};
+		\draw pic {leafNode={71}{(swo)}{}{}{1}{2}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{1}{3}};
+
+		%Verbindungspfeile 0 - 1
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Einfügen des Tupels mit Schlüssel 8. Im ersten Blattknoten entsteht ein Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={8}{13}{71}{}{0}{0}{3}};
+
+		%Level1
+		\draw pic {firstLeafNode={2}{(wel)}{8}{(che)}{1}{1}{0}};
+		\draw pic {leafNode={13}{(aha)}{}{}{1}{2}};
+		\draw pic {leafNode={71}{(swo)}{}{}{1}{3}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{1}{4}};
+
+		%Verbindungspfeile 0 - 1
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+		\draw pic {connect={0}{3}{4}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Das Einfügen des Tupels mit Schlüssel 28 verläuft ohne Überläufe. Beim Einfügen der 42 kommt es aber wieder zu einem Überlauf. Es werden ein neuer Blattknoten erzeugt und im Wurzelknoten ein neuer Eintrag hinzugefügt.
+
+Das Einfügen der 45 verläuft nun wieder ohne Probleme.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={8}{13}{42}{71}{0}{0}{3}};
+
+		%Level1
+		\draw pic {firstLeafNode={2}{(wel)}{8}{(che)}{1}{1}{0}};
+		\draw pic {leafNode={13}{(aha)}{}{}{1}{2}};
+		\draw pic {leafNode={28}{(zah)}{42}{(ble)}{1}{3}};
+		\draw pic {leafNode={45}{(lda)}{71}{(swo)}{1}{4}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{1}{5}};
+
+		%Verbindungspfeile 0 - 1
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+		\draw pic {connect={0}{3}{4}};
+		\draw pic {connect={0}{4}{5}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Das Einfügen der 22 erzeugt nun einen Überlauf im Blattknoten und darauf im Wurzelknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={28}{}{}{}{0}{-2}{5}};
+
+		%level1
+		\draw pic {firstInnerNode={8}{13}{}{}{1}{-1}{3}};
+		\draw pic {innerNode={42}{71}{}{}{3}{0}};
+
+		%Level2
+		\draw pic {firstLeafNode={2}{(wel)}{8}{(che)}{2}{1}{1}};
+		\draw pic {leafNode={22}{(nei)}{28}{(zah)}{2}{3}};
+		\draw pic {leafNode={45}{(lda)}{71}{(swo)}{7}{5}};
+
+
+		%Level 2.5
+		\draw pic {firstLeafNode={13}{(aha)}{}{}{2.5}{2}{3}};
+		\draw pic {leafNode={42}{(ble)}{}{}{2}{4}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{2}{6}};
+
+
+		%Verbindungspfeile 0-1
+		\draw pic {connect={-2}{0}{-1}};
+		\draw pic {connect={-2}{1}{0}};
+
+		%Verbindungspfeile 1 - 2
+		\draw pic {connect={-1}{0}{1}};
+		\draw pic {connect={-1}{1}{2}};
+		\draw pic {connect={-1}{2}{3}};
+		\draw pic {connect={0}{0}{4}};
+		\draw pic {connect={0}{1}{5}};
+		\draw pic {connect={0}{2}{6}};
+
+		\end{tikzpicture}
+	\end{center}
+\end{note}
+
+\item Löschen Sie nun die Tupel mit Schlüssel 13, 22 und 42.
+
+Was ergibt die Zeichenkette, wenn man alle Blätter von links nach rechts liest?
+
+\begin{note}
+Löschen der 13: Unterlauf, mischen mit rechtem Knoten. Unterlauf im inneren Knoten, Mischen mit rechtem und Wurzelknoten.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={8}{28}{42}{71}{0}{0}{5}};
+
+		%level1
+		\draw pic {firstLeafNode={2}{(wel)}{8}{(che)}{2}{1}{1}};
+		\draw pic {leafNode={22}{(nei)}{28}{(zah)}{2}{2}};
+		\draw pic {leafNode={42}{(ble)}{}{}{2}{3}};
+		\draw pic {leafNode={45}{(lda)}{71}{(swo)}{7}{4}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{2}{5}};
+
+
+		%Verbindungspfeile 0-1
+
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+		\draw pic {connect={0}{3}{4}};
+		\draw pic {connect={0}{4}{5}};
+
+		\end{tikzpicture}
+	\end{center}
+
+Das Löschen der 22 stellt kein Problem dar.
+
+Beim Löschen der 42 tritt wieder ein Unterlauf mit Mischen mit dem rechten Knoten auf.
+
+	\begin{center}
+		\begin{tikzpicture}[
+		start chain=0 going right,
+		start chain=1 going right,
+		defaultNode/.style={defaultNode1},
+		]
+
+		%Level0
+		\draw pic {firstInnerNode={8}{28}{71}{}{0}{0}{5}};
+
+		%level1
+		\draw pic {firstLeafNode={2}{(wel)}{8}{(che)}{2}{1}{1}};
+		\draw pic {leafNode={28}{(zah)}{}{}{2}{2}};
+		\draw pic {leafNode={45}{(lda)}{71}{(swo)}{7}{3}};
+		\draw pic {leafNode={81}{(hli)}{82}{(st?)}{2}{4}};
+
+
+		%Verbindungspfeile 0-1
+
+		\draw pic {connect={0}{0}{1}};
+		\draw pic {connect={0}{1}{2}};
+		\draw pic {connect={0}{2}{3}};
+		\draw pic {connect={0}{3}{4}};
+
+		\end{tikzpicture}
+	\end{center}
+
+\end{note}
+
+\end{enumerate}

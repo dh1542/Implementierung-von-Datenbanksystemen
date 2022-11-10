@@ -1,0 +1,93 @@
+\section{Optimierung im Betrieb -- Beispiele}
+
+Große Datenbanksysteme wie beispielsweise Oracle bieten Administratoren die Möglichkeit,
+im Betrieb Einfluss auf bestimmte Optimierungsparameter zu nehmen.
+Welche Informationen benötigt der Administrator und wie könnten Schnittstellen für diese Einflussnahme aussehen?
+
+\begin{note}
+Diskussionsaufgabe! Im folgenden ist beispielhaft beschrieben,
+welche Möglichkeiten Oracle unter anderem bietet.
+
+Darüber hinaus sind viele weitere denkbar und auch implementiert.
+\end{note}
+
+\cprotEnv
+\begin{solution}
+Wie Sie in den letzten Blättern kennengelernt haben,
+nutzen Datenbanksysteme häufig bereits verschiedenste Algorithmen,
+um das Leistungsverhalten zu steigern.
+Dazu müssen verschiedene Hilfsstrukturen mitgeführt werden.
+
+Der Administrator als Mensch hat unter Umständen durch Kenntnis
+des gesamten Systems (also Hardware, Betriebssystem, Anwendung etc.)
+die Möglichkeit, bessere Aussagen zu möglichen Optimierungen zu treffen,
+als es das Datenbankverwaltungssystem durch reines Mitführen von Statistiken kann.
+
+Damit der Administrator die vom System getroffenen Entscheidungen
+jedoch bewerten kann, benötigt er Zugriff auf die internen Statistiken,
+auf Basis derer das Datenbankverwaltungssystem die Entscheidungen trifft.
+
+    Bei Oracle ist es nicht nur möglich,
+    die internen Statistiken über die Datenbank selbst zu betrachten.
+    Es werden darüber hinaus auch Statistiken
+    über die ausgeführten SQL-Anfragen gesammelt,
+    wie z.\,B. Ausführungszeiten, generierte Ausführungspläne
+    etc.\footnote{\url{http://docs.oracle.com/cd/B19306_01/server.102/b14211/sql_1016.htm\#i26072}}
+
+    Stellt der Administrator nun fest, dass für eine bestimmte Anfrage
+    regelmäßig ein (in der Praxis) schlechter Ausführungsplan gewählt wird,
+    kann er z.B. mit sogenannten \emph{HINTS} die Ausführung beeinflussen.
+    Dabei wird in die SQL-Anfrage selbst ein Kommentar geschrieben,
+    der vom Optimierer interpretiert
+    wird.\footnote{\url{http://docs.oracle.com/cd/B19306_01/server.102/b14211/hintsref.htm}}
+
+    Ein solcher HINT könnte z.\,B. so aussehen:
+
+\begin{lstlisting}
+    SELECT /*+ USE_NL(e d) */ e.fname, e.lname, e.addr
+        FROM employee e
+        JOIN department d
+        ON d.num = e.dep
+        WHERE d.name = 'Research';
+\end{lstlisting}
+
+    Damit wird dem Optimierer empfohlen, einen Nested-Loop-Join zu verwenden.
+    Zu beachten ist jedoch, dass es sich dabei
+    -- wie der Begriff \emph{HINT} schon andeutet --
+    nicht um eine Anweisung handelt,
+    sondern wie gesagt vielmehr um eine \textbf{Empfehlung}.
+    Der Optimierer kann sich trotzdem darüber hinwegsetzen.
+    Der Administrator erkennt dies dann wieder in den Statistiken.
+
+
+    Das ständige (oder regelmäßige) Mitführen von Statistiken generiert
+    auf dem System allerdings zusätzliche Last,
+    entweder durch ständiges Aktualisieren von Statistikdaten
+    oder durch regelmäßige Aktualisierungsläufe.
+
+    Oracle bietet daher einen weiteren ganz grundsätzlichen Ansatz an.
+    Es ist möglich, den kostenbasierten Optimierer zu deaktivieren
+    und Ausführungspläne z.\,B. nach festen Regeln erstellen zu
+    lassen.\footnote{\url{http://docs.oracle.com/cd/B19306_01/server.102/b14211/optimops.htm}}
+    Das bietet den Vorteil, dass auf das Mitführen von Statistiken
+    (vor allem wie viele Tupel in einer Relation sind, Selektivitäten etc.)
+    weitgehend verzichtet werden kann.
+    Ist also absehbar,
+    dass der mit den Statistiken verbundene Aufwand größer ist
+    als der Nutzen der kostenbasierten Wahl der Ausführungspläne,
+    kann auch
+    auf den kostenbasierten Optimierer komplett verzichtet werden.
+
+    Weitere mögliche Ideen, unabhängig vom verwendeten System:
+    \begin{itemize}
+        \item Wenn häufig eine komplizierte JOIN-Abfrage durchgeführt wird:
+            \textbf{Materialisierte Sicht} anlegen
+            (und die Anfragen daran anpassen oder dem Optimierer beibringen,
+            dass er die Sicht automatisch nutzen kann)
+        \item Wenn in der Selektion häufig ein Ausdruck verwendet wird,
+            der die Nutzung eines bisher verfügbaren Index unmöglich macht:
+            \textbf{Function-Based Index} über diesen Ausdruck anlegen
+        \item Puffer vergrößern
+        \item schnellere / besser geeignete Hintergrundspeicher
+    \end{itemize}
+\end{solution}

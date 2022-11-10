@@ -1,0 +1,60 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\usepackage[left=2.00cm, right=2.00cm, top=0.00cm, bottom=2.00cm]{geometry}
+\begin{document}
+\title{IDB Gitlab -- Ein Einstieg}
+\date{}
+\maketitle
+\section{Kurzeinführung}
+Hier gibts eine kurze\footnote{\url{https://rogerdudler.github.io/git-guide/}}
+und etwas ausführlichere Anleitung\footnote{\url{https://git-scm.com/book/en/v2}}
+für git.
+\section{Einrichtung gitlab.cs.fau.de}
+Für den Zugriff auf ein Repo gibt es generell zwei Möglichkeiten:
+\begin{enumerate}
+\item Nutzername und Passwort
+\item (SSH-)Schlüsselpaar
+\end{enumerate}
+Hierfür benötigt es jeweils ein paar Vorbedingungen:
+\begin{enumerate}
+\item Hierfür muss man auf GitLab sein Passwort festlegen\footnote{\url{https://gitlab.cs.fau.de/profile/password/edit}}.
+\item Hierfür muss ein Schlüsselpaar angelegt werden\footnote{\href{https://linux.die.net/man/1/ssh-keygen}{ssh-keygen(1)}} und der öffentliche Schlüssel in GitLab eingetragen werden\footnote{\url{https://gitlab.cs.fau.de/profile/keys}}.
+\end{enumerate}
+\section{Einrichtung des Repositories}
+Hierfür benötigt es ein paar Links, welche sich je nach Zugriffsart unterscheiden. Bei Zugriff per Schlüsselpaar sind das die mit \lstinline|git@gitlab.cs.fau.de:idbprog/| beginnenden, bei der Authentifizierung mit Nutzername und Passwort die mit \lstinline|https://gitlab.cs.fau.de/idbprog/| beginnenden.
+Die genauen Zeichenketten für die \$VORLAGE und Ihr persönliches Repository \$MYREPO finden Sie im jeweiligen Repository beim klicken auf den \textit{CLONE}-Knopf
+\begin{lstlisting}
+git clone $MYREPO idbprog
+cd idbprog
+git remote add vorlage $VORLAGE
+git pull vorlage master
+git push
+\end{lstlisting}
+
+Beim Pushen kann es zu Fehlern kommen, wenn Ihr Repository (\$MYREPO) Änderungen besitzt, die nicht lokal vorhanden sind.
+Dies kann man auf verschiedene Arten lösen:
+\begin{itemize}
+\item Überschreiben: \lstinline|git push --force|\\
+Anmerkung: Hierfür muss der Masterbranch auf \url{gitlab.cs.fau.de} in den Einstellungen aus den Protecteten Branches entfernt werden.
+\item Kombinieren der beiden Vergangenheiten durch anhängen der eigenen Vergangenheit an die Remote Vergangenheit: 
+\begin{lstlisting}
+git pull --rebase
+git push
+\end{lstlisting}
+\item Kombinieren der beiden Vergangenheiten durch einen Merge:
+\begin{lstlisting}
+git fetch
+git merge FETCH_HEAD
+git push
+\end{lstlisting}
+\end{itemize}
+\section{Git-Cheatsheet}
+Es gibt mehrere Cheat Sheets online.\footnote{\url{https://about.gitlab.com/images/press/git-cheat-sheet.pdf}}\footnote{\url{https://training.github.com/downloads/github-git-cheat-sheet.pdf}}
+\end{document}

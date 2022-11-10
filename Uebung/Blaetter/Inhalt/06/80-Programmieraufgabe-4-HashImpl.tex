@@ -1,0 +1,38 @@
+\section{Programmieraufgabe 4: HashImpl}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.record.KeyRecordFile} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle. Beachten Sie, dass diese Aufgabe den Übungsaufgaben zum Thema Lineares Hashing entspricht.
+		Ihre Implementierung soll dieses Verhalten umsetzen.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{generateHash()} ein.
+		Die Funktion soll den DBBuffer und zwei BlockFiles nehmen (eine zusätzliche für den Überlaufbereich) und eine \textbf{neue} HashImpl zurückgeben.
+		Beachten Sie, dass die BlockFiles zu diesem Zeitpunkt schon geöffnet sind.
+		Die zusätzlichen Parameter \texttt{threshhold, initCapacity} entsprechen den für das Lineare Hashing bekannten Parametern.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{rebuildHash()} ein.
+		Die Funktion soll den DBBuffer und zwei BlockFiles nehmen und eine \textbf{existierende} HashImpl von der Platte laden.
+		Beachten Sie, dass die BlockFiles zu diesem Zeitpunkt schon geöffnet sind.
+		Beachten Sie auch, dass Sie \texttt{threshhold, initCapacity} und eventuelle interne Zustände wieder von der Platte rekonstruieren müssen.
+		Anders als bei einer TID speichern wir diese hier ab, anstatt sie beim Laden neu zu berechnen.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{HashTests} erfüllen. Warnung: Diese Testfälle können 1-2 Minuten dauern.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein4| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür ihre Abgabe mit dem Tag "`Aufgabe-4"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Wir empfehlen, den ersten Block des Overflow-Bereiches für Metadaten zu verwenden und erst ab dem zweiten Block im Overflow-Bereich Hashing zu betreiben.
+	\item \texttt{KeyRecordFile} bietet eine Methode \texttt{close()}, in der diese Metadaten serialisiert werden können.
+		Es wird sichergestellt, dass nicht zwei verschiedene \mbox{HashImpl} auf den gleichen Dateien arbeiten.
+	\item Im Rahmen dieser Aufgabe ist die Behandlung von Sätzen, die länger als ein (halber) Block sind, nicht notwenig. (Dies liegt daran, dass wir diese \texttt{HashImpl} nur als Sekundärindex nutzen werden.)
+	\item Es empfiehlt sich, in jedem Block Platz für einen \texttt{int} freizuhalten, um dort ggf. einen Zeiger auf einen anderen Block einzutragen.
+	\item Initial müssen üblicherweise neue Blöcke (in \texttt{append()} oder im Konstruktor) mindestens partiell initialisiert werden, damit nicht beliebige Daten als Zeiger o. Ä. interpretiert werden.
+	\item Im Gegensatz zu TID kann man sich im \texttt{HashImpl} darauf verlassen, dass \texttt{Key.copy} jegliche Keys und \texttt{Value.copy} jegliche Values lesen und wieder serialisieren können.
+	\item Achten Sie darauf, beim Einfügen und beim Split die Reihenfolgeeigenschaften in \texttt{idb.record.KeyRecordFile:insert} nicht zu verletzen.
+	\item \textbf{Bonus:} Implementieren Sie eine einfache Freispeicherverwaltung für die Blöcke im Overflowbereich. Diese ist besonders einfach, da jeder Block genau gleich groß ist.
+	\item Im Gegensatz zu Blöcken im Speicher können Daten die in ein \texttt{DataObject} geladen wurden problemlos nach Freigabe des Blockes verwendet werden.
+	\item Achten Sie darauf, nicht zu viele Datensätze gleichzeitig aus den Blöcken in ein \texttt{DataObject} zu konvertieren. In einem echten System geht hierbei leicht der RAM aus.
+	\item Folgende Hilfsmethode sind vermutlich ganz nützlich: \texttt{int hash(Key), int alloc(), void free(), List<Triplet<Key, DataObject, Integer>> listBlockContest(ByteBuffer)}
+	\item Vermutlich ist es hilfreich, sich zu notieren, wie viel Platz in einem Block noch frei ist.
+	\item Für \texttt{split()} ist es nötig, die Anzahl an insgesamt belegten Bytes zu kennen.
+\end{itemize}

@@ -1,0 +1,63 @@
+\section{Serialisierbarkeit}
+\label{serialisierbarkeit}
+
+Geben Sie an, ob die folgenden Abläufe serialisierbar sind.
+Skizzieren Sie dazu die zugehörigen Abhängigkeitsgraphen.
+Notieren Sie dabei an jeder Kante den Namen des Datenobjekts, das für den Konflikt zwischen den beiden Transaktionen verantwortlich ist.
+
+\begin{enumerate}[a)]
+
+	\item \label{ser_schedule1} $r_2[B],~w_2[B],~c_2,~r_1[A],~r_3[A],~r_3[B],~w_1[A],~c_1,~w_3[A],~c_3$
+
+\begin{solution}
+	Nicht serialisierbar, da der Abhängigkeitsgraph zyklisch ist:
+
+	\begin{tikzpicture}
+			\node (T3) at (0,0) {$T_3$};
+			\node (T1) [below of = T3, yshift = -0.5cm, xshift=-2cm] {$T_1$};
+			\node (T2) [below of = T3, yshift = -0.5cm, xshift=+2cm] {$T_2$};
+			\node [right of =T3, xshift=0.3cm, yshift=-0.5cm] {B};
+			\node [below of = T3, xshift=-0.9cm] {A};
+			\node [left of = T3, xshift=-0.25cm, yshift=-0.3cm] {A};
+
+			\draw[-triangle 60] (T1) -- ($(T3.south) + (-0.2, 0.1)$);
+			\draw[-triangle 60] (T2) -- ($(T3.south) + (0.3, 0.1)$);
+			\draw[-triangle 60] ($(T3.west)$) -- ($(T1.north) + (-0,0)$);
+	\end{tikzpicture}
+\end{solution}
+
+	\item $w_3[A],~w_3[B],~r_2[C],~r_1[A],~r_2[A],~c_2,~w_1[C],~c_1,~r_3[B],~c_3$
+
+\begin{solution}
+	Serialisierbar, da der Abhängigkeitsgraph azyklisch ist:
+
+	\begin{tikzpicture}
+		\node (T3) at (0,0) {$T_3$};
+		\node (T1) [below of = T3, yshift = -0.5cm, xshift=-2cm] {$T_1$};
+		\node (T2) [below of = T3, yshift = -0.5cm, xshift=+2cm] {$T_2$};
+		\node [right of =T3, xshift=0.3cm, yshift=-0.5cm] {A};
+		\node [left of = T3, xshift=-0.3cm, yshift=-0.5cm] {A};
+		\node [below of = T3, yshift=-0.2cm] {C};
+
+		\draw[-triangle 60] ($(T2.west)$) -- ($(T1.east)$);
+		\draw[-triangle 60] ($(T3.south) + (0.3, 0.1)$) -- (T2);
+		\draw[-triangle 60] ($(T3.south) + (-0.3, 0.1)$) -- (T1);
+	\end{tikzpicture}
+
+	Die einzige mögliche Reihenfolge ist also: $T_3 < T_2 < T_1$.
+\end{solution}
+
+\begin{note}
+Es gibt drei Arten von Serialisierbarkeit.
+Ohne Zusatz ist meist die Konfliktserialisierbarkeit gemeint (wie bei uns im Skript, siehe Definition von serialisierbaren Abläufen bzw.\ Äquivalenz von Abläufen).
+
+Die Konfliktserialisierbarkeit basiert auf Konflikt-Äquivalenz, die verlangt, dass die Reihenfolge jeweils zweier in Konflikt stehender Operationen in zwei äquivalenten Abläufen gleich bleibt.
+Besteht zwischen mehreren Abläufen Konflikt-Äquivalenz, dann müssen sie jeweils in ihren Abhängigkeitsgraphen zwischen den gleichen Transaktionen die gleichen gerichteten Kanten haben, weil im Abhängigkeitsgraphen per Definition die Konflikte zwischen Transaktionen gemäß ihrer Reihenfolge eingetragen werden.
+Somit gilt: Zwei (konflikt-)äquivalente Abläufe haben identische Abhängigkeitsgraphen.
+
+Die Gegenrichtung gilt offensichtlich nicht, da unterschiedliche Transaktionen den gleichen Graphen haben können.
+
+Gilt es aber, wenn wir die gleichen Transaktionen nur unterschiedlich miteinander verzahnen? An dieser Stelle ist das egal.
+\end{note}
+
+\end{enumerate}

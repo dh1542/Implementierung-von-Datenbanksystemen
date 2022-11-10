@@ -1,0 +1,357 @@
+\section{Einfügen und Löschen im B-Baum}
+
+\begin{enumerate}[a)]
+	\item Fügen Sie in einen anfangs leeren B-Baum mit $k=2$ die Zahlen eins bis zwanzig in aufsteigender Reihenfolge ein. Was fällt Ihnen dabei auf?
+
+\begin{solution}
+Die Zahlen 1 bis 4 lassen sich problemlos in den Wurzelknoten einfügen.
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode1},
+        ]
+
+        %Level0
+		\draw pic {firstInnerNode={1}{2}{3}{4}{0}{0}{2}};
+    \end{tikzpicture}
+\end{center}
+
+Bei 5 kommt es zum Wurzelsplitt und der Baum wächst um eins. Danach steht 3 in der Wurzel, 1 und 2 im linken Blattknoten und 4 und 5 im rechten Blattknoten.
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode1},
+        ]
+
+        %Level0
+		\draw pic {firstInnerNode={3}{}{}{}{0}{0}{5}};
+
+        %Level1
+        \draw pic {firstInnerNode={1}{2}{}{}{1}{1}{2}};
+        \draw pic {innerNode={4}{5}{}{}{1}{2}};
+
+        %Verbindungspfeile 0 - 1
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+    \end{tikzpicture}
+\end{center}
+
+6 und 7 können wieder ohne Splitt in den rechten Blattknoten eingefügt werden.
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode1},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={3}{}{}{}{0}{0}{5}};
+
+        %Level1
+        \draw pic {firstInnerNode={1}{2}{}{}{1}{1}{2}};
+        \draw pic {innerNode={4}{5}{6}{7}{1}{2}};
+
+        %Verbindungspfeile 0 - 1
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+    \end{tikzpicture}
+\end{center}
+
+Das Einfügen der 8 führt zum Überlauf im rechten Blattknoten.
+Der Knoten wird also an der 6 gesplittet, die in den Wurzelknoten wandert:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode1},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={3}{6}{}{}{0}{0}{8}};
+
+        %Level1
+        \draw pic {firstInnerNode={1}{2}{}{}{1}{1}{2}};
+        \draw pic {innerNode={4}{5}{}{}{1}{2}};
+        \draw pic {innerNode={7}{8}{}{}{1}{3}};
+
+        %Verbindungspfeile 0 - 1
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={0}{2}{3}};
+    \end{tikzpicture}
+\end{center}
+
+9 und 10 können wieder ohne Splitt eingefügt werden.
+Beim Einfügen der 11 wird der rechte Blattknoten wieder gesplittet,
+9 wird in den Wurzelknoten gezogen.
+Das gleiche gilt für das Einfügen von 12, 13 und 14, nun ist der Wurzelknoten voll:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={3}{6}{9}{12}{0}{0}{8}};
+
+        %Level1
+        \draw pic {firstInnerNode={1}{2}{}{}{1}{1}{2}};
+        \draw pic {innerNodeNarrow={4}{5}{}{}{1}{2}};
+        \draw pic {innerNodeNarrow={7}{8}{}{}{1}{3}};
+        \draw pic {innerNodeNarrow={10}{11}{}{}{1}{4}};
+        \draw pic {innerNodeNarrow={13}{14}{}{}{1}{5}};
+
+        %Verbindungspfeile 0 - 1
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={0}{2}{3}};
+        \draw pic {connect={0}{3}{4}};
+        \draw pic {connect={0}{4}{5}};
+    \end{tikzpicture}
+\end{center}
+
+15 und 16 können wieder einfach in den rechten Blattknoten eingefügt werden.
+Das Einfügen der 17 führt zum Splitt im rechten Blattknoten.
+Da der Wurzelknoten aber bereits voll ist, führt das auch zum Wurzelsplitt.
+Der entstehende Baum sieht dann so aus:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={9}{}{}{}{0}{0}{5}};
+
+        %Level1
+        \draw pic {firstInnerNode={3}{6}{}{}{1}{1}{2}};
+        \draw pic {innerNodeVar={12}{15}{}{}{1}{2}{4}};
+
+        %Level2
+        \draw pic {firstInnerNode={1}{2}{}{}{2}{3}{0}};
+        \draw pic {innerNodeNarrow={7}{8}{}{}{2}{5}};
+        \draw pic {innerNode={10}{11}{}{}{2}{6}};
+        \draw pic {innerNodeNarrow={16}{17}{}{}{2}{8}};
+
+        %Level2.5
+        \draw pic {firstInnerNode={4}{5}{}{}{3}{4}{3}};
+        \draw pic {innerNodeVar={13}{14}{}{}{2}{7}{5.2}};
+
+
+        %Verbindungspfeile
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={1}{0}{3}};
+        \draw pic {connect={1}{1}{4}};
+        \draw pic {connect={1}{2}{5}};
+        \draw pic {connect={2}{0}{6}};
+        \draw pic {connect={2}{1}{7}};
+        \draw pic {connect={2}{2}{8}};
+    \end{tikzpicture}
+\end{center}
+
+18 und 19 lassen sich nun wieder einfach in den letzten Blattknoten einfügen,
+bei der 20 kommt es erneut zu einem Überlauf und einem Splitt.
+
+Am Ende erhält man folgenden B-Baum:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={9}{}{}{}{0}{0}{6}};
+
+        %Level1
+        \draw pic {firstInnerNode={3}{6}{}{}{1}{1}{2.5}};
+        \draw pic {innerNodeVar={12}{15}{18}{}{1}{2}{4.5}};
+
+        %Level2
+        \draw pic {firstInnerNode={1}{2}{}{}{2}{3}{0.5}};
+        \draw pic {innerNodeVar={7}{8}{}{}{2}{5}{0.4}};
+        \draw pic {innerNodeVar={13}{14}{}{}{2}{7}{2.4}};
+        \draw pic {innerNodeVar={19}{20}{}{}{2}{9}{0.8}};
+
+        %Level2.5
+        \draw pic {firstInnerNode={4}{5}{}{}{3}{4}{3.5}};
+        \draw pic {innerNodeVar={10}{11}{}{}{3}{6}{0.6}};
+        \draw pic {innerNodeVar={16}{17}{}{}{3}{8}{2.7}};
+
+
+        %Verbindungspfeile
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={1}{0}{3}};
+        \draw pic {connect={1}{1}{4}};
+        \draw pic {connect={1}{2}{5}};
+        \draw pic {connect={2}{0}{6}};
+        \draw pic {connect={2}{1}{7}};
+        \draw pic {connect={2}{2}{8}};
+        \draw pic {connect={2}{3}{9}};
+    \end{tikzpicture}
+\end{center}
+
+Es fällt auf, dass der B-Baum nahezu minimale Auslastung aufweist. Dies liegt am sequentiellen Einfügen einer aufsteigenden Zahlenfolge in den B-Baum: Nach dem Aufspalten eines Knotens werden in den Knoten, der die kleineren Datensätze enthält, keine weiteren Werte mehr eingefügt.
+
+Es fällt außerdem auf, dass in der Wurzelebene und in den inneren Ebenen jeweils immer nur Vielfache einer bestimmten Zahl $x$ auftreten. Bei genauerem Betrachten findet man heraus, dass sich diese Zahl $x$ für jede Ebene $i$ folgendermaßen berechnen lässt:
+\[x = (k + 1)^{h - i}, i \in \mathbb{N}_{>0},\; h: \mathrm{H"ohe\ des\ Baums}\]
+
+Erläuterung:
+\begin{enumerate}[\arabic{enumii}.]
+\item Wir stellen fest, dass alle „linken Kindblöcke“ durch das Splitten in unserem Beispiel immer zwei (also $k$) Elemente pro Block beinhalten.
+\item Der linke Unterbaum besitzt in der ersten Ebene als Wurzel einen Knoten, welcher in der Ebene unter unserer betrachteten Ebene liegt.
+Somit beinhaltet dieser zwei Elemente und drei Nachfolgeknoten, es sei denn, es handelt sich um einen Blattknoten.
+\item Jeder dieser drei Nachfolger in der zweiten Ebene beinhaltet wieder zwei Elemente und hat damit drei Nachfolger, wenn es sich nicht um einen Blattknoten handelt.
+Damit befinden sich in der dritten Ebene $3^2 = 9$ Knoten.
+\item Führt man nun die Reihe fort kommt man mit der Unterbaumhöhe u auf die folgende Formel für die Anzahl der Elemente des linken Unterbaums:
+\[(1 + 3 +3^2 +3^3 \ldots + 3^{u-1}) \cdot 2\]
+\item Durch $u:= h-i$ mit h als Gesamthöhe und i als Ebene des betrachteten Knotens ergibt sich folgende allgemeine Summe:
+\[(1 + (k+1) + (k+1)^2 + (k+1)^3 + \ldots + (k+1)^{h-i-1}) \cdot k = \left(\sum_{j=0}^{h-i-1} (k+1)^j\right)\cdot k \]
+\item Das "`linkeste Element"' in unserer betrachteten Ebene ist damit dann das nächstgrößere Element, was sich mithilfe der geometrischen Reihe ($\sum_{i=0}^{n-1}q^i = \frac{q^n - 1}{q - 1}$) folgendermaßen berechnen lässt:
+\begin{align*}
+Wert &:= \text{Elemente im Unterbaum} + 1\\
+& = \left(\sum_{j=0}^{h-i-1} (k+1)^j\right)\cdot k +1 \stackrel{\text{Geometrische Reihe}}{=} \frac{(k+1)^{h-i}-1}{k + 1 - 1}\cdot k + 1\\
+&= (k+1)^{h-i}- 1 +1 = (k+1)^{h-i}
+\end{align*}
+\item Zwischen diesem "`linkesten Element"' und dem nächsten Element der Ebene befindet sich nun wieder ein Unterbaum, welcher die selbe Höhe wie der erste Unterbaum besitzt.
+Damit enthält dieser wieder $(k+1)^{h-i} - 1$ Elemente und somit lautet der Wert des Elements $2\cdot (k+1)^{h-i}$.
+\item Somit befinden sich in einer Ebene nur Vielfache des "`linkesten Elements"'.
+\end{enumerate}
+\end{solution}
+
+\item Löschen Sie nun den Eintrag 9 und zeichnen Sie den entstehenden Baum.
+
+\begin{solution}
+Da ein innerer Eintrag gelöscht wird, muss er durch den direkten Vorgänger oder Nachfolger ersetzt werden.
+Da Vorgänger- und Nachfolgerblattknoten gleich viele Einträge haben, können wir uns frei zwischen Vorgänger und Nachfolger entscheiden. Wir nehmen hier den Vorgänger 8:
+
+\begin{note}
+	Wir nehmen die 8, weil die 10 einfacher ist, da im rechten Teilbaum die 18 exisitiert, und so kein Wurzel-merge n\"otig ist.
+\end{note}
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={8}{}{}{}{0}{0}{6}};
+
+        %Level1
+        \draw pic {firstInnerNode={3}{6}{}{}{1}{1}{2.5}};
+        \draw pic {innerNodeVar={12}{15}{18}{}{1}{2}{4.5}};
+
+        %Level2
+        \draw pic {firstInnerNode={1}{2}{}{}{2}{3}{0.5}};
+        \draw pic {innerNodeVar={7}{}{}{}{2}{5}{0.4}};
+        \draw pic {innerNodeVar={13}{14}{}{}{2}{7}{2.6}};
+        \draw pic {innerNodeVar={19}{20}{}{}{2}{9}{0.6}};
+
+        %Level2.5
+        \draw pic {firstInnerNode={4}{5}{}{}{3}{4}{3.5}};
+        \draw pic {innerNodeVar={10}{11}{}{}{3}{6}{0.6}};
+        \draw pic {innerNodeVar={16}{17}{}{}{3}{8}{2.7}};
+
+
+        %Verbindungspfeile
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={1}{0}{3}};
+        \draw pic {connect={1}{1}{4}};
+        \draw pic {connect={1}{2}{5}};
+        \draw pic {connect={2}{0}{6}};
+        \draw pic {connect={2}{1}{7}};
+        \draw pic {connect={2}{2}{8}};
+        \draw pic {connect={2}{3}{9}};
+    \end{tikzpicture}
+\end{center}
+
+
+Dadurch entsteht ein Unterlauf im Blattknoten,
+der deshalb mit dem Elternknoten gemischt werden muss:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={8}{}{}{}{0}{0}{6}};
+
+        %Level1
+        \draw pic {firstInnerNode={3}{}{}{}{1}{1}{2.5}};
+        \draw pic {innerNodeVar={12}{15}{18}{}{1}{2}{4.5}};
+
+        %Level2
+        \draw pic {firstInnerNode={1}{2}{}{}{2}{3}{0.5}};
+        \draw pic {innerNodeVar={4}{5}{6}{7}{3}{4}{0.5}};
+        \draw pic {innerNodeVar={13}{14}{}{}{2}{7}{1.7}};
+        \draw pic {innerNodeVar={19}{20}{}{}{2}{9}{0.8}};
+
+        %Level2.5
+        \draw pic {firstInnerNode={10}{11}{}{}{3}{6}{6.6}};
+        \draw pic {innerNodeVar={16}{17}{}{}{3}{8}{2.9}};
+
+
+        %Verbindungspfeile
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={1}{0}{3}};
+        \draw pic {connect={1}{1}{4}};
+        \draw pic {connect={2}{0}{6}};
+        \draw pic {connect={2}{1}{7}};
+        \draw pic {connect={2}{2}{8}};
+        \draw pic {connect={2}{3}{9}};
+    \end{tikzpicture}
+\end{center}
+
+Nun besteht aber im linken inneren Knoten ein Unterlauf, der aufgelöst werden muss.
+Dazu wird mit der Wurzel gemischt. Es entsteht ein Überlauf in der (neuen) Wurzel,
+die deshalb gesplittet werden muss. Ergebnis:
+
+\begin{center}
+    \begin{tikzpicture}[
+            start chain=0 going right,
+            defaultNode/.style={defaultNode2},
+        ]
+
+        %Level0
+        \draw pic {firstInnerNode={12}{}{}{}{0}{0}{6}};
+
+        %Level1
+        \draw pic {firstInnerNode={3}{8}{}{}{1}{1}{2.5}};
+        \draw pic {innerNodeVar={15}{18}{}{}{1}{2}{4.5}};
+
+        %Level2
+        \draw pic {firstInnerNode={1}{2}{}{}{2}{3}{0}};
+        \draw pic {innerNodeVar={10}{11}{}{}{2}{5}{0.4}};
+        \draw pic {innerNodeVar={13}{14}{}{}{2}{7}{1}};
+        \draw pic {innerNodeVar={19}{20}{}{}{2}{9}{0.8}};
+
+        %Level2.5
+        \draw pic {firstInnerNode={4}{5}{6}{7}{3}{4}{2.6}};
+        \draw pic {innerNodeVar={16}{17}{}{}{3}{8}{4.9}};
+
+
+        %Verbindungspfeile
+        \draw pic {connect={0}{0}{1}};
+        \draw pic {connect={0}{1}{2}};
+        \draw pic {connect={1}{0}{3}};
+        \draw pic {connect={1}{1}{4}};
+        \draw pic {connect={1}{2}{5}};
+        \draw pic {connect={2}{0}{7}};
+        \draw pic {connect={2}{1}{8}};
+        \draw pic {connect={2}{2}{9}};
+    \end{tikzpicture}
+\end{center}
+
+\end{solution}
+
+\end{enumerate}

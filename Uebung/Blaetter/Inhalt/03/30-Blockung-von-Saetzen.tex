@@ -1,0 +1,107 @@
+\beamertxt{\pagebreak}
+\section{Blockung von Sätzen}
+\begin{enumerate}[a)]
+	\item Entwickeln Sie jeweils eine Formel, mit welcher sich
+	\begin{enumerate}[i)]
+		\item der Blockungsfaktor $\mathit{bfr}$ eines Blocks (Ganzzahl, die angibt, wieviele Sätze pro Block gespeichert werden können), sowie
+		\item der ungenutzte Speicherplatz am Ende eines Blocks
+	\end{enumerate}
+	berechnen lässt. Gehen Sie dabei davon aus, dass Ihre Sätze eine feste Länge $R$ haben, die kleiner oder gleich der Blockgröße $B$ ist und dass die Sätze nicht blockübergreifend abgespeichert werden.
+
+	\begin{solution}
+	\begin{enumerate}[i)]
+		\item Blockungsfaktor: $\mathit{bfr} = \lfloor\frac{B}{R}\rfloor$
+		\item Ungenutzter Speicherplatz: $B - (\mathit{bfr} \cdot R)$
+	\end{enumerate}
+	\end{solution}
+
+
+	\item Geben Sie den Blockungsfaktor sowie den ungenutzten Speicherplatz an, bei einer Blockgröße von 4~KiB \nt{(1 Kibibyte = 1024 Byte)} und einer festen Satzlänge von
+	\begin{enumerate}[i)]
+		\item 67~Byte
+		\item 109~Byte
+		\item 237~Byte \selbst
+	\end{enumerate}
+	Gehen Sie auch hier wieder von keinen blockübergreifenden Sätzen aus.
+
+	\begin{solution}
+	\begin{enumerate}[i)]
+		\item Blockungsfaktor: 61, ungenutzter Speicherplatz: 9~Byte
+		\item Blockungsfaktor: 37, ungenutzter Speicherplatz: 63~Byte
+		\begin{note}
+			\item Blockungsfaktor: 17, ungenutzter Speicherplatz: 67~Byte
+			\end{note}
+	\end{enumerate}
+	\end{solution}
+
+
+	\item Gegeben sind die folgenden Satzlängen in Byte:
+
+	397, 134, 80, 243, 175, 298, 153, 414, 38, 259, 49
+
+	Wie viele Blöcke der Größe 512~Byte benötigen Sie, um diese Sätze in der angegebenen Reihenfolge abzuspeichern? Berechnen Sie außerdem den durchschnittlich ungenutzten Speicherplatz pro Block in Byte.
+
+	\begin{solution}
+	\begin{tabular}{ | p{2.4cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.3cm} | }
+		\hline
+		Blocknummer 						&	1 			& 		2 						& 		3					&		4 			& 		5 					& 		6 				& 	Summe	\\
+		\hline
+		Sätze 									&	397		&		134, 80, 243 	&		175, 298		&		153		&		414, 38		&		259, 49	&				\\
+		\hline
+		genutzter Speicherplatz 		& 	397 		& 		457 					& 		473 				& 		153 		&		452 				& 		308			& 	2240 	\\
+		\hline
+		ungenutzter Speicherplatz 	& 	115 		& 		55 					& 		39 				& 		359 		& 		60 				& 		204 			& 	832 		\\
+		\hline
+	\end{tabular}
+
+	Um den durchschnittlich ungenutzten Speicherplatz pro Block zu berechnen, summiert man den ungenutzten Speicherplatz der einzelnen Blöcke auf und teilt diesen anschließend durch die Anzahl der Blöcke. Im obigen Beispiel ergibt sich:\\ $\frac{115+55+39+359+60+204}{6} = \frac{832}{6} \approx 138,67$ (ca. 27,1\,\%)
+
+
+	\paragraph{Zusatzfrage optimale Verteilung}
+	Wie sähe eine optimale Verteilung aus?
+
+	Wir können höchstens einen Block einsparen (da insgesamt weniger als 1024~Byte leer sind). Der letzte Block sollte möglichst den ganzen Freispeicher enthalten (oder auch irgendein anderer Block).
+
+	Einfacher Algorithmus: wir fügen immer in den ersten Block ein, in dem noch genug Platz ist. Das ergibt:
+
+	\begin{tabular}{ | p{2.4cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.1cm} | p{1.3cm} | }
+		\hline
+		Blocknummer						& 		1 				& 		2 							& 		3 					& 		4 					& 		5 			& 	Summe		\\
+		\hline
+		Sätze 									& 		397, 80 	& 		134, 243, 38, 49 	& 		175, 298 		&		153, 259		&		414  	& 					\\
+		\hline
+		genutzter Speicherplatz 		& 		477 			& 		464 						& 		473 				& 		412 				& 		414 		& 	2240 		\\
+		\hline
+		ungenutzter Speicherplatz 	& 		35 			& 		48 						& 		39 				& 		100 				& 		98 		& 	320			\\
+		\hline
+	\end{tabular}
+
+	Daduch ergibt sich für den durchschnittlich ungenutzten Speicherplatz pro Block: $\frac{35+48+39+110+98}{5} = \frac{320}{5} = 64$  (12,5\,\%)
+
+	Damit ist der Block schon eingespart. Man muss jetzt aber schnell den ersten freien Block finden können. Der Platz ist nicht optimal zusammenhängend, aber das ist schwierig. Optimale Lösung benötigt Kenntnis über alle Sätze und ist zu aufwändig zu berechnen. Stattdessen können nur verschiedene Heuristiken verwendet werden (first match, last match, best match etc.).
+
+	\paragraph{Zusatzfrage Blockgrößen}
+	Letzte Woche haben wir Blockgrößen in Dateisystemen diskutiert. Im Mittel wird dort je Datei ein halber Block verschwendet. (Jede Dateigröße ist gleich wahrscheinlich, also besteht auch die gleiche Wahrscheinlichkeit 0, 1/n-1, 2/n-1, \ldots n-2/n-1 Platz im letzten Block zu verschwenden.)
+
+	$\Rightarrow$ Kleine Blöcke verschwenden weniger Platz.
+
+	Wie ist das nun mit den Satzdateien? Nehmen wir erstmal Sätze fester Länge an. %Im Mittel verschwenden wir einen halben Satz pro Block (analoge Begründung zu eben).
+	Wir verschwenden immer weniger als einen Satz pro Block. Wäre noch Platz f\"ur einen weiteren Satz, w\"urde dieser Platz f\"ur den n\"achten Satz benutzt werden.
+	Bei großen Blöcken ist die Wahrscheinlichkeit, dass ein Satz noch in den Block passt größer.
+
+	$\Rightarrow$ Große Blöcke verschwenden weniger Platz.
+
+	Wie passt das zusammen?
+	\begin{itemize}
+		\item Auch bei der Satzdatei ist im Mittel der letzte halbe Block leer. Hier ändert sich also nichts
+		\item Eine normale Datei kann man als sequenzielle Satzdatei mit Sätzen der Länge 1 auffassen,
+				hier kann weniger als ein Satz nicht verschwendet werden, da nur ganze Bytes verschwendet werden k\"onnen
+				(weil es kein Satzkonzept gibt; die Daten werden einfach hintereinander geschrieben). Das ist gerade der Unterschied.
+		\item Da Dateisysteme viele kleine Dateien beeinhalten (z.\,B. Konfigurations- oder kleine Textdateien), ist das erste Problem hier größer. Das zweite ist nicht existent. Also haben kleine Blöcke Vorteile
+		\item Bei Datenbanken haben wir relativ wenige Dateien, aber viele Blöcke. (Alle Sätze gleichen Typs liegen i.\,A. in nur einer Datei. Ausnahme: Einteilung von Oracle: table spaces in data files.) Dadurch ist das erste Problem kleiner, das zweite überwiegt. Also haben hier eher große Blöcke Vorteile.
+	\end{itemize}
+	\end{solution}
+\end{enumerate}
+
+
+

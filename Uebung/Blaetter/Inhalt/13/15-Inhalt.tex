@@ -1,0 +1,38 @@
+	\item Welche Teilprobleme müssen bei der Übersetzung von logischen Operatoren in Planoperatoren gelöst werden?
+
+\begin{solution}
+Gruppierung von direkt benachbarten Operatoren zur Auswertung durch einen einzelnen Planoperator.
+Beispiel: Verbund mit Selektionen und/oder Projektionen auf den beteiligten Relationen lässt sich durch einen speziellen Planoperator gemeinsam ausführen.
+\begin{itemize}
+	\item Bestimmung der Verknüpfungsreihenfolge bei Verbundoperationen
+		\begin{itemize}
+			\item Ziel: minimale Kosten für die Operationsfolge
+			\item Heuristik: Minimierung der Größe der Zwischenergebnisse,
+        d.\,h.\ die kleinsten (Zwischen-)Relationen immer zuerst verknüpfen
+		\end{itemize}
+	\item Erkennen gemeinsamer Teilbäume
+		\begin{itemize}
+			\item einmalige Berechnung
+			\item Dafür nötig: Zwischenspeicherung der Ergebnisrelation
+		\end{itemize}
+	\item Außerdem: Auswahl der geeigneten Planoperatoren, wenn mehrere zur Verfügung stehen
+	\end{itemize}
+\end{solution}
+
+	\item Was macht die Optimierung so kompliziert?
+
+\begin{solution}
+Vor allem zwei Dinge:
+\begin{itemize}
+	\item Der große Suchraum: Es ist i.\,A.\ nicht möglich, alle Optionen detailliert zu bewerten. Man muss sich also beschränken. Aber auf welche Optionen?
+	\item Das zur Bewertung nötige Wissen ist nicht immer vorhanden. Z.\,B.\ müssen Selektivitäten geschätzt werden. Schon das Kostenverhältnis zwischen sequentiellem und wahlfreiem Zugriff ist eine Schätzung. Ebenso die Frage, wie sequentiell eine Tabelle auf der Platte liegt.
+\end{itemize}
+\end{solution}
+
+	\item Wie kann man unter diesen Bedingungen das Ziel der Plangenerierung beschreiben?
+
+\begin{solution}
+Aus den VL-Folien: Auffinden eines guten Plans immer und mit einer geringen Anzahl von generierten Plänen.
+
+Das heißt: Wir werden wohl nicht immer den besten finden, aber Katastrophen müssen vermieden werden. Außerdem muss die Optimierung selbst in vertretbarer Zeit ablaufen.
+\end{solution}

@@ -1,0 +1,89 @@
+\section{Programmieraufgabe 8: Metadatenbank}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.meta.Metadata} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methoden \texttt{createMetadata()} ein.
+		Diese Methode erhält neben dem \texttt{DBBuffer} einen \texttt{idb.meta.FileCache} und einem Array mit 6 Strings, die als Pfade für beliebige Dateien verwendet werden können.
+		Diese Dateien werden beim Aufruf bereits erzeugt und leer sein.
+	\item Tragen Sie außerdem einen Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{reloadMetadata()} ein.
+		Diese Methode erhält die selben Parameter wie \texttt{createMetadata}, soll jedoch keine neue Datenbank anlegen, sondern diese wiederherstellen
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{MetaTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein8a| ausführen.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{LoadedMetaTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein8b| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür Ihre Abgabe mit dem Tag "`Aufgabe-8"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Der \texttt{FileCache} bietet angenehme Methoden zur Produktion von TIDFiles und KeyRecordFiles aus Pfaden.
+		Verwenden Sie diese anstelle der in \texttt{idb.construct.Util} von Ihnen eingetragenen Methoden um Probleme mit mehreren (verschiedenen) Instanzen von KeyRecord / TIDFile auf geteilten Dateien zu verhindern.
+		Rufen Sie niemals \texttt{close} auf den Dateien aus dem FileCache auf, da dieses für Sie übernommen wird.
+	\item Der \texttt{FileCache} ist nicht zur Erzeugung neuer Dateien geeignet. Rufen Sie dafür weiterhin die von Ihnen in \texttt{idb.construct.Util} eingetragenen Funktionen auf.
+		Beachten Sie, dass Sie für die selbst generierten und nicht aus FileCache stammenden Blockfiles und KeyRecordFiles selbstständig \texttt{close} aufrufen müssen.
+		Um diese Unterscheidung nicht dauerhaft vornehmen zu müssen, hilft es, die erzeugten Dateien schnell zu schließen und dann über den \texttt{FileCache} erneut öffnen zu lassen.
+	\item Beachten Sie, dass ein Puffer wie im Clock-Puffer Referenzen auf bereits mit \texttt{unfix} freigegebene Kacheln beibehält, bis die jeweilige Kachel wieder gebraucht wird.
+		Wenn Sie nun \texttt{close} auf den Blockfiles aufrufen, geraten Sie bei späteren \texttt{fix} Aufrufen dann in problematische Fehler oder Randfälle.
+		Bei einer korrekten Implementierung des Clock-Puffers inklusive des Zurücksetzens von \texttt{setDirty} im \texttt{flush} können Sie mit eben diesem \texttt{flush} dieses Problem umgehen.
+		Notfalls können Sie auch testweise im Testfall den Clock-Puffer durch den sehr viel langsameren Simple-Buffer ersetzen, indem Sie die entsprechenden Zeilen im Setup ein- und auskommentieren.
+	\item Unsere Indexstrukturen sind ausschließlich als Sekundärstrukturen verwendbar. Aufgrund der Einschränkungen der Hash-Implementierung können diese nicht als Primärstrukturen verwendet werden.
+	\item Um unsere in der letzten Aufgabe erstellte Funktion zum Löschen von Tupeln einer Relation zu verwenden, verlangen wir für jede Relation einen Sekundärindex, aufgebaut auf dem Primärschlüssel.
+	\item Während es Ihnen freigestellt ist, wie Sie Ihre sechs Dateien verwenden, empfehlen wir zwei Tabellen mit jeweils einer TIDFile und einem Index auf dem Primärschlüssel als KeyRecordFile / LinHash.
+	\item Wir empfehlen die folgenden zwei Tabellen: 
+\begin{enumerate}
+\item Attributes(\textit{Name}: String, \textit{Rel}: String, \textit{Type}: String, \textit{Pos}: Int, \textit{PrimaryKey}: Boolean, \textit{SurrogateKey}: Boolean, \textit{\_Surrogate}: Int): Bei \textit{\_Surrogate} handelt es sich um den Surrogat-Primärschlüssel
+\item Files(\textit{Path}: String, \textit{Relation}: String, \textit{Type}: String, \textit{BlockSize}: Int):
+\textit{Path} bezeichnet den Primärschlüssel, der \textit{Type}-String kodiert ob es sich um eine \textit{TID-File}, den \textit{Regulärbereich} eines Hashing oder um den \textit{Overflowbereich} des Hashing handelt.
+Im Falle einer \textit{Indexdatei} (Hashing, Regulär und Overflow) muss zusätzlich im \textit{Type}-String kodiert werden, welches Attribut in diesem Index als Schlüssel verwendet wird, üblicherweise durch seine (eindeutige) Position in der Relation.
+\end{enumerate}
+Die Verwendung von zwei Tabellen dieser festen Struktur hat den Vorteil, die Planoperatoren der letzten Aufgabe in der Meta-Datenbank verwenden zu können.
+		Im Gegensatz zur echten Datenbank sind hier die Attributnamen und -typen jedoch unveränderlich, sodass die entsprechenden \texttt{NamedCombinedRecord} zur Pogrammierzeit bestimmt werden können.
+		Dabei sind die Attribute wie folgt zu verstehen:
+		\begin{enumerate}
+			\item \textit{Attributes.Name}: Der (in einer Relation eindeutige) Name eines Attributes. Attributnamen bestehen ausschließlich aus den Buchstaben A-Z und a-z.
+			\item Attributes.Rel: Der Name der Relation, in dem dieses Attribut definiert sein soll.
+			\item \textit{Attributes.Type}: Der Typ des Attributes. In unserer Datenbank entweder \texttt{DBString}, \texttt{Bool} oder \texttt{IntegerKey}. Die Darstellung als String empfiehlt sich einfach zu halten (z.B. durch einen Buchstaben).
+			\item \textit{Attributes.Pos}: Die Position dieses Attributes in einem \mbox{NamedCombinedRecord} dieser Relation. Da ein \mbox{NamedCombinedRecord} nicht das Layout speichert, muss dieses in den Metadaten abgelegt werden.
+			\item \textit{Attributes.PrimaryKey}: Jede Relation benötigt einen Primärschlüssel.
+			\item \textit{Attributes.SurrogateKey}: Unsere Datenbank bietet Nutzern einen Surrogatschlüssel an, den der Nutzer nicht angeben muss, sondern den das DBMS für den Nutzer errechnet und einträgt. Wenn eine Relation einen solchen Surrogatschlüssel verwenden soll, ist dieser Boolean beim PrimaryKey wahr, andernfalls falsch.
+			\item \textit{Attributes.\_Surrogate}: Nachdem es keinen sinnvollen Primärschlüssel für die Attributes Relation gibt, soll diese bereits ein Surrogatschlüssel verwenden.
+			Der Attributname "\_Surrogate"\ soll generell verwendet werden, wenn ein Surrogatschlüssel angelegt wird, und wird durch die Einschränkung der Attributnamen auch immer zur Verfügung stehen.
+			\item \textit{Files.Path}: Der Pfad zu einer Datei.
+			\item \textit{Files.Relation}: Der Name der Relation, zu welcher diese Datei gehört.
+			\item \textit{Files.Type}: Der bereits beschriebene Typestring der Datei.
+			\item \textit{Files.BlockSize}: Die BlockSize, die für diese Datei zu verwenden ist.
+				Durch technische Einschränkungen in unserer Datenbank ist diese vermutlich für alle Dateien gleich.
+				Jedoch benötigen Sie für das Öffnen der Dateien die BlockSize, und nachdem Sie für den Pfad zur Datei bereits die Files-Relation durchsuchen müssen,
+				erhalten Sie durch dieses Attribut diese Information nahezu umsonst.
+		\end{enumerate}
+	\item Verwenden Sie für die sechs im Konstruktor übergebenen Pfade BlockSize 4096, da andernfalls aufgrund unseres Puffers die Testfälle,
+		die eine andere BlockSize für neu zu erzeugende Dateien verlangen, fehlschlagen werden.
+	\item Zum Entwickeln der Methoden lohnt es sich, initial ein SQL-Statement auf den zwei Relationen zu formulieren und dann dieses in Planoperatoren umzuwandeln.
+		Ein Beispiel: Für \texttt{addRelation} muss überprüft werden, ob eine Relation des Namens \textit{Student} schon existiert. In SQL interessiert uns, ob es für folgende Ausgabe mindestens ein Tupel gibt:
+\begin{verbatim}
+Select *
+From Attributes
+Where Attributes.Rel == Student
+\end{verbatim}
+In unserer Datenbank sähe dies dann so aus:
+\begin{verbatim}
+Module m = getTableScanAttributes();
+m = Util.generateSel(m, x -> x.getString("Rel").equals("Student"));
+boolean unused = (m.pull() == null);
+m.close();
+\end{verbatim}
+	\item Falls eine Aggregation ohne Gruppierung verwendet werden soll, kann diese dadurch herbeigeführt werden, zuerst die Tupel durch ein \texttt{generate} zu schicken, in denen jedem Tupel der gleiche Wert zugewiesen wird (mit einem Attributnamen der nicht in der Relation vorkommen kann, z.B. durch die Verwendung eines Unterstrichs).
+		Danach kann dieses neue Attribut nun zum Gruppieren verwendet werden und aggregiert damit alle Tupel.
+	\item Verwenden Sie für Aggregationen die vorgefertigten Tripel aus \texttt{Util.count}, \texttt{Util.max} oder \texttt{Util.min}.
+	\item Verwenden Sie zur Berechnung des Surrogatschlüssels für ein neu einzufügendes Tupel nicht \texttt{Util.count}.
+	\item Achten Sie darauf, beim Hinzufügen von Tupeln (sowohl in den Metarelationen als auch in den verwalteten Datenbankrelationen) die Indices mit zu aktualisieren.
+	\item Durch die Stabilität von TID ist eine Referenz auf einen bereits gelöschten Datensatz in einem nicht zum Löschen verwendeten Index kein Problem.
+			Der Nutzer muss die Reaktion auf Verweise auf gelöschte Sätze selbstständig implementieren.
+	\item Um Codeduplikation zu vermeiden, lohnt es sich oftmals, Methoden der Art \texttt{private <K extends Key> void addColumn(/*...*/, K defaultValue)} anzulegen.
+			Diese Methode lässt sich einfach aus allen drei Methoden (\texttt{addIntColumn}, \texttt{addStringColumn} und \texttt{addBoolColumn}) aufrufen und reduziert den zu schreibenden und zu debuggenden Code um Faktor 3.
+	\item Erzeugen Sie neu anzulegende Dateien mit \texttt{java.io.File:createTempFile} und in einem spezifischem Ordner wie z.B. \texttt{data/}, um ggf. nicht korrekt weggeräumte Dateien geordnet löschen zu können.
+	\item Achten Sie wie bei der vorherigen Aufgabe darauf, die eventuell notwenigen \texttt{STORE} Operatoren zu nutzen, z.B. bei \texttt{add...Column}.
+	\item Sie können bei einem Design ähnlich diesem hier Vorgeschlagenen zuerst ausschließlich \textit{Meilenstein8a} testen und erst danach den fehlenden Code in \texttt{reloadMetadata} mit \textit{Meilenstein8b} testen.
+\end{itemize}

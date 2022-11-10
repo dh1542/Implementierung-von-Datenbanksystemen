@@ -1,0 +1,215 @@
+\section{Grundlagen}
+\sectionpage
+
+\begin{frame}{Grenzen Sie die Begriffe Datenbank, Datenbankverwaltungssystem und Datenbanksystem voneinander ab.}
+\only<2->{
+\begin{itemize}
+\item Datenbanksystem (DBS) System zur Beschreibung, Speicherung u. Wiedergewinnung von umfangreichen Datenmengen, die von mehreren Anwendungsprogrammen benutzt werden.
+\item Komponenten eines DBS:
+\begin{itemize}
+\item Datenbank (DB) in der die Daten abgelegt werden
+\item Datenbank-Verwaltungssystem (DBVS) Software, die die Daten entsprechend den vorgegebenen Beschreibungen abspeichert, auffindet oder weitere Operationen mit den Daten durchführt
+\end{itemize}
+\end{itemize}}
+\end{frame}
+
+
+\begin{frame}{Definieren Sie die Operationen Projektion, Selektion/Restriktion, Kreuzprodukt und Join der relationalen Algebra entweder beispielhaft anhand von Tabellenrepräsentationen von Relationen oder formal.}
+Projektion: \only<2->{\texttt{SELECT name FROM r1}}
+\newline
+\newline
+\begin{tabular}{ | c | c | }
+	\hline
+	name 	& 		age	\\
+	\hline
+	Hans 	& 		17 	\\
+	\hline
+	Peter 	& 		25 	\\
+	\hline
+\end{tabular}
+\only<3->{
+$\rightarrow$	
+\begin{tabular}{ | c | }
+	\hline
+	name \\
+	\hline
+	Hans \\
+	\hline
+	Peter \\
+	\hline
+\end{tabular}}
+\end{frame}
+
+\begin{frame}{Definieren Sie die Operationen Projektion, Selektion/Restriktion, Kreuzprodukt und Join der relationalen Algebra entweder beispielhaft anhand von Tabellenrepräsentationen von Relationen oder formal.}
+Selektion: \only<2->{\texttt{SELECT * FROM r1 WHERE age $>=$ 18}}
+\newline
+\newline
+\begin{tabular}{ | c | c | }
+	\hline
+	name 	& 		age	\\
+	\hline
+	Hans 	& 		17 	\\
+	\hline
+	Peter 	&		25	\\
+	\hline
+\end{tabular} 
+\only<3->{
+$\rightarrow$
+\begin{tabular}{ | c | c | }
+	\hline
+	name 	&		age	\\
+	\hline
+	Peter		&		25	\\
+	\hline
+\end{tabular}}
+\end{frame}
+
+\begin{frame}{Definieren Sie die Operationen Projektion, Selektion/Restriktion, Kreuzprodukt und Join der relationalen Algebra entweder beispielhaft anhand von Tabellenrepräsentationen von Relationen oder formal.}
+Kreuzprodukt: \only<2->{ \texttt{SELECT * FROM r1 CROSS JOIN r2}}
+\newline
+\newline
+\begin{tabular}{ | c | c | }
+	\hline
+	a11		&		a12		\\
+	\hline
+	1 		& 		2 		\\
+	\hline
+	3 		& 		4 		\\
+	\hline
+\end{tabular}
+\begin{tabular}{ | c | c | }
+	\hline
+	a21 	&		a22	\\
+	\hline
+	5 		& 		6 		\\
+	\hline
+	7 		& 		8 		\\
+	\hline
+\end{tabular}
+\only<3->{$\rightarrow$
+\begin{tabular}{ | c | c | c | c | }
+	\hline
+	a11 	& 		a12 	&		a21 	& 		a22	\\
+	\hline
+	1 		& 		2 		&		5		& 		6 		\\
+	\hline
+	1 		& 		2 		&		7 		&		8 		\\
+	\hline
+	3 		& 		4 		& 		5 		& 		6 		\\
+	\hline
+	3 		& 		4		& 		7 		& 		8 		\\
+	\hline
+\end{tabular}}
+\end{frame}
+
+\begin{frame}{Definieren Sie die Operationen Projektion, Selektion/Restriktion, Kreuzprodukt und Join der relationalen Algebra entweder beispielhaft anhand von Tabellenrepräsentationen von Relationen oder formal.}
+Join: \only<2->{\texttt{SELECT * FROM r1 JOIN r2 ON r1.a11 = r2.a21}}
+\newline
+\newline
+\begin{tabular}{ | c | c | }
+	\hline
+	a11 	& 		a12		\\
+	\hline
+	1 		& 		2 		\\
+	\hline
+	3 		& 		4 		\\
+	\hline
+\end{tabular}
+\begin{tabular}{ | c | c | }
+	\hline
+	a21 	&		a22	\\
+	\hline
+	1 		& 		6 		\\
+	\hline
+	1 		& 		8 		\\
+	\hline
+\end{tabular}
+\only<3->{
+$\rightarrow$
+\begin{tabular}{ | c | c | c | c | }
+	\hline
+	a11 	&		a12 	& 		a21 	&		a22	\\
+	\hline
+	1 		& 		2 		& 		1 		& 		6 		\\
+	\hline
+	1 		& 		2 		& 		1		& 		8 		\\
+	\hline
+\end{tabular}}
+\end{frame}
+
+\begin{frame}{Formale Definition: Es seien...}
+\begin{itemize}
+\item $R$ und $S$ Relationen
+\item $r = (r_1, r_2, \ldots r_n)$, $s = (s_1, s_2, \ldots, s_m)$ Tupel aus $R$ bzw. $S$
+\item $P: R \mapsto \{\textit{wahr}, \textit{falsch}\}$ ein Prädikat
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Formale Definition: Projektion}
+\only<2>{
+\begin{align*}
+project[B](R) &= _{def} \{project[B](r) | r \in R\}\\
+wobei\\
+B &= (A_1, A_2, \ldots, A_k)\\
+&\text{eine Folge von Attributen aus der Menge der Attribute von $R$ ist}\\
+r_{A_i} &\text{der Wert des Attributs $A_i$ im Tupel $r$}\\
+und\\
+project[B](r) &= _{def} (r_{A_1}, r_{A_2}, \ldots, r_{A_k})
+\end{align*}}
+\end{frame}
+
+\begin{frame}{Formale Definition: Selektion}
+	\only<2>{
+\begin{align*}
+select[P (A_1, A_2, ... , A_n)] (R) = _{def} \{r | r = (a_1, a_2, ... , a_n) \in R \wedge P (a_1, a_2, ... , a_n)\}
+\end{align*}}
+\end{frame}
+
+\begin{frame}{Formale Definition: Kreuzprodukt}
+\begin{align*}
+crossproduct(R, S) &= _{def} \{concat (r, s) | r \in R \wedge s \in S\} \\
+mit\\
+concat(r, s) &=_{def} (r_1, r_2, \ldots r_n, s_1, s_2, \ldots, s_m)
+\end{align*}
+\end{frame}
+
+\begin{frame}{Formale Definition: Join}
+\begin{align*}
+&join[P (A_1, ... , A_n, B_1, ... , B_m)](R, S) \\
+&= _{def} select [P (A_1, ... , A_n, B_1, ... , B_m)] (crossproduct (R, S))
+\end{align*}
+\end{frame}
+
+\begin{frame}{Welche Teile eines SQL-Statements entsprechen welchen Operatoren der relationalen Algebra?}
+\texttt{EXCEPT},
+\texttt{INTERSECTION},
+\texttt{GROUP BY},
+\texttt{WHERE},
+\texttt{FROM} mit mehreren Tabellen,
+\texttt{ORDER BY},
+\texttt{UNION},
+\texttt{SELECT},
+\texttt{JOIN},
+\texttt{HAVING}
+\begin{description}
+\item[Projektion] \only<9->{\texttt{SELECT}}
+\item[Selektion] \only<5->{\texttt{WHERE}}\only<11->{, \texttt{HAVING}}
+\item[Kreuzprodukt] \only<6->{\texttt{FROM} mit mehreren Tabellen}
+\item[Join] \only<10->{\texttt{JOIN}}
+\item[Mengenoperatoren] \only<2->{\texttt{EXCEPT}}\only<3->{, \texttt{INTERSECTION}}\only<8->{, \texttt{UNION}}
+\item[Nicht Zuordenbar] \only<4->{\texttt{GROUP BY}}\only<7->{, \texttt{ORDER BY}}
+\end{description}
+Die SQL-Operationen sind jedoch nicht identisch mit den relationalen Operatoren, da sie auf Multimengen arbeiten und teilweise weitergehende Möglichkeiten bieten.
+\end{frame}
+
+\begin{frame}{Geben Sie die logische Abarbeitungsreihenfolge der Teile eines SQL-Statements an.}
+\only<+->{~}
+\only<+->{\texttt{FROM}}\only<+->{ $\Rightarrow$ \texttt{WHERE}}\only<+->{ $\Rightarrow$ \texttt{GROUP BY}}\only<+->{ $\Rightarrow$ \texttt{HAVING}}\only<+->{ $\Rightarrow$ \texttt{SELECT}}\only<+->{ $\Rightarrow$ \texttt{ORDER BY}}
+
+\only<+->{Bonusfragen:
+\begin{itemize}
+\item An welcher Stelle der logischen Abarbeitungsreihenfolge wäre ein \texttt{JOIN} einzuordnen?
+\item Warum könnte es sinnvoll sein, das \texttt{ORDER BY} in der logischen Abarbeitungsreihenfolge dem \texttt{SELECT} vorzuziehen?
+\end{itemize}
+}
+\end{frame}

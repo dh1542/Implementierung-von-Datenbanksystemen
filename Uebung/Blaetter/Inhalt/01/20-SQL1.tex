@@ -1,0 +1,201 @@
+\section{SQL 1}
+Gegeben ist der folgende Teil eines einfachen Datenbankschemas:
+
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+
+\texttt{producers(\underline{name}, date\_of\_birth)}
+
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+
+\begin{enumerate}[a)]
+	\item Erstellen Sie eine SQL-Anfrage, die alle Titel von Ray Charles' Songs liefert, die höchstens 180 Sekunden dauern!
+
+\cprotEnv
+	\begin{solution}
+	\begin{lstlisting}
+SELECT title
+FROM   songs
+WHERE  artist = 'Ray Charles' and length <= 180;
+	\end{lstlisting}
+	\end{solution}
+
+
+	\item Erstellen Sie eine SQL-Anfrage, die jeden Songtitel zusammen mit dem Geburtsdatum des Produzenten des Albums ausgibt, auf dem der Song erschienen ist.
+
+\cprotEnv
+	\begin{solution}
+	\begin{lstlisting}
+SELECT s.title, p.date_of_birth
+FROM   songs s, producers p, albums a
+WHERE  s.album = a.title AND a.producer = p.name;
+	\end{lstlisting}
+	\end{solution}
+
+
+	\item Erstellen Sie eine SQL-Anfrage, die eine aufsteigend nach Künstlername sortierte Liste der Künstler und der Anzahl an Songs, die der jeweilige Künstler in der Datenbank hat, zurückgibt.
+	Berücksichtigen Sie dabei nur Songs, die auf einem Album erschienen sind und berücksichtigen Sie nur Künstler, zu denen es mindestens 5 solcher Songs gibt.
+
+\cprotEnv
+	\begin{solution}
+	\begin{lstlisting}
+SELECT   artist, count(album) AS anzahl
+FROM     songs
+GROUP BY artist
+HAVING   count(album) >= 5
+ORDER BY artist ASC;
+	\end{lstlisting}
+
+	\begin{note}
+	Durch \texttt{count(album)} kann auf eine Prüfung von \texttt{album IS NOT NULL} verzichtet werden.
+	\end{note}
+
+	Zusatzfrage: Wie könnte man das gleiche Ergebnis ohne Verwendung von \texttt{GROUP BY} und \texttt{HAVING} erzielen?
+	\end{solution}
+
+\cprotEnv
+	\begin{note}
+	Mit korrelierten Unteranfragen:
+	\begin{lstlisting}
+SELECT  DISTINCT artist,
+        (SELECT count(album)
+         FROM songs si
+         WHERE si.artist = so.artist)
+        AS anzahl
+FROM    songs so
+WHERE   (SELECT count(album)
+         FROM songs si
+         WHERE si.artist = so.artist)
+        >= 5
+ORDER BY artist ASC
+    \end{lstlisting}
+
+	\end{note}
+
+
+	\item Erstellen Sie eine SQL-Anfrage, die die 5 Alben mit der durchschnittlich längsten Song-Dauer in einem Ranking ausgibt, wobei das Album mit den durchschnittlich längsten Songs Rang 1 belegt.
+
+\cprotEnv
+	\begin{solution}
+
+	Als Top-N-Anfrage mit Join, wie sie aus KonzMod bekannt ist:
+	\begin{lstlisting}
+WITH avg_songlength AS
+(
+  SELECT   album, AVG(length) AS avg_song_length
+  FROM     songs
+  WHERE album IS NOT NULL
+  GROUP BY album
+)
+SELECT   COUNT(*) AS rang, a1.album, a1.avg_song_length
+FROM     avg_songlength a1, avg_songlength a2
+WHERE    a1.avg_song_length <= a2.avg_song_length
+GROUP BY a1.album, a1.avg_song_length
+HAVING   COUNT(*) <= 5
+ORDER BY rang ASC;
+	\end{lstlisting}
+
+	Unter Verwendung von limited fetch aus SQL:2008/SQL:2011 ohne Ausgabe des Rangs:
+
+	\begin{lstlisting}
+SELECT   album, AVG(length) AS avg_song_length
+FROM     songs
+WHERE album IS NOT NULL
+GROUP BY album
+ORDER BY avg_song_length DESC
+FETCH FIRST 5 ROWS ONLY;
+	\end{lstlisting}
+
+	Zusatzfragen: Was passiert, wenn zwei Alben die gleiche durchschnittliche Songdauer haben? Was passiert mit Songs, die auf keinem Album erschienen sind?
+	\end{solution}
+
+\cprotEnv
+	\begin{note}
+	Unter Verwendung von analytic functions mit Ausgabe des Rangs.
+	Nur als Ergänzung, muss in den normalen Übungen nicht besprochen werden.
+
+	\begin{lstlisting}
+SELECT * FROM (
+  SELECT
+    RANK() OVER(ORDER BY AVG(length) DESC) AS rang,
+    album,
+    AVG(length) AS avg_song_length
+  FROM songs
+  WHERE album IS NOT NULL
+  GROUP BY album
+)
+WHERE rang <= 5
+ORDER BY rang ASC;
+	\end{lstlisting}
+
+	Die Rangvergabe bei mehrfach vorhandenen durchschnittlichen Songdauern ist hier anders als bei der Top-N-Anfrage mit Joins.
+	Bei der Join-Anfrage fallen Ränge kleiner des mehrfach vergebenen Rangs weg, bei Verwendung von \texttt{RANK} Ränge größer des mehrfach vergebenen Rangs.
+
+	\end{note}
+
+
+	\item Erstellen Sie eine SQL-Anfrage, die alle Songs ausgibt, die länger sind als der Durchschnitt aller Songs.
+	Erweitern Sie die Anfrage dann so, dass sie alle Songs ausgibt, die länger sind als der Durchschnitt aller Songs des jeweiligen Albums.
+
+\cprotEnv
+	\begin{solution}
+	\begin{lstlisting}
+SELECT *
+FROM   songs s1
+WHERE  s1.length >
+(
+  SELECT avg (s2.length)
+  FROM songs s2
+);
+
+SELECT *
+FROM   songs s1
+WHERE  s1.length >
+(
+  SELECT avg (s2.length)
+  FROM songs s2
+  WHERE s1.album = s2.album
+);
+	\end{lstlisting}
+Bei der erweiterten Lösung handelt es sich um eine korrelierte Unteranfrage.
+Dies bedeutet, dass Attribute der äußeren SQL-Anfrage und der Unteranfrage in der \texttt{WHERE}-Klausel miteinander verknüpft sind.
+Dabei kann die Unteranfrage nicht ohne die äußere Anfrage durchgeführt werden.
+Für jeden Satz der äußeren Anfrage wird die Unteranfrage einmal durchgeführt. (Optimierungen sind aber teilweise möglich)
+	\end{solution}
+
+	\item Erstellen \deepen Sie eine SQL-Anfrage, die alle Künstler liefert, die mit einem Song auf irgendeinem Album vertreten sind.
+	Achten Sie darauf, dass jeder Künstler nur einmal gelistet wird, also keine Duplikate auftreten.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT DISTINCT artist
+FROM   songs
+WHERE  album IS NOT NULL;
+	\end{lstlisting}
+	\end{note}
+
+	\item \label{kuenstler_gesamtzahl} Erstellen \deepen Sie eine SQL-Abfrage, die zu jedem Künstler die Gesamtzahl seiner Songs listet.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT   artist, count(*)
+FROM     songs
+GROUP BY artist;
+	\end{lstlisting}
+	\end{note}
+
+
+	\item Erweitern \deepen Sie die Abfrage aus Aufgabe \ref{kuenstler_gesamtzahl}) so, dass die Ausgabe nach Anzahl veröffentlichter Songs absteigend sortiert wird.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT   artist, count(*) AS veroeffentlichte_songs
+FROM     songs
+GROUP BY artist
+ORDER BY veroeffentlichte_songs DESC;
+	\end{lstlisting}
+	\end{note}
+
+\end{enumerate}

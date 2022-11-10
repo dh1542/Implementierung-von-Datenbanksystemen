@@ -1,0 +1,112 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{i6exc}[2014/04/14 Commands for practice sheets and exams]
+
+% Process options
+\newif\ifgerman
+\DeclareOption{ngerman}{ % German strings
+	\germantrue
+}
+\DeclareOption*{} % Ignore unknown options
+\ProcessOptions\relax
+
+
+% Language-dependent strings for titles and footers
+\ifgerman
+	\newcommand*{\WinterSem}{Wintersemester}
+	\newcommand*{\SummerSem}{Sommersemester}
+	\newcommand*{\Department}{Department Informatik}
+	\newcommand*{\Chair}{Lehrstuhl für Informatik 6\\(Datenmanagement)}
+\else
+	\newcommand*{\WinterSem}{Winter Semester}
+	\newcommand*{\SummerSem}{Summer Semester}
+	\newcommand*{\Department}{Department of Computer Science}
+	\newcommand*{\Chair}{Computer Science 6\\(Data Management)}
+\fi
+
+
+% Calculate semester based on \month and \year
+% \semester prints long form of current semester and \semester* prints short form
+\ifnum\month<4
+	\newcounter{LastYear}
+	\setcounter{LastYear}{\year}
+	\addtocounter{LastYear}{-1}
+	\newcommand{\SemesterShort}{WS \theLastYear/\the\year}
+	\newcommand{\SemesterLong}{\WinterSem~\theLastYear/\the\year}
+\else\ifnum\month>9
+	\newcounter{NextYear}
+	\setcounter{NextYear}{\year}
+	\addtocounter{NextYear}{1}
+	\newcommand{\SemesterShort}{WS \the\year/\theNextYear}
+	\newcommand{\SemesterLong}{\WinterSem~\the\year/\theNextYear}
+\else
+	\newcommand{\SemesterShort}{SS \the\year}	
+	\newcommand{\SemesterLong}{\SummerSem~\the\year}
+\fi
+\fi
+\newcommand{\semester}{\@ifstar
+	\SemesterShort%
+	\SemesterLong%
+}
+
+
+% Solution and Notes
+% Use environment "solution" or command \sol to mark solutions.
+% \sol is ment for short single-line solutions and may be used with anoptional space argument (e.g. \sol[2cm]{solution}) to insert horizontal space when \withsolutions is not set.
+% Use environment "note" or command \nt to mark additional notes, e.g. ment only for tutors.
+% Solutions and notes are colored with solutioncolor and notecolor respectively.
+% For places where a more flexible solution is needed, e.g. because the content should not be colored, the conditionals \ifsolutions and \ifnotes are provided.
+% Use \withsolutions and \withnotes respectively to make content of these environments visible
+\RequirePackage[table]{xcolor}
+\RequirePackage{environ}
+\RequirePackage{cprotect}
+\definecolor{solutioncolor}{RGB}{0,51,102}  % FAU Farben - Universität
+\definecolor{notecolor}{RGB}{156,120,0}
+
+% Solutions
+\newif\ifsolutions
+
+\newcommand{\sol}[2][]{%
+	\ifsolutions \begingroup\color{solutioncolor}#2\endgroup%
+	\else #1
+	\fi%
+}
+% Breaks with Listings, use \cprotEnv infront of \begin{solution} solution
+\NewEnviron{solution}[1][]{\sol[#1]{\BODY}}
+
+
+\newcommand{\withsolutions}{
+	\solutionstrue
+}
+
+\newcommand{\solspace}[2]{
+	\vbox to #1 {\vfil\sol{#2}\vfil}
+}
+
+% Notes
+\newif\ifnotes
+
+\newcommand{\nt}[1]{\ifnotes \begingroup\color{notecolor}#1\endgroup \fi}
+\NewEnviron{note}{\nt{\BODY}}
+\newcommand{\withnotes}{\notestrue}
+
+% Beamerentry
+\newif\ifbeamerTxT
+\newcommand{\beamertxt}[2][]{\ifbeamerTxT#2\else#1\fi}
+\NewEnviron{beamerText}[1][]{\beamertxt[#1]{\BODY}}
+\newcommand{\withBeamerText}{\beamerTxTtrue}
+
+% Normalentry
+\newcommand{\normaltxt}[2][]{\ifbeamerTxT#1\else#2\fi}
+\NewEnviron{normalText}[1][]{\normaltxt[#1]{\BODY}}
+
+%%% Macros for authors
+
+%%% Creates boxes for Multiple-Choice Questions
+\newcommand{\mc}{\Square \enspace}
+\newcommand{\mcsol}{\ifsolutions \XBox \else \Square \fi \enspace}
+
+\newcommand{\itemmc}{\item[$\square$]}
+\newcommand{\itemmcsol}{\ifsolutions \item[$\blacksquare$] \else \item[$\square$] \fi}
+
+\newcommand{\mcsmall}{\Square}
+\newcommand{\mcsmallsol}{\ifsolutions \XBox \else \Square \fi}

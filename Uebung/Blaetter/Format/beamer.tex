@@ -1,0 +1,25 @@
+\documentclass[17pt,ngerman]{i6prcsht}
+\input{Includes/packages}
+\input{Includes/Literatur}
+\input{Includes/Vorlesung}
+\usepackage{xcolor}
+\usepackage{pagecolor}
+\usepackage[pdftex]{insdljs}
+\newcommand{\DarkVersion}{
+\definecolor{cs6blue}{HTML}{0085bd}
+\hypersetup{colorlinks = true,
+            linkcolor = cs6blue,
+            urlcolor  = cs6blue,
+            citecolor = cs6blue,
+            anchorcolor = cs6blue}
+\pagecolor{black}
+\color{white}
+\renewcommand{\familydefault}{\sfdefault}
+\def\DefaultOptionsofText{
+	print, backgroundcolor=lightgray,
+	charsize=17pt,
+}
+}
+
+\DarkVersion
+\withBeamerText

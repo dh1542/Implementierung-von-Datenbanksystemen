@@ -1,0 +1,23 @@
+% This file adds packages and configuration options used
+% in your course which are of no interest in other courses.
+% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{common}[2014/04/16 Packages and configuration  for course specific practice sheets]
+%\RequirePackage{wasysym} % z.B. \lightning für Widerspruchsblitz nach Beweise
+
+\lecture{Implementierung von Datenbanksystemen}{IDB}
+
+% Zur Markierung der Zusatzaufgaben
+% Einzelne Zusatzaufgabe (itemize)
+\newcommand{\deepen}{\marginpar{\begin{flushright}*\end{flushright}}}
+\newcommand{\selbst}{\marginpar{\begin{flushright}**\end{flushright}}}
+% Eine ganze Umgebung an Zusatzaufgaben
+\newenvironment{deeper}{
+\renewcommand{\thesection}{* \arabic{section}}
+}{}
+\newenvironment{selbstTest}{
+	\renewcommand{\thesection}{** \arabic{section}}
+}{}
+\reversemarginpar
+
+% Z.B. \lstset{basicstyle=\ttfamily,language=SQL,morekeywords={range, s, partition, by, rows, stream},keywordstyle=\bfseries}

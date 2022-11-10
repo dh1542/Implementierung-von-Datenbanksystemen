@@ -1,0 +1,100 @@
+\begin{solution}
+
+\section{Implementierung eines Hash-Index}
+
+Aufgabenstellung: Siehe Blatt 7.
+
+\end{solution}
+
+
+\lstset{basicstyle=\ttfamily,language=C}
+
+\begin{note}
+Auf das Angebot hinweisen, dass in dieser Woche in der Intensivierungsübung die Programmieraufgabe interaktiv gelöst und detailliert besprochen wird.
+
+\end{note}
+
+\begin{solution}
+
+\begin{algorithm}[H]
+\caption{get(key): Gib alle Werte für den gegebenen Schlüssel zurück}
+values = \{\}\;
+segmentNo = PRIMARY\_SEGMENT\;
+pageNo = computeHash(key)\;
+\While{pageNo $\neq$ \textbf{undef}}{
+	page = fix(segmentNo, pageNo)\;
+	values = values $\cup$ extractValues(page, key)\;
+	ofPageNo = getOverflowPointer(page)\;
+	unfix(segmentNo, pageNo)\;
+	segmentNo = OVERFLOW\_SEGMENT\;
+	pageNo = ofPageNo\;
+}
+\Return values\;
+\end{algorithm}
+\pagebreak[0]
+
+\begin{algorithm}[H]
+\caption{put(key, value): Füge neues Schlüssel-Wert-Paar in den Index ein}
+
+segment = PRIMARY\_SEGMENT\;
+pageNo = computeHash(key)\;
+\For{true}{
+	page = fix(segmentNo, pageNo)\;
+	numberOfEntries = extractNoE(page)\;
+	\eIf{numberOfEntries $<$ BFR}{
+		insertItem(page, key, value)\;
+		setDirty(segmentNo, pageNo)\;
+		unfix(segmentNo, pageNo)\;
+		\textbf{break}\;
+	}{
+		ofPageNo = getOverflowPointer(page)\;
+		\If{ofPageNo == \textbf{undef}}{
+			ofPageNo = addOverflowBucket()\;
+			setOverflowPointer(page, ofPageNo)\;
+			setDirty(segmentNo, pageNo)\;
+		}
+		unfix(segmentNo, pageNo)\;
+		segmentNo = OVERFLOW\_SEGMENT\;
+		pageNo = ofPageNo\;
+	}
+}
+NUM\_ITEMS = NUM\_ITEMS + 1\;
+\If{NUM\_ITEMS /((CAPACITY + POSITION) * BFR) $>$ THRESHOLD}{
+	split()\;
+}
+\end{algorithm}
+\pagebreak[0]
+\begin{algorithm}[H]
+\caption{computeHash(key)}
+hash = abs(hashValue(key) $\bmod$ CAPACITY)\;
+\If{hash $<$ POSITION}{
+	hash = abs(hashValue(key) $\bmod$ (CAPACITY * 2))\;
+}
+\Return hash\;
+\end{algorithm}
+\pagebreak[0]
+\begin{algorithm}[H]
+\caption{split()}
+addPrimaryBucket()\;
+oldPosition = POSITION\;
+POSITION = POSITION + 1\;
+\If{POSITION == CAPACITY}{
+	POSITION = 0\;
+	CAPACITY = CAPACITY * 2\;
+}
+segmentNo = PRIMARY\_SEGMENT\;
+pageNo = oldPosition\;
+\While{pageNo $\neq$ \textbf{undef}}{
+	page = fix(segmentNo, pageNo)\;
+	\ForAll{(key, value) $\in$ page}{
+		removeItem(page, (key, value))\;
+		setDirty(segmentNo, pageNo)\;
+		put(key, value)\;
+	}
+	ofPageNo = getOverflowPointer(page)\;
+	unfix(segmentNo, pageNo)\;
+	segmentNo = OVERFLOW\_SEGMENT\;
+	pageNo = ofPageNo\;
+}
+\end{algorithm}
+\end{solution}

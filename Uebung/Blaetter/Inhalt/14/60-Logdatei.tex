@@ -1,0 +1,59 @@
+\section{Logdatei}
+
+In der Vorlesung wurden für die Wiederherstellung nach einem Ausfall ohne Gerätefehler die Recovery-Klassen Partial Redo und Global Undo unterschieden. Partial Redo meint dabei das Wiederherstellen der durch den Ausfall verlorengegangenen Änderungen. Global Undo dagegen ist das Rückgängigmachen bereits ausgeführter Änderungen.
+
+Die Durability-Eigenschaft von Transaktionen fordert, dass die Änderungen, die der Anwendung nach einem commit bestätigt wurden, durch einen Fehler nicht mehr rückgängig gemacht werden dürfen.
+
+Nehmen Sie folgende (realistische) Situation an:
+Sie haben eine Datenbank mit direkter Seiteneinbringung, die durch einen Systempuffer beschleunigt wird. Außerdem steht Ihnen ein Log zur Verfügung, in das Sie beliebige Informationen schreiben können.
+
+Überlegen Sie, wie Sie nach einem Ausfall ohne Gerätefehler Recovery
+\begin{enumerate}[a)]
+	\item ausschließlich durch Partial Redo
+	\item ausschließlich durch Global Undo
+\end{enumerate}
+garantieren können.
+
+In welcher Reihenfolge müssen die folgenden Operationen jeweils ausgeführt werden?
+\begin{itemize}
+	\item Schreiben einer Änderung (wahlw\normaltxt[.]{eise} alter \normaltxt[/]{oder }neuer Stand) ins Log
+	\item Schreiben einer neuen Version einer Seite in die Datenbank
+	\item Schreiben eines commit-Vermerks ins Log
+	\item Bestätigen eines commits an die Anwendung
+\end{itemize}
+
+\begin{solution}
+\begin{enumerate}[a)]
+\item Partial Redo
+
+Bestätigte Änderungen sind noch nicht in der Datenbank, aber schon im Log. Das Log enthält die neuen Versionen der Seiten. Bei einem Commit wird der Commit-Record ins Log geschrieben. Wenn auch alle Änderungen im Log stehen, haben wir alle Informationen zum Partial Redo. Dann können wir das Commit bestätigen. Nach einem Fehler suchen wir den Commit-Record. Ist er da, wird alles wiederhergestellt. Sonst machen wir nichts, dann ist der alte Stand noch in der Datenbank. Es dürfen also keine Blöcke geändert werden, bevor der Commit-Record geschrieben ist.
+
+Reihenfolge:
+\begin{enumerate}[1.]
+	\item Log
+	\item Commit-Record
+	\item Commit-Bestätigung
+\end{enumerate}
+
+Daten schreiben erst nach 2.\ (NoSteal), denn so lange kann eine TA noch fehlschlagen und so lange müssen die alten Versionen in der DB stehen bleiben. Würden wir Commit-Record und Bestätigung vertauschen, so wird ggf.\ eine TA bestätigt, die nicht auf der Platte steht und nicht wiederhergestellt wird.
+
+\item Global Undo
+
+Ins Log kommt immer die alte Version eines Werts, bevor eine neue in die Datenbank geschrieben wird. Bei einem Commit sorgen wir dafür, dass alle neuen Werte in der Datenbank stehen, bevor wir dann den Commit-Record schreiben und die Commit-Bestätigung zurückgeben. Bei der Recovery müssen wir nichts tun, falls ein Commit verzeichnet ist. Falls nicht, müssen die alten Werte wiederhergestellt werden.
+Sollte es zu einem Ausfall des Hauptspeichers kommen, können wir hiermit alle unterbrochenen Transaktionen zurücksetzen.
+
+Reihenfolge:
+\begin{enumerate}[1.]
+	\item Log
+	\item Commit-Record
+	\item Commit-Bestätigung
+\end{enumerate}
+
+Daten schreiben nach 1., aber vor 2.\ (Force), denn wenn wir den Commit-Record schreiben, müssen die neuen Versionen schon in der DB stehen. Würden wir Commit-Record und Bestätigung vertauschen, so wird ggf.\ eine TA bestätigt, die als nicht erfolgreich gilt und rückgängig gemacht wird.
+\end{enumerate}
+
+\end{solution}
+
+\begin{note}
+Auf die Granularität des Loggings gehen wir hier nicht ein. Prinzipiell kann man ins Log Seiten, Sätze oder auch SQL-Befehle schreiben. Wir gehen hier von Seiten aus.
+\end{note}

@@ -1,0 +1,85 @@
+\section{Programmschnittstelle 2}
+
+Gegeben sei folgende SQL-Abfrage:
+
+\texttt{SELECT Kunden.nachname, Kunden.vorname, auftraege.status, auftraege.summe \\
+	FROM Kunden JOIN auftraege ON Kunden.id = auftraege.kunde \\
+	WHERE auftraege.id = 42;}
+
+An der internen Satzschnittstelle stehen folgende Objekte zur Verfügung:
+\begin{itemize}
+	\item eine Datei \emph{Kunden}, die die Kundendatensätze in Form von Tupeln der Relation enthält;
+	\item eine Datei \emph{Auftraege}, die die Auftragsdatensätze in Form von Tupeln der Relation enthält;
+	\item eine Datei \emph{Kundennummer-Index}, die eine Kundennummer auf eine Satzadresse abbildet;
+	\item eine Datei \emph{Auftragsnummer-Index}, die eine Auftragsnummer auf eine Satzadresse abbildet.
+\end{itemize}
+Jede Kundennummer und jede Auftragsnummer ist eindeutig.
+
+\begin{enumerate}[a)]
+	\item Schreiben Sie ein Programm, das die o.\,g.\ SQL-Anfrage mit den Aufrufen der internen Satzschnittstelle realisiert. Verwenden Sie eine Sprache Ihrer Wahl oder auch Pseudocode.
+
+	\begin{note}
+	\texttt{
+	\begin{tabbing}
+		\hspace*{1cm}\=\hspace*{1cm}\= \kill
+		KeyedRecordFile kundenindex = new KeyedRecordFile("Kundennummer-Index", "r"); \\
+		KeyedRecordFile auftraegeindex = new KeyedRecordFile("{}Auftragsnummer-Index", "r"); \\
+		if(!auftraegeindex.contains(42))\\
+		\> abort;
+		TID auftraegetid = auftraegeindex.readKey(42); \\
+		DirectRecordFile auftraegesaetze = new DirectRecordFile("{}Auftraege", "r"); \\
+		Record auftraegeergebnis = auftraegesaetze.read(auftraegetid); \\
+		Int kundennr = auftraegeergebnis.get(kunde); \\
+		TID kundentid = kundenindex.readKey(kundennr); \\
+		DirectRecordFile kundensaetze = new DirectRecordFile("Kunden", "r"); \\
+		Record kundenergebnis = kundensaetze.read(kundentid); \\
+		print(kundenergebnis.read(nachname).toString());\\
+		print(kundenergebnis.read(vorname).toString());\\
+		print(auftraegeergebnis.read(status).toString());\\
+		print(auftraegeergebnis.read(summe).toString());\\
+	\end{tabbing}
+	}
+	\end{note}
+
+	\item Wie würde das Programm aussehen, wenn kein Index zur Verfügung stünde?
+
+	\begin{note}
+		\texttt{
+			\begin{tabbing}
+			\hspace*{1cm}\=\hspace*{1cm}\= \kill
+			DirectRecordFile kundensaetze = new DirectRecordFile("Kunden", "r"); \\
+			DirectRecordFile auftraegesaetze = new DirectRecordFile("{}Auftraege", "r"); \\
+			Record kundenergebnis; \\
+			Record auftraegeergebnis; \\
+			Bool gefunden = false;\\
+			while (auftraegesaetze.hasNext()) \{  \\
+			\> auftraegeergebnis = auftraegesaetze.next(); \\
+			\> if (auftraegeergebnis.get(id) == 42) \{ \\
+			\> \> gefunden = true;\\
+			\> \> break; //Abbruch, jede Auftragsnummer existiert 1x \\
+			\> \} \\
+			\} \\
+			if not gefunden \{ \\
+			\> abort; //Abbruch, Auftrag nicht gefunden \\
+			\} \\
+			gefunden = false; \\
+			while (kundensaetze.hasNext()) \{   \\
+			\> kundenergebnis = kundensaetze.next(); \\
+			\> if (kundenergebnis.get(id) == auftraegeergebnis.get(kunde)) \{ \\
+			\> \> gefunden = true;\\
+			\> \> break; //Abbruch, jede Kundennummer existiert 1x \\
+			\> \} \\
+			\} \\
+			if not gefunden \{ \\
+			\> abort; //Abbruch, Kunde nicht gefunden \\
+			\} \\
+			print(kundenergebnis.get(nachname).toString()); \\
+			print(kundenergebnis.get(vorname).toString()); \\
+			print(auftraegeergebnis.get(status).toString()); \\
+			print(auftraegeergebnis.get(summe).toString()); \\
+			\end{tabbing}
+		}
+	\end{note}
+
+\end{enumerate}
+

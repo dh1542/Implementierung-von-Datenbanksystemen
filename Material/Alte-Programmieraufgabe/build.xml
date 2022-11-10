@@ -1,0 +1,44 @@
+<project name="IDB" basedir="." default="main">
+
+    <property name="src.dir"     value="src"/>
+    <presetdef name="javac">
+        <javac includeantruntime="false" />
+    </presetdef>
+
+    <property name="build.dir"   value="build"/>
+    <property name="jar.dir"     value="jar"/>
+
+    <property name="main-class"  value="Main"/>
+
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete file="${jar.dir}/${ant.project.name}.jar"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}" classpath="${jar.dir}/buffer.jar"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+                <attribute name="Class-Path" value="buffer.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+    </target>
+
+    <target name="demo">
+        <java jar="${jar.dir}/${ant.project.name}Demo.jar" fork="true"/>
+    </target>
+
+    <target name="main" depends="clean,run"/>
+    <target name="init"/>
+</project>

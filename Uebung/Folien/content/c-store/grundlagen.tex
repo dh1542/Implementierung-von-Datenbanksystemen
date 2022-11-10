@@ -1,0 +1,609 @@
+\section{C-Store}
+\begin{frame}{C-Store -- Projektionen}
+\begin{itemize}[<.->]
+	\item<+-> Bisher: Tabellen werden Zeile f\"ur Zeile gespeichert.\\
+	Zus\"atzlich: Indexe
+	\item<+-> Jetzt: Spalten werden zu Projektionen gruppiert.\\
+	Jede Projektion besitzt eine Ankertabelle.\\
+	Hat die gleiche Anzahl an Zeilen wie die Ankertabelle.\\
+	Beinhaltet mindestens ein Attribut dieser Ankertabelle.
+	\item<+-> Zus\"atzlich: eine beliebige Anzahl an Attributen von anderen Tabellen, solange Fremdschl\"usselkette zur Ankertabelle existiert.
+	\item Je (Anker-)Tabelle T eine Reihe von Projektionen T1, T2, \ldots\\
+	Jeweils beschrieben durch die Namen der  enthaltenen Attribute. \\
+	Attribute fremder Tabellen werden mit dem Tabellennamen gekennzeichnet.
+	\item<+-> Die Wahl der Projektionen geschieht analog zu der Wahl der Indexe: Anhand der erwarteten Anfragen auf den Datenbestand.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Projektionen, Praxis}
+\begin{itemize}[<+->]
+\item Vollst\"andige Tabellen: \\
+  {\small
+  \texttt{Student (Name, Alter, \underline{MatrNr})},\\
+  \texttt{Noten (\underline{MatrNr[Student], PrfNr}, Note)}
+  } \\
+  \begin{tabular}{ | c | c | c | }
+  	\hline
+  	Name  & Alter & MatrNr   \\ \hline
+  	Hans  & 17    & 21052546 \\ \hline
+  	Peter & 25    & 22014395 \\ \hline
+  \end{tabular} 
+  \quad
+  \begin{tabular}{ | c | c | c |}
+  	\hline
+  	MatrNr   & PrfNr & Note \\ \hline
+  	21052546 & 1469  & 1.3  \\ \hline
+  	21052546 & 1501  & 3.3  \\ \hline
+  	22014395 & 1469  & 2.0  \\ \hline
+  	22014395 & 1501  & 2.0  \\ \hline
+  \end{tabular}
+  \vspace{2mm}
+\item Anfrage: \\
+  {\small
+  \texttt{SELECT AVG(Note) FROM Noten n, Student s \\
+  WHERE n.MatrNr = s.MatrNr GROUP BY Alter;}
+  }
+\item Gew\"ahlte Projektion: \\
+\texttt{Noten1 (Student.Alter, Note)}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	 17   \\ \hline
+	 17   \\ \hline
+	 25   \\ \hline
+	 25   \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Note \\ \hline
+	1.3  \\ \hline
+	3.3  \\ \hline
+	2.0  \\ \hline
+	2.0  \\ \hline
+\end{tabular}
+\note{Anmerkung: Hier darauf hinweisen, dass KEINE Duplikate elimiert werden. Nicht nur ein Performancegewinn, sonden hier absolut notwendig.}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{C-Store -- Spalten\"uberdeckung}
+\begin{itemize}[<.->]
+\item<+-> C-Store muss nat\"urlich auch in der Lage sein, beliebige Anfragen zu verarbeiten.
+\item Um dies zu erreichen, m\"ussen alle Projektionen zusammen eine vollst\"andige \"Uberdeckung aller Spalten erreichen.
+\item<+-> Zus\"atzliche ben\"otigte Projektionen: \\
+\vspace{3mm}
+  {\small
+  \texttt{Noten2 (MatrNr, PrfNr), \\
+  Student1 (MatrNr, Name, Alter)}
+  }
+%Anmerkung: Ich uebernehme keine Garantie, ob Student1 Alter noch benoetigt wird oder nicht. Ich kann diesen Fall (ein Attribut ueber eine fremde Ankertabelle referenziert) grade in der Veroeffentlichung nichts finden. Mit dem Alter in Student1 ist auf jeden Fall eine vollstaendige Ueberdeckung gewaehrleistet.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{C-Store -- Sortierung}
+\begin{itemize}[<+->]
+	\item Jede Projektion in C-Store ist sortiert nach einem Attribut, dem sog.\ Sortierschl\"ussel (sort key).
+	\item Die Wahl des Sortierschl\"ussels erfolgt gem\"a{\ss} den zu erwartenden Anfragen; eine nach Attribut x sortierte Projektion unterst\"utzt Bereichsanfragen auf x sowie Gruppierungen und \texttt{max, min} besonders gut.
+	\item Der Sortierschl\"ussel wird in den Projektionen angegeben, indem er hinter einem senkrechten Strich aufgef\"uhrt wird: \\
+	{\small\texttt{Noten1 (Student.Alter, Note | Student.Alter)}}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Sortierung, Praxis}
+Gew\"ahlte Projektion:
+
+\only<1-2>{\texttt{Noten1 (Student.Alter, Note | Student.Alter)} \\
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+ \hline
+ Note \\ \hline
+ 1.3  \\ \hline
+ 3.3  \\ \hline
+ 2.0  \\ \hline
+ 2.0  \\ \hline
+\end{tabular}}
+\only<2>{
+$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Note \\ \hline
+	1.3  \\ \hline
+	3.3  \\ \hline
+	2.0  \\ \hline
+	2.0  \\ \hline
+\end{tabular}}
+
+\only<3-4>{\texttt{Noten2 (MatrNr, PrfNr | PrfNr)} \\
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+	22014395 \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	PrfNr \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+\end{tabular}}
+\only<4>{
+$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	PrfNr \\ \hline
+	1469  \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+	1501  \\ \hline
+\end{tabular}}
+
+\only<5-6>{\texttt{Student1(MatrNr, Name, Alter | Alter )} \\
+\begin{tabular}{|c|}
+	\hline
+	Name  \\ \hline
+	Hans  \\ \hline
+	Peter \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+\end{tabular}}
+\only<6>{
+$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	Name  \\ \hline
+	Hans  \\ \hline
+	Peter \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+\end{tabular}}
+
+\end{frame}
+
+\begin{frame}{C-Store -- Join-Indexe}
+\begin{itemize}[<.->]
+	\item<+-> Wiederholung: C-Store muss die originalen Tabellen rekonstruieren k\"onnen, um beliebige Anfragen zu verarbeiten.
+	\item Das Zusammenf\"ugen von verschiedenen Projektionen ist durch die unterschiedliche Sortierung nun nicht mehr trivial.
+	\item<+-> C-Store verwendet daf\"ur Join-Indexe, die wie folgt aufgebaut sind:
+  \begin{itemize}
+		\item Jedes Tupel in jeder Projektion ist mit einem sog.\ \textit{Storage Key (SK)} verkn\"upft.
+		\item SKs sind durchnumeriert (1, 2, 3, \ldots ) und nicht im RS gespeichert, sie ergeben sich aus der Position in der Spalte.
+		\item In dem Join-Index einer Projektion T1 nach Projektion T2 ist in jeder Zeile der SK aus T2 notiert, der zu dem Tupel in T1 passt.
+	\end{itemize}
+	\item<+-> Da der Join-Index von Projektion T1 die gleiche Sortierung hat wie die ganze Projektion T1, kann er als Spalte von T1 notiert werden.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Join-Indexe, Praxis}
+Gew\"ahlte Projektionen:
+
+\texttt{Noten1 (Student.Alter, Note | Student.Alter)} \\
+\vspace{3mm}
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Note \\ \hline
+	1.3    \\ \hline
+	3.3    \\ \hline
+	2.0    \\ \hline
+	2.0    \\ \hline
+\end{tabular}
+ \only<2->{$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	17    \\ \hline
+	17    \\ \hline
+	25    \\ \hline
+	25    \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	1.3    \\ \hline
+	3.3    \\ \hline
+	2.0    \\ \hline
+	2.0    \\ \hline
+\end{tabular}} \\
+\vspace{5mm}
+\texttt{Noten2 (MatrNr, PrfNr | PrfNr)} \\
+\vspace{3mm}
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	PrfNr \\ \hline
+	1469  \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+	1501  \\ \hline
+\end{tabular}
+\only<3>{
+$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	MatrNr   \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+	21052546 \\ \hline
+	22014395 \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	PrfNr \\ \hline
+	1469  \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+	1501  \\ \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|}
+	\hline
+	N1\_SK \\ \hline
+	1      \\ \hline
+	3      \\ \hline
+	2      \\ \hline
+	4      \\ \hline
+\end{tabular}
+}
+
+\end{frame}
+
+
+\begin{frame}{C-Store -- Speicherung und Kompression}
+
+\begin{itemize}
+	\item C-Store speichert jede Spalte einer Projektion in einer eigenst\"andigen Datenstruktur (Array).
+	\item Das Array jeder Spalte wird zus\"atzlich komprimiert.
+	Dabei wird zwischen sortiert / unsortiert und viele / wenige unterschiedliche Werte unterschieden.
+	\item Bei Texten (Strings) wird zus\"atzlich ein W\"orterbuch verwendet.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{W\"orterbuch, Praxis}
+Beispiel: Spalte ,,Name`` aus der Projektion ,,Noten1``:
+\vspace{5mm}
+
+\begin{tabular}{|c|}
+	\hline
+	Name  \\ \hline
+	Hans  \\ \hline
+	Peter \\ \hline
+\end{tabular}
+\visible<2->{
+$\Rightarrow$
+\begin{tabular}{|c|}
+	\hline
+	Name \\ \hline
+	0    \\ \hline
+	5    \\ \hline
+\end{tabular} $+$ W\"orterbuch:~Hans\textbackslash0Peter 
+}
+\end{frame}
+
+\begin{frame}{C-Store -- Typ 4 -- Unsortiert, viele verschiedene Werte}
+\begin{itemize}[<+->]
+	\item Dieser Typ erm\"oglicht am wenigsten Optimierung.
+	\item Die Daten (nach Storage Key) werden dicht in Seiten gepackt.
+	\item Um den Zugriff per Storage Key zu beschleunigen wird nun auf diesen dicht gepackten Seiten eine Verzeigerungsstruktur aufgebaut.
+	\item Man erhält somit einen dicht gepackten B*-Baum.
+	\item Alternativ kann man auch ähnlich einen B-Baum aufbauen.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Kompression Typ 4, Praxis}
+
+\only<+->{
+Beispiel: ,,N1\_SK`` in ,,Noten2``.
+
+\vspace{3mm}
+\begin{tabular}{ | c|}
+	\hline
+	N1\_SK \\ \hline
+	1      \\ \hline
+	3      \\ \hline
+	2      \\ \hline
+	4      \\ \hline
+\end{tabular}
+}
+\only<+->{$\Rightarrow$
+\begin{minipage}{0.3 \textwidth}
+Gespeicherte Tupel: \\
+(\underline{1}, 1); (\underline{2}, 3); (\underline{3}, 2); (\underline{4}, 4)
+\end{minipage}}
+\only<+->{
+$\Rightarrow$
+\begin{minipage}{0.3\textwidth}
+B*-Baum nach Storage Key\\
+
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+	%Level0
+	\draw pic {firstInnerNode={2}{}{}{}{0}{0}{2}};
+	%Level1
+	\draw pic {firstLeafNode={\underline{1}}{(1)}{\underline{2}}{(3)}{1}{1}{1}};
+	\draw pic {leafNode={\underline{3}}{(2)}{\underline{4}}{(4)}{1}{2}};
+	%Verbindungspfeile 0 - 1
+	\draw pic {connect={0}{0}{1}};
+	\draw pic {connect={0}{1}{2}};
+\end{tikzpicture}
+\end{minipage}}
+\end{frame}
+
+\begin{frame}{C-Store -- Typ 3 -- Sortiert, viele verschiedene Werte}
+\begin{itemize}[<+->]
+	\item Dieser Typ bietet etwas mehr Optimierungspotential.
+	\item Die Werte werden mittels einer Delta-Kodierung komprimiert.
+	\item Aus bspw.\ 1, 4, 7, 7, 8, 12 wird so 1, 3, 3, 0, 1, 4.
+	\item Dieses Schema wird auf Seiten-Ebene angewendet, am Anfang jeder Seite ist ein Wert und der zugeh\"orige SK, danach nur noch die Differenzwerte.
+	\item Auf dieser Folge von Seiten kann wieder ein B*-Baum aufgesetzt werden, der den Zugriff über den Storage Key beschleunigt.
+	\item  Da die Spalte sortiert ist, ist der B*-Baum automatisch nach Storage Key und Wert sortiert.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Kompression Typ 3, Praxis}
+\only<+->{}
+Beispiel: PrfNr in Noten2.
+
+\vspace{4mm}
+\begin{tabular}{|c|}
+	\hline
+	PrfNr \\ \hline
+	1469  \\ \hline
+	1469  \\ \hline
+	1501  \\ \hline
+	1501  \\ \hline
+\end{tabular}
+\only<+->{$\Rightarrow$
+\begin{minipage}{0.33\textwidth}
+Gespeicherte Tupel:\\
+(\underline{1}, 1469, 0, 32); (\underline{4}, 1501)\\
+Annahme: \\Nutzlast pro Block 3 Datenelemente
+\end{minipage}}
+\only<+->{
+\begin{minipage}{0.47\textwidth}
+	B*-Baum nach Storage Key\\
+
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+	%Level0
+	\draw pic {firstInnerNode={3}{}{}{}{0}{0}{2}};
+	%Level1
+	\draw pic {firstLeafNode={\underline{1}}{(1469)}{(0)}{(32)}{1}{1}{1}};
+	\draw pic {leafNode={\underline{4}}{(1501)}{}{}{1}{2}};
+	%Verbindungspfeile 0 - 1
+	\draw pic {connect={0}{0}{1}};
+	\draw pic {connect={0}{1}{2}};
+\end{tikzpicture}
+\end{minipage}
+}
+\end{frame}
+
+\begin{frame}{C-Store -- Typ 1 -- Sortiert, wenig verschiedene Werte}
+
+\begin{itemize}[<+->]
+	\item Dieser Typ bietet das gr\"o\ss{}te Optimierungspotenzial.
+	\item Die Werte werden als Tripel $(f,v,n)$ notiert.
+	\item Dabei ist 
+\begin{itemize}
+	\item $f$ die Position (der SK) des ersten Auftritts
+	\item $v$ der Wert 
+	\item $n$ die Anzahl identischer Werte
+\end{itemize}
+	\item Da Typ 1 sortiert ist, gibt es pro unterschiedlichem Wert in der Spalte genau ein Tripel, das gespeichert wird.
+	\item Diese Tripel werden in einen dichtgepackten B-Baum gelegt, wobei sie nach $f$ sortiert werden.
+	\item  Da die Spalte sortiert ist, ist der B-Baum automatisch nach Storage Key (f) und Wert (v) sortiert.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Kompression Typ 1, Praxis}
+\only<+->{
+Beispiel: Alter in Noten1.
+\vspace{3mm}
+
+\begin{tabular}{|c|}
+	\hline
+	Alter \\ \hline
+	 17   \\ \hline
+	 17   \\ \hline
+	 25   \\ \hline
+	 25   \\ \hline
+\end{tabular}
+\vspace{2mm}
+}
+\only<+->{$\Rightarrow$
+\begin{minipage}{0.3\textwidth}
+Gespeicherte Tupel: \\
+(\underline{1}, 17, 2), und (\underline{3}, 25, 2)
+\end{minipage}
+}
+\only<+->{
+\begin{minipage}{0.4\textwidth}
+B-Baum nach Storage Key\\
+
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+	%Level0
+	\draw pic {firstLeafNode={\underline{1}}{(17, 2)}{\underline{3}}{(25, 2)}{0}{0}{2}};
+\end{tikzpicture}
+\end{minipage}
+}
+
+
+\end{frame}
+
+\begin{frame}{C-Store -- Typ 2 -- Unsortiert, wenig verschiedene Werte}
+\begin{itemize}[<+->]
+	\item Dieser Typ ist der komplizierteste (und wird deswegen am Ende behandelt).
+	\item F\"ur jeden vorkommenden Wert wird ein Paar $(v,b)$ gespeichert.
+	\item Dabei ist $v$ der Wert und $b$ eine Bitmap, die die Positionen angibt, an welchen dieser Wert vorkommt.
+	\item $b$ sind d\"unn besetzte Bitmaps, weswegen sich eine Laufl\"angenkodierung empfiehlt.
+	\item Da sich die Bitmap über mehrere Seiten erstreckt, wird für den schnellen Zugriff per Storage Key über jeder Bitmap ein B*-Baum aufgebaut.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Kompression Typ 2, Praxis}
+
+\only<+->{
+Beispiel: Note in Noten1. \newline \newline
+\begin{tabular}{ | c |}
+	\hline
+	Note \\ \hline
+	1.3  \\ \hline
+	3.3  \\ \hline
+	2.0  \\ \hline
+	2.0  \\ \hline
+\end{tabular}}
+\only<+->{$\Rightarrow$
+\begin{minipage}{0.17\textwidth}
+Gespeicherte\\
+Tupel:\\
+$(1.3, 1000)$\\
+$(3.3,0100)$\\
+$(2.0, 0011)$
+\end{minipage}}
+\only<+->{$\Rightarrow$
+\begin{minipage}{0.27\textwidth}
+Nach\\
+Laufl\"angenencoding:\\
+$(1.3, 113)$\\
+$(3.3, 0112)$\\
+$(2.0, 022)$
+\end{minipage}}
+\newline \newline
+\only<+->{
+\textit{Annahme: Nutzlast pro Seite 3 Ziffern}\\
+$\Rightarrow$
+\begin{minipage}{0.27\textwidth}
+Die Tupel für die jeweiligen B*-Bäume lauten:\\
+1.3: (\underline{1}, 113);\\
+2.0: (\underline{1}, 022);\\
+3.3: (\underline{1}, 011); (\underline{3}, 02);\\
+\end{minipage}
+$\Rightarrow$
+\begin{minipage}{0.17\textwidth}
+1.3:\\
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+	%Level0
+	\draw pic {firstLeafNode={\underline{1}}{1}{1}{3}{0}{0}{2}};
+\end{tikzpicture}\\
+2.0:\\
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+	%Level0
+	\draw pic {firstLeafNode={\underline{1}}{0}{2}{2}{0}{0}{2}};
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.3\textwidth}
+3.3:\\
+\begin{tikzpicture}[
+	start chain=0 going right,
+	start chain=1 going right,
+	defaultNode/.style={defaultNode1},
+]
+
+%Level0
+\draw pic {firstInnerNode={2}{}{}{}{0}{0}{2}};
+
+%Level1
+\draw pic {firstLeafNode={\underline{1}}{0}{1}{1}{1}{1}{1}};
+\draw pic {leafNode={\underline{3}}{0}{2}{}{1}{2}};
+
+%Verbindungspfeile 0 - 1
+\draw pic {connect={0}{0}{1}};
+\draw pic {connect={0}{1}{2}};
+
+\end{tikzpicture}
+\end{minipage}}
+\end{frame}

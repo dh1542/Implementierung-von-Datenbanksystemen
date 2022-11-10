@@ -1,0 +1,238 @@
+\section{Speicherungsstrukturen in Sätzen}
+
+Betrachten Sie die folgende Relation "`Kunden"':
+
+\texttt{
+\begin{tabbing}
+----------------------------- \= \kill
+Kundennr \> NUMBER(6) \\
+Name \> VARCHAR2(120) \\
+PLZ \> NUMBER(5) \\
+Ort \> VARCHAR2(120) \\
+LetzterEinkauf \> DATE
+\end{tabbing}
+}
+
+Das verwendete DBMS orientiert sich an Oracle. Die Angabe \texttt{NUMBER(6)} bedeutet, dass positive und negative Zahlen mit maximal 6~Dezimalstellen gespeichert werden können. Bei der Speicherung numerischer Daten werden ein Byte für den Exponenten und maximal 20~Byte für die Mantisse benutzt. Jeweils zwei Ziffern belegen ein Byte der Mantisse. Eine negative Zahl wird durch eine zusätzliche Ziffer dargestellt, die nicht im Bereich von [0..9] liegt. Ein Datumsfeld umfasst stets 7~Byte. Die Längenangabe in der Schemadefinition erfolgt bei \texttt{VARCHAR2} standardmäßig in Byte. Wir verwenden eine Zeichenkodierung, bei der je Zeichen 2~Byte benötigt werden (z.\,B.\ UTF-16). Eine Längenangabe soll einheitlich 4~Byte lang sein.
+
+\begin{solution}
+In Oracle berechnet sich die Feldlänge numerischer Daten wie folgt:
+
+\[\left\lceil\frac{p + s}{2}\right\rceil + 1 \, \mathrm{[Bytes]}\]
+
+mit $p =$ Anzahl der Dezimalstellen des zu speichernden Datums und $s = 0$ für die Speicherung einer positiven, $s = 1$ für die Speicherung einer negativen Zahl. Man beachte hierbei, dass die Feldlänge jedes Eintrags unterschiedlich sein kann.
+
+Hierdurch ergibt sich für \texttt{NUMBER(6)} die Maximallänge \[\left\lceil\frac{\texttt{Länge} + \texttt{mögliches Signum}}{2}\right\rceil + \texttt{Länge Exponent} = \left\lceil\frac{6 + 1}{2}\right\rceil + 1 = 5 \, \mathrm{[Bytes]}\]
+
+\paragraph{Beispielcodierungen:}
+Das Minuszeichen wird in diesem Beispiel as 0xF dargestellt, beim negativen Exponenten ist das größte Bit gesetzt.\\
+\begin{tabular}{lllp{3.5cm}l}
+	\hline\hline
+	Zahl    & Speicherdarstellung    & hexadezimal   & binär                                   & Feldlänge \\ \hline\hline
+	20.000  & $0,\!2\cdot10^6$       & 0x20 0x06     & 0010 0000 0000 0110                     & 2         \\ \hline
+	-20.000 & $-0,\!2\cdot10^{6}$    & 0xF2 0x06     & 1111 0010 0000 0110                     & 2         \\ \hline
+	12.345  & $0,\!12345\cdot10^{6}$ & 0x123450 0x06 & 0001 0010 0011 0100 0101 0000 0000 0110 & 4         \\ \hline
+\end{tabular}
+
+\end{solution}
+\begin{note}
+Jup, oracle macht das wirklich so.. (Oder so ähnlich)
+\url{https://docs.oracle.com/cd/B19306\_01/server.102/b14220/datatype.htm\#sthref3818}
+\end{note}
+\beamertxt{\pagebreak}
+
+\begin{enumerate}[a)]
+	\item \label{Speicherungsstrukturen_1} Fügen Sie in die Relation "`Kunden"' die folgenden beiden Datensätze ein und geben Sie zu jedem Datensatz die Speicherungsstruktur wie in der Vorlesung vorgestellt an. Gehen Sie von Feldern fester, d.\,h.\ maximaler Länge aus. Wie viele Bytes umfasst jeder Satz?
+
+	\texttt{1, Müller, 91058, Erlangen, 2010-04-27 9:57:21}
+
+	\texttt{4711, Huber, 90403, Nürnberg, 2010-01-24 11:17:33}
+
+	\begin{solution}
+	\begin{tabular}{lllll}
+		\hline\hline
+		\textbf{Feldname} & \textbf{Datentyp} & \textbf{Pos.} & \textbf{Feldinhalt}                & \textbf{Feldlän.} \\ \hline\hline
+		Gesamtlänge       & Längenabgabe      & 0             & 260 (alt. 293)                     & 4                 \\ \hline
+		Kundennr.         & NUMBER(6)         & 1             & 1                                  & 5  (alt. 21)      \\ \hline
+		Name              & VARCHAR2(120)     & 2             & Müller                             & 120               \\ \hline
+		PLZ               & NUMBER(5)         & 3             & 91058                              & 4 (alt. 21)       \\ \hline
+		Ort               & VARCHAR2(120)     & 4             & Erlangen                           & 120               \\ \hline
+		Letzter Einkauf   & DATE              & 5             & \footnotesize{2010-04-27 09:57:21} & 7                 \\ \hline
+	\end{tabular}
+
+    Beim zweiten Datensatz ändert sich lediglich die Spalte "`Feldinhalt"'.
+
+	Diskussion:
+Die Gesamtlänge könnte man hier weglassen und stattdessen aus dem Metadatenkatalog nehmen, sie ist ja für alle Sätze gleich. Wir halten uns an die Vorlesungsfolien, die diesen Wert in den Sätzen ablegen.
+Ein \texttt{NUMBER(6)} lässt sich immer in 5~Bytes speichern (Nach obiger Formel: 1 Exponent, 3 Mantisse, 1 Vorzeichen).
+
+\underline{Hinweis zu (alt. 21):}
+Laut Oracle hat zwar ein \texttt{NUMBER(N)} 1 Byte für den Exponenten und maximal 20 für die Mantisse und damit 21 Byte.
+Jedoch wird die Länge eines \texttt{NUMBER(N)} mithilfe der obigen Formel berechnet.
+
+
+Außerdem muss man herausfinden können, wie viele Daten in Wirklichkeit in den VARCHAR-Feldern stehen. Das könnte man z.\,B.\ durch Null-Terminierung erreichen. Wenn man dann den vorhandenen Platz vollständig ausfüllt, dann kann man aber kein Terminierungszeichen mehr unterbringen. Das lässt sich dadurch lösen, dass man bis zum Null-Character liest, höchstens jedoch die Maximalzahl an Bytes.
+	\end{solution}
+
+	\item \label{Speicherungsstrukturen_2} Fügen Sie die beiden Datensätze von Teilaufgabe \ref{Speicherungsstrukturen_1}) ein und verwenden Sie Felder variabler Länge.
+
+	\begin{solution}
+	\begin{tabular}{lllll}
+		\hline\hline
+		\textbf{Feldname} & \textbf{Datentyp} & \textbf{Pos.} & \textbf{Feldinhalt}                & \textbf{Feldlän.} \\ \hline\hline
+		Gesamtlänge       & Längenabgabe      & 0             & 61                                 & 4                 \\ \hline
+		Länge Kundennr.   & Längenangabe      & 1             & 2                                  & 4                 \\ \hline
+		Kundennr.         & NUMBER(6)         & 2             & 1                                  & 2                 \\ \hline
+		Länge Name        & Längenangabe      & 3             & 12                                 & 4                 \\ \hline
+		Name              & VARCHAR2(120)     & 4             & Müller                             & 12                \\ \hline
+		Länge PLZ         & Längenangabe      & 5             & 4                                  & 4                 \\ \hline
+		PLZ               & NUMBER(5)         & 6             & 91058                              & 4                 \\ \hline
+		Länge Ort         & Längenangabe      & 7             & 16                                 & 4                 \\ \hline
+		Ort               & VARCHAR2(120)     & 8             & Erlangen                           & 16                \\ \hline
+		Letzter Einkauf   & DATE              & 9             & \footnotesize{2010-04-27 09:57:21} & 7                 \\ \hline
+	\end{tabular}
+	
+	\begin{tabular}{lllll}
+		\hline\hline
+		\textbf{Feldname} & \textbf{Datentyp} & \textbf{Pos.} & \textbf{Feldinhalt}                & \textbf{Feldlän.} \\ \hline\hline
+		Gesamtlänge       & Längenabgabe      & 0             & 60                                 & 4                 \\ \hline
+		Länge Kundennr.   & Längenangabe      & 1             & 3                                  & 4                 \\ \hline
+		Kundennr.         & NUMBER(6)         & 2             & 4711                               & 3                 \\ \hline
+		Länge Name        & Längenangabe      & 3             & 10                                 & 4                 \\ \hline
+		Name              & VARCHAR2(120)     & 4             & Huber                              & 10                \\ \hline
+		Länge PLZ         & Längenangabe      & 5             & 4                                  & 4                 \\ \hline
+		PLZ               & NUMBER(5)         & 6             & 90403                              & 4                 \\ \hline
+		Länge Ort         & Längenangabe      & 7             & 16                                 & 4                 \\ \hline
+		Ort               & VARCHAR2(120)     & 8             & Nürnberg                           & 16                \\ \hline
+		Letzter Einkauf   & DATE              & 9             & \footnotesize{2010-01-24 11:17:33} & 7                 \\ \hline
+	\end{tabular}
+
+Hier kann man wieder diskutieren, ob die Längenfelder notwendig sind.
+Die Gesamtlänge wird man wohl speichern (obwohl man sie auch aus der blockinternen Zeigerliste, siehe Übung zu TIDs, lesen könnte).
+Auch um die Feldlängen kommt man nicht herum.
+Achtung: Feldlängen speichert man nur für die Felder variabler Größe.
+	\end{solution}
+
+	\item Fügen Sie die Datensätze von Teilaufgabe \ref{Speicherungsstrukturen_1}) unter Verwendung von Zeigern ein. Ein Zeiger soll die Länge 4 besitzen.
+
+	\begin{solution}
+	{\small
+	\begin{tabular}{p{2.8cm}lllll}
+		\hline\hline
+		\textbf{Feldname}         & \textbf{Datentyp} & \textbf{Pos.} & \textbf{Pos. (Bytes)} & \textbf{Feldinhalt}                & \textbf{Feldlän.} \\ \hline\hline
+		Gesamtlänge               & Längenabgabe      & 0             & 0                     & 81                                 & 4                 \\ \hline
+		Länge Fester Strukturteil & Längenangabe      & 1             & 4                     & 31                                 & 4                 \\ \hline
+		Zeiger Kundennr.          & Zeiger            & 2             & 8                     & Pos. 7 (Byte 31)                   & 4                 \\ \hline
+		Zeiger Name               & Zeiger            & 3             & 12                    & Pos. 9 (Byte 37)                   & 4                 \\ \hline
+		Zeiger PLZ                & Zeiger            & 4             & 16                    & Pos. 11 (Byte 53)                  & 4                 \\ \hline
+		Zeiger Ort                & Zeiger            & 5             & 20                    & Pos. 13 (Byte 61)                  & 4                 \\ \hline
+		Letzter Einkauf           & DATE              & 6             & 24                    & \footnotesize{2010-04-27 09:57:21} & 7                 \\ \hline
+		Länge Kundennr.           & Längenangabe      & 7             & 31                    & 2                                  & 4                 \\ \hline
+		Kundennr.                 & NUMBER(6)         & 8             & 35                    & 1                                  & 2                 \\ \hline
+		Länge Name                & Längenangabe      & 9             & 37                    & 12                                 & 4                 \\ \hline
+		Name                      & VARCHAR2(120)     & 10            & 41                    & Müller                             & 12                \\ \hline
+		Länge PLZ                 & Längenangabe      & 11            & 53                    & 4                                  & 4                 \\ \hline
+		PLZ                       & NUMBER(5)         & 12            & 57                    & 91058                              & 4                 \\ \hline
+		Länge Ort                 & Längenangabe      & 13            & 61                    & 16                                 & 4                 \\ \hline
+		Ort                       & VARCHAR2(120)     & 14            & 65                    & Erlangen                           & 16                \\ \hline
+	\end{tabular}}
+
+{\small
+	\begin{tabular}{p{2.8cm}lllll}
+		\hline\hline
+		\textbf{Feldname}         & \textbf{Datentyp} & \textbf{Pos.} & \textbf{Pos. (Bytes)} & \textbf{Feldinhalt}                & \textbf{Feldlän.} \\ \hline\hline
+		Gesamtlänge               & Längenabgabe      & 0             & 0                     & 80                                 & 4                 \\ \hline
+		Länge Fester Strukturteil & Längenangabe      & 1             & 4                     & 31                                 & 4                 \\ \hline
+		Zeiger Kundennr.          & Zeiger            & 2             & 8                     & Pos. 7 (Byte 31)                   & 4                 \\ \hline
+		Zeiger Name               & Zeiger            & 3             & 12                    & Pos. 9 (Byte 38)                   & 4                 \\ \hline
+		Zeiger PLZ                & Zeiger            & 4             & 16                    & Pos. 11 (Byte 52)                  & 4                 \\ \hline
+		Zeiger Ort                & Zeiger            & 5             & 20                    & Pos. 13 (Byte 60)                  & 4                 \\ \hline
+		Letzter Einkauf           & DATE              & 6             & 24                    & \footnotesize{2010-01-24 11:17:33} & 7                 \\ \hline
+		Länge Kundennr.           & Längenangabe      & 7             & 31                    & 3                                  & 4                 \\ \hline
+		Kundennr.                 & NUMBER(6)         & 8             & 35                    & 4711                               & 3                 \\ \hline
+		Länge Name                & Längenangabe      & 9             & 38                    & 10                                 & 4                 \\ \hline
+		Name                      & VARCHAR2(120)     & 10            & 42                    & Huber                              & 10                \\ \hline
+		Länge PLZ                 & Längenangabe      & 11            & 52                    & 4                                  & 4                 \\ \hline
+		PLZ                       & NUMBER(5)         & 12            & 56                    & 90403                              & 4                 \\ \hline
+		Länge Ort                 & Längenangabe      & 13            & 60                    & 16                                 & 4                 \\ \hline
+		Ort                       & VARCHAR2(120)     & 14            & 64                    & Nürnberg                           & 16                \\ \hline
+	\end{tabular}}
+
+	Auch hier: Diskussion über Längenfelder.
+Gesamtlänge siehe \ref{Speicherungsstrukturen_2}).
+Länge für einzelne Felder: Die könnte man jetzt dadurch berechnen, dass man den aktuellen Zeiger vom nächsten abzieht. Das wird aber komplexer, wenn zwischen zwei Feldern variabler Länge solche mit fester Länge liegen.
+	\end{solution}
+
+\end{enumerate}
+
+\begin{beamerText}
+\pagebreak
+{\small
+	\texttt{1, Müller, 91058, Erlangen, 2010-04-27 9:57:21}\\
+	\texttt{4711, Huber, 90403, Nürnberg, 2010-01-24 11:17:33}
+}\\
+\begin{minipage}{0.45\textwidth}
+\small \texttt{
+\begin{tabbing}
+--------------------------- \= \kill
+Kundennr \> NUMBER(6) \\
+Name \> VARCHAR2(120) \\
+PLZ \> NUMBER(5) \\
+Ort \> VARCHAR2(120) \\
+LetzterEinkauf \> DATE
+\end{tabbing}
+}\end{minipage}
+\begin{minipage}{0.54\textheight}
+\small
+\begin{tabular}{|c|c|}
+	\hline
+	         Typ          &                Größe in Byte                 \\ \hline
+	 \texttt{NUMBER(n)}:  & $\left\lceil\frac{p + s}{2}\right\rceil + 1$ \\ \hline
+	\texttt{VARCHAR2(n)}: &                      n                       \\ \hline
+	    \texttt{DATE}     &                      7                       \\ \hline
+	    Längenangabe      &                      4                       \\ \hline
+\end{tabular}
+\end{minipage}
+
+\begin{Form}
+{\small
+\begin{tabular}{  p{3cm}  p{2.5cm}  p{0.7cm}  p{2cm}  p{4cm}  p{1.5cm} }
+	\hline\hline
+	\small{\textbf{Feldname}}                                               & \small{\textbf{Datentyp}}                                                 & \small{\textbf{Pos.}} & \small{\textbf{Pos. (Bytes)}}                                       & \small{\textbf{Feldinhalt}}                                               & \small{\textbf{Feldlän.}}                                               \\ \hline\hline
+	\TextField[name=Feldname1, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp1, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 1                     & \TextField[name=PosB1, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt1, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge1, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname2, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp2, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 2                     & \TextField[name=PosB2, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt2, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge2, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname3, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp3, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 3                     & \TextField[name=PosB3, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt3, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge3, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname4, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp4, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 4                     & \TextField[name=PosB4, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt4, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge4, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname5, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp5, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 5                     & \TextField[name=PosB5, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt5, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge5, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname6, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp6, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 6                     & \TextField[name=PosB6, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt6, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge6, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname7, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp7, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 7                     & \TextField[name=PosB7, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt7, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge7, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname8, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp8, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 8                     & \TextField[name=PosB8, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt8, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge8, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname9, width=3cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Datentyp9, width=2.5cm, height=0.5cm, charsize = 10pt]{}  & 9                     & \TextField[name=PosB9, width=2cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Feldinhalt9, width=4cm, height=0.5cm, charsize = 10pt]{}  & \TextField[name=Laenge9, width=1.5cm, height=0.5cm, charsize = 10pt]{}  \\ \hline
+	\TextField[name=Feldname10, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp10, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 10                    & \TextField[name=PosB10, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt10, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge10, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname11, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp11, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 11                    & \TextField[name=PosB11, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt11, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge11, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname12, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp12, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 12                    & \TextField[name=PosB12, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt12, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge12, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname13, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp13, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 13                    & \TextField[name=PosB13, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt13, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge13, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname14, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp14, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 14                    & \TextField[name=PosB14, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt14, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge14, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname15, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp15, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 15                    & \TextField[name=PosB15, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt15, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge15, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname16, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp16, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 16                    & \TextField[name=PosB16, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt16, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge16, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname17, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp17, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 17                    & \TextField[name=PosB17, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt17, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge17, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname18, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp18, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 18                    & \TextField[name=PosB18, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt18, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge18, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname19, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp19, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 19                    & \TextField[name=PosB19, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt19, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge19, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+	\TextField[name=Feldname20, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp20, width=2.5cm, height=0.5cm, charsize = 10pt]{} & 20                    & \TextField[name=PosB20, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt20, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge20, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\ \hline
+\end{tabular}
+}
+
+\PushButton[onclick={
+for(i=1; i< 21; i++) {
+	this.getField("Feldname" + i.toString()).value='';
+	this.getField("Datentyp" + i.toString()).value='';
+	this.getField("PosB" + i.toString()).value='';
+	this.getField("Feldinhalt" + i.toString()).value='';
+	this.getField("Laenge" + i.toString()).value='';
+}
+}]{Clear}
+
+%for i in {1..20}; do  echo "\TextField[name=Feldname$i, width=3cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Datentyp$i, width=2.5cm, height=0.5cm, charsize = 10pt]{} & $i & \TextField[name=PosB$i, width=2cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Feldinhalt$i, width=4cm, height=0.5cm, charsize = 10pt]{} & \TextField[name=Laenge$i, width=1.5cm, height=0.5cm, charsize = 10pt]{} \\\\ \hline"; done
+
+\end{Form}
+\end{beamerText}

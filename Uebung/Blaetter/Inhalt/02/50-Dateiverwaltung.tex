@@ -1,0 +1,49 @@
+\section{Dateizugriff}
+Schreiben Sie im Pseudocode die Operation, die einen Block aus einer Datei liest.
+Der Dateikatalog soll als Extent-Tabelle gemäß Folie~\KatalogeintraegeVier~im Anhang realisiert sein.
+Die Datei kann als bereits geöffnet angenommen werden.
+Die Kommunikation mit der Festplatte sei über die Funktion \texttt{readBlock(int CylinderNo, int TrackNo, int SlotNo, ByteBuffer bb)} der Klasse \texttt{Device} zu gestalten.
+Die Signatur der Methode \texttt{read} is Folgende: \texttt{void read(int BlockNo, ByteBuffer bb) throws IOException{}}.
+
+\cprotEnv
+\begin{note}
+\begin{lstlisting}[]
+/* Operation
+ * int BlockFile::read ( int BlockNo, char *BlockBuffer )
+ * wie auf Folie(*@~\textit{\SchreibUndLese}@*)
+ */
+void read(int BlockNo, ByteBuffer bb) throws IOException {
+/* Lesen der Extent-Tabelle auf dem Katalog-Eintrag der
+ * (bereits geöffneten) Datei:
+ * Extent[i] (Slot-Adresse; AnzSlots)
+ * AnzSlots = Zahl der von dieser Adresse an
+ * sequenziell belegten Slots
+ */
+int LocalBlockNo = BlockNo; bool found=false;
+// Finde passenden Extent
+for(int i = 0; i < Extent.length; i++) {
+  if(LocalBlockNo > Extent[i].AnzSlots ) {
+    LocalBlockNo -= Extent[i].AnzSlots;
+  } else {found=true; break;}
+}
+if(!found) throw new IOException();
+// Startkoordinaten des Extents
+int CylinderNo = Extent[i].Slot-Adresse.Zylinder;
+int TrackNo = Extent[i].Slot-Adresse.Spur;
+int SlotNo = Extent[i].Slot-Adresse.Slot;
+// Bewege Koordinaten entsprechend weiter
+SlotNo += LocalBlockNo;
+/* Überlaufbehandlung: */
+while(SlotNo > SlotsPerTrack) {
+  SlotNo -= SlotsPerTrack; TrackNo++;
+}
+while(TrackNo > TracksPerCylinder) {
+  TrackNo -= TracksPerCylinder; CylinderNo++;
+}
+if(CylinderNo > MaxCylinder) throw new IOException();
+int Status = Device.readBlock(CylinderNo, TrackNo, SlotNo, bb )
+if (Status != 0)  throw new IOException();
+return
+}
+\end{lstlisting}
+\end{note}

@@ -1,0 +1,370 @@
+<project name="IDB" basedir="." default="main">
+
+    <property name="src.dir"     value="src"/>
+	<property name="build.dir"   value="build/main"/>
+	<property name="build-tests.dir"   value="build/test"/>
+	<property name="jar.dir"     value="jar"/>
+    <property name="test.dir"    value="tests"/>
+    <property name="data.dir"    value="data"/>
+    <property name="main-class"  value="Main"/>
+    <property name="mile-file-1" value="BlockTests"/>
+    <property name="mile-file-2" value="SeqTest"/>
+    <property name="mile-file-3" value="TIDTest"/>
+    <property name="mile-file-4" value="HashTest"/>
+    <property name="mile-file-5" value="ClockBufferTest"/>
+    <property name="mile-file-6" value="NamedCombinedRecordTest"/>
+    <property name="mile-file-7aa" value="ProjTest"/>
+    <property name="mile-file-7ab" value="RenTest"/>
+    <property name="mile-file-7ac" value="SelTest"/>
+    <property name="mile-file-7ad" value="CrossTest"/>
+    <property name="mile-file-7ae" value="OrderTest"/>
+    <property name="mile-file-7a" value="TableScanTest"/>
+    <property name="mile-file-7c" value="GenerateTest"/>
+    <property name="mile-file-7d" value="DeleteTest"/>
+    <property name="mile-file-7e" value="GroupTest"/>
+    <property name="mile-file-8a" value="MetaTests"/>
+    <property name="mile-file-8b" value="LoadedMetaTests"/>
+     <!-- https://junit.org/junit5/docs/current/user-guide/#running-tests-console-launcher -->
+    <macrodef name="run-milestone">
+        <element name="arguments"/>
+        <sequential>
+            <java classpathref="test.classpath" classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="false">
+                <assertions>
+                    <enable/>
+                </assertions>
+                <arguments/>
+                <arg line="--reports-dir build/test-report"/>
+            </java>
+            <junitreport todir="build/test-report">
+                <fileset dir="build/test-report">
+                    <include name="TEST-*.xml"/>
+                </fileset>
+                <report format="frames" todir="build/test-report/html"/>
+            </junitreport>
+        </sequential>
+    </macrodef>
+
+    <presetdef name="javac">
+		<javac includeAntRuntime="false" debug="true"/>
+    </presetdef>
+
+    <path id="test.classpath">
+        <pathelement path="build/test"/>
+        <pathelement path="build/main"/>
+        <fileset dir="libs" includes="*.jar" />
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${build-tests.dir}"/>
+        <delete dir="${data.dir}" />
+        <delete file="${jar.dir}/${ant.project.name}.jar"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+		<mkdir dir="${build-tests.dir}" />
+        <mkdir dir="${data.dir}" />
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${build.dir}" classpath="${jar.dir}/${ant.project.name}.jar" encoding="UTF-8"/>
+		<javac srcdir="${test.dir}" destdir="${build-tests.dir}" classpathref = "test.classpath" encoding="UTF-8"/>
+    </target>
+
+     <!-- https://junit.org/junit5/docs/current/user-guide/#running-tests-console-launcher -->
+    <target name="test" depends="Meilenstein9"/>
+
+    <target name="Meilenstein1" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+
+
+    <target name="Meilenstein2" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+    <target name="Meilenstein3" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+    <target name="Meilenstein4" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+    <target name="Meilenstein5" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+    <target name="Meilenstein6" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7aa" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7ab" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7ac" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7ad" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7ae" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7a" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7c" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+                <arg value="--select-class=${mile-file-7c}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7d" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+                <arg value="--select-class=${mile-file-7c}"/>
+                <arg value="--select-class=${mile-file-7d}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein7e" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+                <arg value="--select-class=${mile-file-7c}"/>
+                <arg value="--select-class=${mile-file-7d}"/>
+                <arg value="--select-class=${mile-file-7e}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+	<target name="Meilenstein7" depends="Meilenstein7e"/>
+    <target name="Meilenstein8a" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+                <arg value="--select-class=${mile-file-7c}"/>
+                <arg value="--select-class=${mile-file-7d}"/>
+                <arg value="--select-class=${mile-file-7e}"/>
+                <arg value="--select-class=${mile-file-8a}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+    <target name="Meilenstein8b" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--select-class=${mile-file-1}"/>
+                <arg value="--select-class=${mile-file-2}"/>
+                <arg value="--select-class=${mile-file-3}"/>
+                <arg value="--select-class=${mile-file-4}"/>
+                <arg value="--select-class=${mile-file-5}"/>
+                <arg value="--select-class=${mile-file-6}"/>
+                <arg value="--select-class=${mile-file-7aa}"/>
+                <arg value="--select-class=${mile-file-7ab}"/>
+                <arg value="--select-class=${mile-file-7ac}"/>
+                <arg value="--select-class=${mile-file-7ad}"/>
+                <arg value="--select-class=${mile-file-7ae}"/>
+                <arg value="--select-class=${mile-file-7a}"/>
+                <arg value="--select-class=${mile-file-7c}"/>
+                <arg value="--select-class=${mile-file-7d}"/>
+                <arg value="--select-class=${mile-file-7e}"/>
+                <arg value="--select-class=${mile-file-8a}"/>
+                <arg value="--select-class=${mile-file-8b}"/>
+            </arguments>
+        </run-milestone>
+    </target>
+	<target name="Meilenstein8" depends="Meilenstein8b"/>
+
+    <target name="Meilenstein9" depends="compile">
+        <run-milestone>
+            <arguments>
+                <arg value="--scan-classpath"/>
+            </arguments>
+        </run-milestone>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+                <attribute name="Class-Path" value="buffer.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="example" depends="compile">
+		<java classname="idb.example.SeqRecordFileExample" fork="true" dir="${build.dir}"/>
+    </target>
+
+    <target name="main" depends="clean,run"/>
+</project>

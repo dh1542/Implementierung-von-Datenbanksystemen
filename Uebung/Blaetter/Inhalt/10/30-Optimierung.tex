@@ -1,0 +1,235 @@
+\section{Optimierung}
+
+Optimieren Sie die Ausführungspläne aus Aufgabe~\ref{plan}.
+Nutzen Sie dazu die Regeln von Folien~\Operatorregel\ und die Heuristik auf den Folien~\Operatorheuristik.
+Die aufgeführten Regeln für die algebraische Umformung sind aber nur Beispiele.
+Formulieren Sie offensichtlich mögliche Umformungsmöglichkeiten selbst und nutzen Sie auch diese.
+
+\begin{note}
+Beides finden Sie als Referenz noch einmal am Ende dieses Übungsblatts.
+\end{note}
+
+\begin{solution}
+\begin{enumerate}[a)]
+
+\item Zur Heuristik:
+
+\begin{itemize}
+	\item Ausführungsplan beinhaltet nur Selektion mit einem Prädikat-Term $\rightarrow$ keine Separierung notwendig.
+	\item Selektion und Kreuzprodukt können zusammengefasst werden (Umformungsregel 9).
+\end{itemize}
+
+Das ergibt folgenden optimierten Ausführungsplan:
+
+\begin{center}
+\begin{tikzpicture}
+	\node (proj) at(0, 0) {\texttt{PROJ(\qquad, (e.fname, e.lname, s.fname, s.lname))} };
+	\node (join) [below of =proj] {\texttt{JOIN(\qquad, \qquad, (e.mgr = s.num))} };
+	\node (rename_emp1) [below of = join, xshift=-3cm] {\texttt{RENAME(\qquad, e)}};
+	\node (rename_emp2) [below of =join, xshift=0.5cm] {\texttt{RENAME(\qquad, s)}};
+	\node (emp1) [below of = rename_emp1] {\texttt{employee}};
+	\node (emp2) [below of = rename_emp2] {\texttt{employee}};
+
+	\draw[-triangle 60] (rename_emp1) -- ($(join.south) + (-1.8,0.1)$);
+	\draw[-triangle 60] (rename_emp2) -- ($(join.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (emp1) -- ($(rename_emp1.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (emp2) -- ($(rename_emp2.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (join) -- ($(proj.south) + (-3.5,0.1)$);
+\end{tikzpicture}
+\end{center}
+
+\item Die Selektion kann vor den Verbund geschoben werden (Umformungsregel 7).
+
+\begin{center}
+\begin{tikzpicture}
+	\node (proj) at(0, 0) {\texttt{PROJ(\qquad, (e.fname, e.lname, e.addr))} };
+	\node (join) [below of =proj] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+	\node (r_emp) [below of = join, xshift=-4cm] {\texttt{RENAME(\qquad, e)}};
+	\node (emp) [below of = r_emp] {\texttt{employee}};
+	\node (sel) [below of =join, xshift=1cm] {\texttt{SEL(\qquad, (d.name = 'Research'))} };
+	\node (r_dept) [below of = sel] {\texttt{RENAME(\qquad, d)} };
+	\node (dept) [below of = r_dept] {\texttt{department} };
+
+	\draw[-triangle 60] (r_dept) -- ($(sel.south) + (-2.1,0.1)$);
+	\draw[-triangle 60] (r_emp) -- ($(join.south) + (-1.9,0.1)$);
+	\draw[-triangle 60] (dept) -- ($(r_dept.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (sel) -- ($(join.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (emp) -- ($(r_emp.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (join) -- ($(proj.south) + (-2.7,0.1)$);
+\end{tikzpicture}
+\end{center}
+
+\item Hier sind kaum Optimierungen möglich.
+    Da sich die Selektion, die aus der \texttt{HAVING}-Klausel entsteht,
+    auf ein aggregiertes Attribut bezieht,
+    muss sie auch hinter dem \texttt{GROUP} bleiben.
+    Betrachtet man das \texttt{GROUP}-Statement und die Projektion gemeinsam,
+    kann man jedoch eine Projektion ganz unten (zusätzlich) einfügen.
+
+    Das lohnt sich in diesem einfachen Beispiel aber wahrscheinlich nicht.
+    Es würde sich dann lohnen, wenn die Relation viele Attribute hätte und
+    das Zwischenergebnis so drastisch verkleinert werden könnte.
+
+    Als Referenz ist hier trotzdem das Ergebnis angeführt, das man erhält,
+    wenn man die vorgeschlagene Optimierung durchführt:
+
+\begin{tikzpicture}
+    \node (proj) at (0, 0) {\texttt{PROJ(\qquad , (d.name))} };
+    \node (hav)[below of =proj] {\texttt{SEL(\qquad , (aggregierte $>$ 10))} };
+    \node (group)[below of =hav] {\texttt{GROUP(\qquad , (d.num, d.name), ((count(d.num), aggregierte)))}};
+    \node (join)[below of =group] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+    \node (proj2)[below of =join, xshift=2cm] {\texttt{PROJ(\qquad , (d.name, d.num))} };
+
+	\node (renamed)[below of =proj2] {\texttt{RENAME(\qquad, d)} };
+	\node (renamee)[below of =join, xshift =-3cm] {\texttt{RENAME(\qquad, e)} };
+	\node (dept)[below of =renamed] {\texttt{department} };
+	\node (emp)[below of =renamee] {\texttt{employee} };
+
+	\draw[-triangle 60] (renamed) -- ($(proj2.south) + (-1.5,0.1)$);
+	\draw[-triangle 60] (renamee) -- ($(join.south) + (-1.9,0.1)$);
+	\draw[-triangle 60] (dept) -- ($(renamed.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (emp) -- ($(renamee.south) + (0.3,0.1)$);
+    \draw[-triangle 60] (proj2) -- ($(join.south) + (-0.8,0.1)$);
+    \draw[-triangle 60] (join) -- ($(group.south) + (-4.5,0.1)$);
+    \draw[-triangle 60] (group) -- ($(hav.south) + (-1.5,0.1)$);
+    \draw[-triangle 60] (hav) -- ($(proj.south) + (-0.6,0.1)$);
+\end{tikzpicture}
+
+\item
+
+\begin{itemize}
+	\item Die Selektion "`e.lname = 'Smith'"' kann in beiden Teilbäumen ganz nach unten gezogen werden (Umformungsregeln 6, 7, 8).
+	\item Die Selektion und das Kreuzprodukt in den beiden Teilbäumen können jeweils zusammengefasst werden (Umformungsregel 9).
+\end{itemize}
+
+\begin{tikzpicture}
+	\node (proj_top) at(0, 0) {\small{\texttt{PROJ(\hspace{0.5cm}, (e.lname))} } };
+	\node (union) [below of =proj_top] {\small{\texttt{UNION(\qquad, \qquad)} } };
+
+	\node (proj_left) [below of =union, xshift =-3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
+	\node (proj_right) [below of =union, xshift =3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
+
+	\node (join_left1) [below of =proj_left, xshift =0.1cm]  {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (d.mgr = e.num))} } };
+	\node (join_right1) [below of =proj_right, xshift =0.1cm] {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (e.num = w.empl))} } };
+
+	\node (join_left2) [below of =join_left1, xshift =1.5cm] {\small{\texttt{JOIN(\qquad, \qquad, (d.num = p.dep))} } };
+	\node (join_right2) [below of =join_right1, xshift =1.5cm, yshift=-0.5cm] {\small{\texttt{JOIN(\qquad, \qquad, (p.num = w.proj))} } };
+
+	\node (rename_dept_left) [below of =join_left2, xshift =-1.5cm, yshift=-0.5cm] {\small\texttt{RENAME(\qquad, d)} };
+	\node (dept_left) [below of =rename_dept_left] {\small\texttt{department}};
+	\node (rename_project_left) [below of =join_left2, xshift =1cm] {\small\texttt{RENAME(\qquad, p)}};
+	\node (project_left) [below of =rename_project_left] {\small\texttt{project} };
+
+	\node (rename_works_right) [below of =join_right2, xshift =-1.5cm, yshift =-0.5cm] {\small\texttt{RENAME(\qquad, w)}};
+	\node (works_right) [below of =rename_works_right] {\small\texttt{works\_on} };
+	\node (rename_project_right) [below of =join_right2, xshift =1cm] {\small\texttt{RENAME(\qquad, p)}};
+	\node (project_right) [below of =rename_project_right] {\small\texttt{project} };
+
+
+	\node (sel_left) [below of =dept_left, xshift =0cm] {\small{\texttt{SEL(\qquad, (e.lname = 'Smith'))} } };
+	\node (sel_right) [below of =works_right, xshift =0cm] {\small{\texttt{SEL(\qquad, (e.lname = 'Smith'))} } };
+
+	\node (rename_emp_left) [below of =sel_left, xshift =-1.5cm] {\texttt{RENAME(\qquad, e)}};
+	\node (emp_left) [below of =rename_emp_left] {\small\texttt{employee} };
+	\node (rename_emp_right) [below of =sel_right, xshift =-1cm] {\small\texttt{RENAME(\qquad, e)}};
+	\node (emp_right) [below of =rename_emp_right] {\small\texttt{employee} };
+
+	\draw[-triangle 60] (union) -- ($(proj_top.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (proj_left) -- ($(union.south) + (-0.2,0.1)$);
+	\draw[-triangle 60] (proj_right) -- ($(union.south) + (0.7,0.1)$);
+
+	\draw[-triangle 60] (join_left1) -- ($(proj_left.south) + (-1.2,0.1)$);
+	\draw[-triangle 60] (join_right1) -- ($(proj_right.south) + (-1.2,0.1)$);
+
+	\draw[-triangle 60] (join_left2) -- ($(join_left1.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (join_right2) -- ($(join_right1.south) + (-1,0.1)$);
+
+	\draw[-triangle 60] (rename_dept_left) -- ($(join_left2.south) + (-1.7,0.1)$);
+	\draw[-triangle 60] (rename_project_left) -- ($(join_left2.south) + (-0.8,0.1)$);
+
+	\draw[-triangle 60] (rename_works_right) -- ($(join_right2.south) + (-1.9,0.1)$);
+	\draw[-triangle 60] (rename_project_right) -- ($(join_right2.south) + (-0.8,0.1)$);
+
+	\draw[-triangle 60] ($(sel_left.north) + (-2.4, 0 )$) -- ($(join_left1.south) + (-1.55,0.1)$);
+	\draw[-triangle 60] ($(sel_right.north) + (-2, 0 )$) -- ($(join_right1.south) + (-1.75,0.1)$);
+
+	\draw[-triangle 60] (rename_emp_left) -- ($(sel_left.south) + (-1.7,0.1)$);
+	\draw[-triangle 60] (rename_emp_right) -- ($(sel_right.south) + (-1.7,0.1)$);
+	\draw[-triangle 60] (emp_left) -- ($(rename_emp_left.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (dept_left) -- ($(rename_dept_left.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (project_left) -- ($(rename_project_left.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (emp_right) -- ($(rename_emp_right.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (works_right) -- ($(rename_works_right.south) + (0.3,0.1)$);
+	\draw[-triangle 60] (project_right) -- ($(rename_project_right.south) + (0.3,0.1)$);
+	\end{tikzpicture}
+
+\paragraph{\color{solutioncolor}Ergänzung:}
+In der Literatur ist es üblich, Operatoren mit griechischen Buchstaben darzustellen.
+Diese Darstellung sollte vor allem den Lehramtsstudierenden bekannt sein.
+Der eben erstellte Baum würde dann folgendermaßen aussehen:
+
+\begin{center}
+\begin{tikzpicture}
+    \node (proj_top) at(0, 0) {$\pi_{\text{e.lname}}$ };
+    \node (union) [below of =proj_top] {$\cup$} ;
+
+    \node (proj_left) [below of =union, xshift =-4.0cm] {$\pi_{\text{p.num, e.lname}}$ };
+    \node (proj_right) [below of =union, xshift =4.0cm] {$\pi_{\text{p.num, e.lname}}$ };
+
+    \node (join2_left) [below of =proj_left] {$\Bowtie_{\text{d.mgr = e.num}}$};
+    \node (join2_right) [below of =proj_right] {$\Bowtie_{\text{e.num = w.empl}}$};
+
+    \node (sel_left) [below of =join2_left, xshift = -1.9cm] {$\sigma_{\text{e.lname = 'Smith'}}$};
+    \node (sel_right) [below of =join2_right, xshift = -1.9cm] {$\sigma_{\text{e.lname = 'Smith'}}$};
+
+    \node (join1_left) [below of =join2_left, xshift = 1.8cm] {$\Bowtie_{\text{d.num = p.dep}}$};
+    \node (r_dep_left) [below of =join1_left,xshift = -1.1cm] {$\rho_{\text{d}}$};
+    \node (r_project_left) [below of =join1_left,xshift = 1.1cm] {$\rho_{\text{p}}$};
+    \node (r_emp_left) [below of =sel_left] {$\rho_{\text{e}}$};
+    \node (dep_left) [below of =r_dep_left] {\small{\texttt{department}}};
+    \node (project_left) [below of =r_project_left] {\small{\texttt{project}}};
+    \node (emp_left) [below of =r_emp_left] {\small{\texttt{employee}}};
+
+    \node (join1_right) [below of =join2_right, xshift = 1.8cm] {$\Bowtie_{\text{p.num = w.proj}}$};
+    \node (r_works_right) [below of =join1_right,xshift = -1.1cm] {$\rho_{\text{w}}$};
+    \node (r_project_right) [below of =join1_right,xshift = 1.1cm] {$\rho_{\text{p}}$};
+    \node (r_emp_right) [below of =sel_right] {$\rho_{\text{e}}$};
+    \node (works_right) [below of =r_works_right] {\small{\texttt{works\_on}}};
+    \node (project_right) [below of =r_project_right] {\small{\texttt{project}}};
+    \node (emp_right) [below of =r_emp_right] {\small{\texttt{employee}}};
+
+    \draw (r_emp_left) -- ($(sel_left.south)$);
+    \draw (emp_left) -- ($(r_emp_left.south)$);
+    \draw (sel_left) -- ($(join2_left.south)$);
+    \draw (join2_left) -- ($(proj_left.south)$);
+    \draw (proj_left) -- ($(union.south)$);
+
+    \draw (r_dep_left) -- ($(join1_left.south)$);
+    \draw (r_project_left) -- ($(join1_left.south)$);
+    \draw (dep_left) -- ($(r_dep_left.south)$);
+    \draw (project_left) -- ($(r_project_left.south)$);
+    \draw (join1_left) -- ($(join2_left.south)$);
+
+    \draw (r_emp_right) -- ($(sel_right.south)$);
+    \draw (emp_right) -- ($(r_emp_right.south)$);
+    \draw (sel_right) -- ($(join2_right.south)$);
+    \draw (join2_right) -- ($(proj_right.south)$);
+    \draw (proj_right) -- ($(union.south)$);
+
+    \draw (r_works_right) -- ($(join1_right.south)$);
+    \draw (r_project_right) -- ($(join1_right.south)$);
+    \draw (works_right) -- ($(r_works_right.south)$);
+    \draw (project_right) -- ($(r_project_right.south)$);
+    \draw (join1_right) -- ($(join2_right.south)$);
+
+    \draw (union) -- ($(proj_top.south)$);
+\end{tikzpicture}
+\end{center}
+
+\end{enumerate}
+\end{solution}
+
+\begin{note}
+    Anmerkung: Diese Darstellung könnte vor allem für Lehramtsstudierende wichtig sein,
+    da sie prinzipiell im Staatsexamen erwartet werden kann.
+\end{note}

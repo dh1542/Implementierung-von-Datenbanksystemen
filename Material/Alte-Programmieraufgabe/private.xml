@@ -1,0 +1,55 @@
+<project name="IDBDemo" basedir="." default="main">
+
+    <property name="src.dir"     value="src-modified"/>
+    <property name="base-src.dir"     value="src"/>
+
+    <property name="build.dir"   value="build"/>
+    <property name="jar.dir"     value="jar"/>
+
+    <property name="main-class"  value="Main"/>
+    <property name="build.buffer.dir"   value="build-buffer"/>
+    <property name="vorgabe.dir"   value="angabe"/>
+
+    <import file="build.xml"/>
+
+    <target name="compile-buffer">
+        <mkdir dir="${build.buffer.dir}"/>
+        <javac srcdir="${src.dir}/idb/buffer" destdir="${build.buffer.dir}"/>
+    </target>
+
+    <property name="build.buffer.dir"   value="build-buffer"/>
+    <target name="jar-buffer" depends="compile-buffer">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/buffer.jar" basedir="${build.buffer.dir}">
+        </jar>
+    </target>
+
+    <target name="cleanup-buffer" depends="compile-buffer">
+        <delete dir="${build.buffer.dir}"/>
+    </target>
+
+    <target name="package" depends="jar,jar-buffer">
+        <mkdir dir="${vorgabe.dir}"/>
+        <delete file="${vorgabe.dir}/UeIDB.zip"/>
+		<zip destfile="${vorgabe.dir}/UeIDB.zip" basedir="." includes="${jar.dir}/*.jar ${base-src.dir}/**/*.java build.xml" excludes="${jar.dir}/IDB.jar **/*.private.java" update="true"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${build.buffer.dir}"/>
+        <delete dir="${src.dir}"/>
+        <delete file="${jar.dir}/${ant.project.name}.jar"/>
+        <delete file="${jar.dir}/buffer.jar"/>
+    </target>
+
+	<target name="init">
+        <delete dir="${src.dir}"/>
+        <mkdir dir="${src.dir}"/>
+		<copy todir="${src.dir}">
+				<fileset dir="${base-src.dir}/"/>
+				<mapper type="glob" from="*.private.java" to="*.java" />
+		</copy>
+		<copy todir="${src.dir}">
+				<fileset dir="${base-src.dir}/" excludes="**/*.private.java"/>
+		</copy>
+    </target>
+</project>

@@ -1,0 +1,50 @@
+\section{Zugriffsbeschleunigung}
+Überlegen Sie sich einige Ideen, wie die Zugriffszeiten auf externe (Online-)Spei\-cher\-me\-di\-en generell verkürzt werden können.
+
+\begin{solution}
+\begin{itemize}
+	\item Daten gemäß Zylinder organisieren
+
+	Die "`Seek"'-Zeit macht ca. 50\,\% der mittleren Blockzugriffszeit aus. Durch die Platzierung von logisch zusammen gehörenden Daten, deren Kapazität größer als die einer Spur ist, auf dem gleichen Zylinder fällt die "`Seek"'-Zeit beim Lesen im besten Fall nur einmal an.
+
+
+	\item Verwendung mehrerer Festplatten -- im weitesten Sinne RAID
+
+	Hier gibt es zwei Möglichkeiten:
+	\begin{enumerate}
+		\item Auf den Platten stehen die gleichen Daten (Spiegelung, Mirroring).
+		\item Die verschiedenen Platten enthalten unterschiedliche Daten.
+	\end{enumerate}
+	In beiden Varianten können sich die Köpfe der Platten unabhängig voneinander bewegen. 	Daher kann man insgesamt mehr seek-Operationen durchführen und außerdem parallel lesen (Durchsatz!).
+	In a) klappt das immer, in b) nur dann, wenn die benötigten Daten auf unterschiedlichen 	Platten liegen. Außerdem bietet a) Datensicherheit zum Preis von verschwendetem 	Speicherplatz.
+	Das Schreiben kann in b) schneller werden (analog dem Lesen), in a) nicht, da die Daten 	auf alle Platten gleichzeitig geschrieben werden müssen und man nicht parallel 	unterschiedliche Operationen ausführen kann.
+Voraussetzung ist natürlich, dass der Disk-Controller dafür ausgelegt ist und Hauptspeicher und Datenbus mit den höheren Transferraten klar kommen.
+
+
+	\item Scheduling mit Elevator-Algorithmus
+
+	Will man mehrere Zugriffe tätigen, so kann man das evtl. in einer günstigeren Reihenfolge als der angegebenen machen. Eine günstige Reihenfolge ist eine, die die Kopfbewegungen minimiert. Dazu gibt es z.\,B. den sog. Elevator-Algorithmus: man behält die Richtung der Kopfbewegung solange bei, bis in dieser Richtung keine weiteren Aufträge vorliegen. Dabei bearbeitet man immer den nächstgelegenen Auftrag als nächstes. Das tun Festplatten heute schon selbständig. Das Betriebssystem auch.
+
+
+	\item Prefetching
+
+	Lesen: Wenn man voraussagen kann, welche Blöcke in naher Zukunft gebraucht werden, kann man sie früh (oder. während man sie sowieso passiert) in den Hauptspeicher laden.
+	Das funktioniert natürlich nur, wenn die Platte nicht dauerhaft unter Last steht und man 	"`freie Zeit"' zum Prefetching verwenden kann. Für das Lesen "`während man sie sowieso passiert"' braucht man natürlich keine freie Zeit.
+
+	Schreiben: analog
+
+	Sonstige Arten von Pufferung (Caches) zählen wir hier noch nicht, da sie nicht direkt die Zugriffszeiten verringern, sondern gleich die Zugriffe vermeiden.
+
+	\item Komprimierung
+
+	Wenn die Daten auf der Platte effektiv komprimiert wurden, belegen sie weniger Blöcke und können daher schneller in den Hauptspeicher geladen werden. Siehe dazu später auch C-Store (Vorlesung und Übung 9). Jedoch muss im Einzelfall der Geschwindigkeitsvorteil bei der Zugriffszeit dagegen abgewogen werden, dass die Daten vor der Nutzung im Hauptspeicher möglicherweise erst wieder dekomprimiert werden müssen.
+
+\end{itemize}
+\end{solution}
+
+\begin{note}
+	Eine weitere Idee für die Zugriffsbeschleunigung ist es, die Daten mehrerer Spuren des gleichen Zylinders parallel zu lesen.
+	Dies machen moderne Festplatten aber aus praktischen Gründen nicht:
+
+	"`Accessing data in parallel through multiple heads would seem to be an obvious optimization, but it is hard to implement in practice. Before RAID systems became popular, some high performance disks could access data through multiple heads in parallel. These devices required extra read and write electronics, and the heads needed to be aligned with each other very accurately. This was quite difficult because of vibration, thermal gradients, and mechanical imperfections in the drive. As track densities grew, alignment became even more difficult, and the advent of RAID technology has practically eliminated the demand for specialized high performance disk drives. Modern drives access data through only one head at a time."' (John M. May: Parallel I/O for High Performance Computing, 2000, Morgan Kaufmann, S.~19)
+\end{note}

@@ -1,0 +1,25 @@
+\section{Fragen zur Vorlesung}
+
+\begin{enumerate}[a)]
+
+	\item Beschreiben Sie, in welche Strukturen Daten zur Speicherung gebracht werden und was ebenfalls gespeichert werden muss, um diese Daten wieder verwenden zu können. Welche Anforderungen werden gestellt? Können sie alle gleichzeitig erfüllt werden?
+
+	\begin{solution}
+	Daten werden in die Form eines Tupels gebracht, das aus Attributen (Feldern) besteht. Ein Datum hat also die Form (Attributwert1, Attributwert2, \ldots ). Diese werden in Sätzen zusammengefasst. Zur Rekonstruktion benötigt man eine Beschreibung des verwendeten Datenformats: die Metadaten. Darin werden beispielsweise der Name, der Datentyp (int, float, string, \ldots ), die Länge und etwaige Nebenbedingungen (NOT NULL, Verschlüsselung, \ldots ) festgehalten.
+
+	Gefordert wird, dass mit dem zur Verfügung stehenden Speicherplatz effizient umgegangen wird (z.\,B.\ in Hinblick auf variable Länge oder das Einfügen des Default-Wertes, aber auch, dass möglichst wenige Hilfsstrukturen verwendet werden). Direkter Zugriff auf Felder soll möglich sein, d.\,h.\ es soll nicht eine Vielzahl von Feldern gelesen werden müssen, um ein bestimmtes Feld zu erreichen. Zusätzlich soll das System flexibel sein, d.\,h.\ es sollen jederzeit Felder hinzugefügt, gelöscht oder geändert werden können. Selbstverständlich soll das Ganze auch performant sein. Insbesondere dieser Punkt beißt sich manchmal mit der Speicherplatzeffizienz, da man Hilfsstrukturen gern verwenden würde, diese aber natürlich zusätzlichen Speicher belegen. Außerdem kann ein Übermaß an Hilfsstrukturen die Performance auch negativ beeinflussen, da bei Änderungen auch die Hilfsstrukturen aktuell gehalten werden müssen.
+	\end{solution}
+
+	\item Welche Schwierigkeit ergibt sich durch Felder variabler Länge?
+
+	\begin{solution}
+	Der Direktzugriff ist schwierig zu realisieren. Wenn man nicht immer die Maximallänge reservieren will, braucht man Zeiger. Nun muss man überlegen, was man verzeigert: alle Felder -- Speicherplatzverschwendung $\Rightarrow$ nur die variablen Felder. Daher werden die oft ans Ende geschoben, dann kann man auf alle Felder fester Länge über feste Adressen zugreifen. Alternativ kann man Zeiger auf variable Felder in den festen Teil einbauen (die Länge eines Zeigers ist fest). Bei kleinen variablen Feldern wird dennoch oft der Maximalplatz reserviert (z.\,B.\ bei Oracle).
+	\end{solution}
+
+	\item Wie kann das DBMS bestimmen, welche Felder ein Tupel enthält und wo sie in einem Satz zu finden sind?
+
+	\begin{solution}
+	Die Felder stehen im System- oder Metadatenkatalog. Die Adresse innerhalb eines Satzes kann entweder im Metadatenkatalog oder im Satz selbst stehen (je nachdem, ob es sich um Felder fester oder variabler Länge handelt).
+	\end{solution}
+
+\end{enumerate}

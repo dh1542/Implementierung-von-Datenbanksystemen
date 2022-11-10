@@ -1,0 +1,63 @@
+\section{Sort-Merge Join}
+\label{sec:sort_merge}
+
+\begin{enumerate}[a)]
+
+\item \label{item:sortierung} Entwerfen Sie einen einfachen Algorithmus, der eine Relation sortiert.
+	Denken Sie daran, dass der Inhalt der Relation im Allgemeinen nicht komplett in den Puffer passt.
+	Geben Sie auch an, wie viele Blockzugriffe auf den Hintergrundspeicher für die Sortierung benötigt werden.
+
+	\begin{solution}
+		Die Grundidee besteht darin, Teillisten zu sortieren und diese anschließend zusammenzuführen (Merge).
+		Seien \(R\) die zu sortierende Relation mit \(B(R)\) Blöcken und \(M\) die Anzahl verfügbarer Kacheln im Puffer.
+		Dann kann \(R\) mit folgendem Algorithmus sortiert werden:
+
+		\begin{enumerate}[1.]
+		\item Lies die ersten \(M\) Blöcke von \(R\) in den Puffer.
+		\item Sortier diese Blöcke mit einem Hauptspeicher-Sortieralgorithmus.
+		\item Schreib die sortierten Blöcke zurück auf den Hintergrundspeicher.
+		\item Wiederhol die Schritte 1 bis 3 für alle \(B(R)\) Blöcke.
+		\item Reservier eine Kachel für das Ergebnis.
+		\item Lies den ersten Block jeder sortierten Teilliste in den Puffer.
+		\item Lies das kleinste Elemente der Blöcke im Puffer, füg es in den Ausgabeblock ein.
+		\item Schreib den Ausgabeblock auf den Hintergrundspeicher, sobald er voll ist.
+		\item Wenn ein Eingabeblock komplett verarbeitet wurde, lade den nächsten Block der Teilliste in den Puffer.
+		\end{enumerate}
+
+		Zahl der Blockzugriffe: \(4 B(R)\)
+		Falls die sortierten Tupel gleich weiterverarbeitet werden, spart das das Schreiben des Ergebnisses auf den Hintergrundspeicher und somit \(B(R)\) Blockzugriffe.
+		Das behandeln wir in \PipeliningKosten genauer.
+
+		In der Praxis passen die ersten Blöcke aller Teillisten meistens in den Hauptspeicher.
+		Sollte das nicht der Fall sein, kann eine weitere Merge-Phase angehängt werden.
+	\end{solution}
+
+\item Wie viele Blockzugriffe werden für die Durchführung eines Sort-Merge Joins von zwei Relationen \(R\) und \(S\) insgesamt benötigt, wenn zur Sortierung der Algorithmus aus Teilaufgabe \ref{item:sortierung}) und für die anschließende Durchführung des Merge Joins der in der Vorlesung (Folie~\MergeJoin) vorgestellte Algorithmus verwendet werden?
+
+	\begin{solution}
+		Die sortierten Relationen müssen schritthaltend jeweils einmal gelesen und das Ergebnis muss wieder abgelegt werden.
+		Somit ergibt sich eine Gesamtzahl von \(6 (B(R) + B(S))\) Blockzugriffen.
+		Äquivalent zur Sortierung spart die direkte Weiterverarbeitung der Join-Ergebnisse \(B(R) + B(S)\) Blockzugriffe.
+
+		Für den Merge braucht man normal nur zwei Pufferkacheln.
+		Sollte sich aber ein Wert eines Join-Attributs über mehrere Blöcke erstrecken, so müssen all diese Blöcke gleichzeitig in den Puffer gelesen werden.
+		Für den Fall, dass dafür nicht genügend Kacheln zur Verfügung stehen, muss für die Tupel mit diesem Wert ein One-Pass Join oder ein Nested-Loop Join durchgeführt werden.
+	\end{solution}
+
+\item \label{item:kombiniert}Überlegen Sie, wie die Algorithmen aus den vorherigen beiden Teilaufgaben kombiniert werden können, um Blockzugriffe einzusparen.
+	Welche Voraussetzungen müssen die am Join beteiligten Relationen dafür erfüllen?
+
+	\begin{solution}
+		\begin{enumerate}[1.]
+		\item Führ die Schritte 1 bis 4 des Sortieralgorithmus für beide Relationen aus.
+		\item	Lies den ersten Block jeder Teilliste beider Relationen in den Puffer.
+		\item Such den niedrigsten Wert des Join-Attributs in allen Tupeln aller Blöcke im Puffer und join die Tupel mit dem gleichen Wert.
+		\end{enumerate}
+
+		Damit werden nur noch \(4 (B(R) + B(S))\) Blockzugriffe bzw.\ bei direkter Weiterverarbeitung \(3 (B(R) + B(S))\) Blockzugriffe benötigt.
+
+		Voraussetzung für diesen Algorithmus ist, dass beide Relationen zusammen weniger Teillisten haben, als Hauptspeicherkacheln zur Verfügung stehen.
+		Da jede Teilliste maximal \(M\) Blöcke enthält, muss gelten \( \left \lceil \frac{B(R)}{M} \right \rceil + \left \lceil \frac{B(S)}{M} \right \rceil < M\).
+		Bei vielen gleichen Werten des Join-Attributs ist wie bei der nicht-optimierten Variante ein besonderes Vorgehen notwendig.
+	\end{solution}
+\end{enumerate}

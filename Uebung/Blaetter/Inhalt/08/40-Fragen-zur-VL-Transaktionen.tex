@@ -1,0 +1,53 @@
+\section{Fragen zur Vorlesung -- Transaktionen}
+
+\begin{enumerate}[a)]
+
+	\item Was sind Transaktionen und wozu dienen sie?
+
+	\begin{solution}
+	Transaktionen sind logische Arbeitseinheiten, die mehrere DB-Operationen (i.\,A.\ SQL-Statements) zusammenfassen. Sie bringen eine DB von einem konsistenten Zustand in den nächsten (der sich nicht vom vorherigen unterscheiden muss). Sie dienen dem Umgang mit Fehlern (Anwendungs-, System- und Hardware-Fehlern). In diesem Fall müssen wir wieder in einen konsistenten Zustand kommen. Da nur die Anwendung weiß, was ein konsistenter Zustand ist, muss sie es dem DBMS mitteilen ($\rightarrow$ commit). Dazu bekommt man die Möglichkeit, im Fehlerfall eine Transaktion ungeschehen zu machen ($\rightarrow$ rollback), sowie Konsistenz im Mehrbenutzerbetrieb zu gewährleisten (Beispiel: Umbuchung. Während der Umbuchung ist ggf.\ die Summe der Kontostände nicht korrekt. Daher wird evtl.\ kein Kredit gewährt).
+	\end{solution}
+
+	\item Was versteht man unter den ACID-Eigenschaften von Transaktionen?
+
+	\begin{solution}
+	Dies sind die grundlegenden Eigenschaften, die Transaktionen erfüllen (sollen):
+	\begin{description}
+		\item[Atomicity (Unteilbarkeit)] Alle Änderungen der TA werden aktiv oder gar keine.
+		\item[Consistency (Konsistenz)] Die TA überführt die DB von einem konsistenten Zustand in einen anderen konsistenten Zustand.
+		\item[Isolation] Eine TA wird nicht von einer anderen laufenden TA beeinflusst.
+		\item[Durability (Dauerhaftigkeit)] Die Ergebnisse einer TA werden so in die DB übernommen, dass sie auch nach einem Fehler noch vorhanden sind oder wiederhergestellt werden können.
+	\end{description}
+	\end{solution}
+
+	\item Grenzen Sie die Begriffe logische Konsistenz und physische Konsistenz voneinander ab!
+
+	\begin{solution}
+	Physische Konsistenz: Korrektheit von Speicherungsstrukturen: Alle Verweise und Adressen (TIDs) stimmen. Alle Indexe sind vollständig und stimmen mit den Primärdaten überein.
+
+	Logische Konsistenz: Korrektheit der Dateninhalte: Stellen einen (möglichen) Zustand der realen Welt dar. Alle Bedingungen des Datenmodells (Pri"-mär"-schlüs"-sel"-ei"-gen"-schaft, Referenzielle Integrität) und alle benutzerdefinierten Bedingungen (Assertions) sind erfüllt.
+	\end{solution}
+
+	\item Angenommen ein Anwendungsprogramm führt mehrere Transaktionen aus. Dabei kommt es zu einem Fehler. Wie muss nach dem Fehler vorgegangen werden, um das Programm fortzusetzen? Beziehen Sie sich in Ihrer Antwort auf idempotente (jederzeit wiederholbare) und nicht idempotente Transaktionen.
+
+	\begin{solution}
+	Die noch nicht abgeschlossenen Transaktionen müssen erneut oder überhaupt erst ausgeführt werden.
+	Bei idempotenten Transaktionen kann man (abgesehen vom Zusatzaufwand) einfach alle Transaktionen noch einmal ausführen.
+	Bei nicht idempotenten Transaktionen oder wenn der Zusatzaufwand der erneuten Ausführung bereits abgeschlossener idempotenter Transaktioenen vermieden werden soll, muss man nach einem Fehler feststellen können, welche Transaktionen bereits erfolgreich beendet wurden. Diese Information muss irgendwie aus der Datenbank zu entnehmen sein. Schreibt man sie woanders hin (z.\,B.\ indem man einen Satz aus den Quelldaten löscht), so kann man nicht die Atomarität zwischen "`Löschen aus den Quelldaten"' und "`Commit der Transaktion"' gewährleisten.
+	\end{solution}
+
+	\item Transaktionen bestehen nicht nur aus Datenumsetzungen, sondern beinhalten sehr oft auch sogenannte Real-World Actions, d.\,h.\ sie haben Auswirkungen in der wirklichen Welt. Transaktionen werden zum Beispiel abgewickelt, wenn Sie per EC-Karte eine Eintrittskarte oder einen Gutschein erwerben, aber auch im industriellen Umfeld an einer Fertigungsstraße. Was ist das Problem an diesen Real-World Actions? Diskutieren Sie auch Lösungsansätze!
+
+	\begin{solution}
+	\paragraph{\color{solutioncolor}Definition} Eine Real-World Action (RWA) ist eine Aktion, die nicht rückgängig gemacht werden kann. Das heißt ein Undo ist nicht möglich.
+
+	RWA werden unterteilt in solche, die jederzeit wiederholbar (idempotent) sind, solche, die nicht idempotent, aber testbar sind, und den Rest.
+	Idempotente RWA sind Aktionen wie beispielsweise ein Loch bohren (von Werkzeugungenauigkeiten abgesehen): War noch kein Loch da, hat man nach der Wiederholung eines. Wenn es das Loch schon gab, haben wir eben umsonst gebohrt, aber auf jeden Fall gibt es am Ende der Aktion ein Loch.
+	Bei prüfbaren Aktionen kann man feststellen, ob die Aktion bereits ausgeführt wurde oder nicht. Beispielsweise kann beim Lackieren eines Bauteils ein Sensor prüfen, ob das Bauteil bereits lackiert ist, oder beim Geldautomaten, ob das Geld bereits ausgezahlt und entnommen wurde.
+
+	RWA müssen als solche erkannt werden und dürfen erst ausgeführt werden, wenn sichergestellt ist, dass alle anderen Aktionen der Transaktion nicht mehr zurückgesetzt werden. Dann können idempotente und prüfbare RWA nach einem Fehler bei Bedarf noch ausgeführt werden, um die Transaktion doch noch erfolgreich abzuschließen. Für nicht-prüfbare nicht-idempotente RWA gibt es keine gute Lösung sie in die Transaktionsverarbeitung einzubauen.
+
+  Man muss daher Aktionen entweder überprüfbar machen oder gleich idempotent, indem man beispielsweise beim Gutscheindruck Gutscheine mit einer Seriennummer versieht.
+	\end{solution}
+
+\end{enumerate}

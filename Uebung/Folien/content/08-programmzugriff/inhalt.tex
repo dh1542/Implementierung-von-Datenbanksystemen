@@ -1,0 +1,89 @@
+\section{LINQ}
+\begin{frame}{Was ist LINQ?}
+\begin{itemize}
+	\item Möglichkeit zur Abfrage von Daten
+\begin{itemize}
+\item deklarativ
+\item SQL-ähnliche Syntax
+\item aus
+\begin{itemize}
+\item  relationalen Datenbanken
+\item Arrays, Listen, \ldots
+\item XML-Strukturen
+\item \ldots (beliebig erweiterbar)
+\end{itemize}
+\end{itemize}
+\item  Integriert in das .NET Klassensystem und die Programmiersprache
+\begin{itemize}
+\item Syntaxkontrolle durch den Compiler
+\item Strenge Typisierung
+\item IDE-Unterstützung (Codevervollständigung, …)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{LINQ to Entities}
+\begin{itemize}
+\item Object-relational mapping\\
+	Normale .NET-Klasse zur Datenrepräsentation
+\item Abfragen über LINQ-Syntax\\
+	Übersetzung in SQL
+\item Transaktionsunterstützung
+\item Möglichkeit zur Erzeugung der Datenbank aus Klassendefinitionen und umgekehrt
+\end{itemize}
+\end{frame}
+
+\lstdefinestyle{sharpc}{
+language=[Sharp]C,
+tabsize=2,
+morekeywords={
+	from,
+	where,
+	orderby,
+	select},
+rulecolor=\color{blue!80!black}}
+
+\begin{frame}[fragile]{Ein erstes Beispiel (C\#)}
+\begin{lstlisting}[style=sharpc]
+sting[] namen = {"Tina", "Tom", "Hans", "Susanne", "Gabriel", "Tim", "Michael", "Daniel"};
+
+IEnumerable<string> query = from s in namen
+	where s.Length == 3
+	orderby s
+	select s.ToUpper();
+
+foreach (string item in query)
+	Console.WriteLine(item);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Andere Syntax}
+\begin{lstlisting}[style=sharpc]
+sting[] namen = {"Tina", "Tom", "Hans", "Susanne", "Gabriel", "Tim", "Michael", "Daniel"};
+
+IEnumerable<string> query = from s in namen
+	.Where(s => s.Length == 3)
+	.OrderBy(s => s)
+	.Select(s => s.ToUpper());
+
+foreach (string item in query)
+	Console.WriteLine(item);
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{Mit strukturierten Werten}
+\begin{lstlisting}[style=sharpc]
+Person[] personen = {
+	new Person {Name = "Thomas", Alter = 22},
+	new Person {Name = "Susi", Alter = 17},
+	new Person {Name = "Tina", Alter = 23},
+}
+
+var query = from p in personen
+	select new {p.name, Volljährigkeit = p.Alter >= 18 };
+
+foreach (var item in query)
+	Console.WriteLine("{0} ist {1}", item.Name, item.Volljähring ? "volljähring" : "nicht volljähring");
+\end{lstlisting}
+\end{frame}

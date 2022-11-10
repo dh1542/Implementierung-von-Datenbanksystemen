@@ -1,0 +1,133 @@
+
+\usetikzlibrary{arrows, chains, positioning}
+
+\tikzset{
+defaultNode1/.style={rectangle, draw, minimum height=8mm, minimum width=2mm, node distance=0mm},
+defaultNode2/.style={defaultNode1, minimum width=0mm},
+greyNode/.style={fill=lightgray},
+secondNode/.style={on chain},
+}
+
+%Erster Innerer Knoten einer Ebene.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 2. Referenzschlüsseleintrag
+%\param #3 : 3. Referenzschlüsseleintrag
+%\param #4 : 4. Referenzschlüsseleintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+%\param #7 : Offset in x-Richtung
+\tikzset{pics/firstInnerNode/.style n args={7}{
+code={
+	\node[defaultNode, greyNode](#6+0) at (#7,-#5*2) {};
+	\chainin (#6+0);
+	\node[defaultNode, secondNode]{#1};
+	\node[defaultNode, secondNode, greyNode](#6+1){};
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode, greyNode](#6+2){};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode, greyNode](#6+3){};
+	\node[defaultNode, secondNode]{#4};
+	\node[defaultNode, secondNode, greyNode](#6+4){};
+}}}
+
+%Innerer Knoten.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 2. Referenzschlüsseleintrag
+%\param #3 : 3. Referenzschlüsseleintrag
+%\param #4 : 4. Referenzschlüsseleintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+\tikzset{pics/innerNode/.style n args={6}{
+code={
+
+	\node[defaultNode,node distance=12mm, secondNode, greyNode](#6+0){};
+	\node[defaultNode, secondNode]{#1};
+	\node[defaultNode, secondNode, greyNode](#6+1){};
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode, greyNode](#6+2){};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode, greyNode](#6+3){};
+	\node[defaultNode, secondNode]{#4};
+	\node[defaultNode, secondNode, greyNode](#6+4){};
+}}}
+
+%Innerer Knoten, variable Distanz.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 2. Referenzschlüsseleintrag
+%\param #3 : 3. Referenzschlüsseleintrag
+%\param #4 : 4. Referenzschlüsseleintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+\tikzset{pics/innerNodeVar/.style n args={7}{
+code={
+	\node[defaultNode,node distance=#7, secondNode, greyNode](#6+0){};
+	\node[defaultNode, secondNode]{#1};
+	\node[defaultNode, secondNode, greyNode](#6+1){};
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode, greyNode](#6+2){};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode, greyNode](#6+3){};
+	\node[defaultNode, secondNode]{#4};
+	\node[defaultNode, secondNode, greyNode](#6+4){};
+}}}
+
+%Innerer Knoten, weniger Abstand.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 2. Referenzschlüsseleintrag
+%\param #3 : 3. Referenzschlüsseleintrag
+%\param #4 : 4. Referenzschlüsseleintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+\tikzset{pics/innerNodeNarrow/.style n args={6}{
+code={
+	\node[defaultNode,node distance=3mm, secondNode, greyNode](#6+0){};
+	\node[defaultNode, secondNode]{#1};
+	\node[defaultNode, secondNode, greyNode](#6+1){};
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode, greyNode](#6+2){};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode, greyNode](#6+3){};
+	\node[defaultNode, secondNode]{#4};
+	\node[defaultNode, secondNode, greyNode](#6+4){};
+}}}
+
+%Erster Blattknoten einer Ebene.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 1. Nutzdateneintrag
+%\param #3 : 2. Referenzschlüsseleintrag
+%\param #4 : 2. Nutzdateneintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+%\param #7 : Offset in x-Richtung
+\tikzset{pics/firstLeafNode/.style n args={7}{
+code={
+	\node[defaultNode](#6+0) at (#7,-#5*2) {#1};
+	\chainin (#6+0);
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode]{#4};
+}}}
+
+%Blattknoten.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 1. Nutzdateneintrag
+%\param #3 : 2. Referenzschlüsseleintrag
+%\param #4 : 2. Nutzdateneintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+\tikzset{pics/leafNode/.style n args={6}{
+code={
+	\node[defaultNode,node distance=3.5mm, secondNode](#6+0){#1};
+	\node[defaultNode, secondNode]{#2};
+	\node[defaultNode, secondNode]{#3};
+	\node[defaultNode, secondNode]{#4};
+}}}
+
+%Verbindungspfeil zeichnen
+%\param #1 : Name des Vaterblocks
+%\param #2 : Index des Pointers (beginnend bei 0)
+%\param #3 : Name des Kindblocks
+\tikzset{pics/connect/.style n args={3}{
+code={
+	\draw[->] (#1+#2.south) -- (#3+0.north);
+}}}

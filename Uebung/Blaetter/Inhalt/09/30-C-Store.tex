@@ -1,0 +1,84 @@
+\section{C-Store}
+
+Ausgangspunkt dieser Aufgabe ist der in der Vorlesung behandelte Prototyp C-Store.
+
+\begin{enumerate}[a)]
+
+	\item Nach welchem Prinzip funktioniert C-Store und in welchen Einsatzszenarien kann es seine Vorteile ausspielen? Welche Methoden existieren, um die Daten physisch zu speichern?
+
+	\begin{note}
+	Hier können die Übungsfolien zu C-Store verwendet werden.
+	\end{note}
+
+	\begin{solution}
+	Bei C-Store werden Tupel über mehrere Sätze verteilt spaltenweise abgespeichert (Column Store). Diese werden nach einem Attribut sortiert (evtl.\ auch nach mehreren). Es existiert ein Schreibspeicher (WS) zum schnellen Einfügen und ein Lese-optimierter Speicher (RS) für große Lesevorgänge, wie sie bei Analysen vorkommen. Änderungen werden durch Einfügen und Löschen von einem Tuple Mover durchgeführt.
+
+	C-Store bevorteilt analytische Auswertungen (d.\,h.\ Lesevorgänge), wie sie in Data Warehouses vorkommen; das wirkt sich allerdings negativ bei Änderungen und Joins aus. Prinzipiell erlaubt es, nur die wirklich gebrauchten Attributwerte einzulesen. Durch die kompakte Speicherung der Attributwerte ohne Rücksicht auf Wortgrenzen wird Speicherplatz und E/A-Zeit auf Kosten von CPU-Zeit gespart.
+
+	Zu den Methoden siehe Folien~\CStoreMethode % stimmt noch (KMW, 27.11.2018)
+	\end{solution}
+
+	\begin{note}
+	Hier das C-Store-Konzept zusammen mit den Studenten erarbeiten und ausführlich besprechen.
+	Erfahrungsgemäß verstehen es viele Teilnehmer nicht allein durch die Vorlesung.
+	\end{note}
+
+	\item Nach dem C-Store-Konzept sind einzelne Spalten von Tabellen als Sätze zu speichern. Von den in der Vorlesung eingeführten Speicherungsformen kommen dafür die direkte Satzdatei und die Schlüsselsatzdatei in Frage. Diskutieren Sie die Konsequenzen der Verwendung von beiden Lösungsmöglichkeiten.
+
+\begin{note}
+	Abgehandelt durch den Foliensatz.
+\end{note}
+
+	\begin{solution}
+	Wir betrachten in dieser Aufgabe nur den Lesespeicher RS. Erstmal ist die Frage, was in C-Store einen Satz darstellt. Maximal sind das alle Werte einer Spalte, aber eine Spalte kann auch auf mehrere Sätze aufgeteilt werden. Das ist zum einen der Fall bei der horizontalen Partitionierung in Segmente. Zum anderen können auch die Werte eines Segments auf mehrere Sätze verteilt werden. Nach welchem Prinzip ist abhängig von der jeweiligen physischen Struktur und davon, ob man von einer bestimmten Aufteilung profitieren kann. Um eine Schlüsseldatei einsetzen zu können, müssen die Spalteninhalte auch nach dem gewünschten Schlüssel in Sätze getrennt sein.
+
+	Allgemein gilt, dass der Zugriff für die Rekonstruktion der Tabelle immer über die Position möglich sein muss.
+	Bei den sortierten Spalten ist dieser Zugriffsweg mittels eines Baumes auch sehr einfach auf den eigentlichen Wert erweiterbar.
+	Hierdurch können Bereichsanfragen über den Wert einfach ermöglicht werden.
+	Durch den Zugriff über die Position bietet sich nur die Speicherung in einer Schlüsselsatzdatei an.
+
+	Bei Typ 1, sortiert mit wenigen verschiedenen Werten, wird für jeden Wert ein Satz gebildet, der das Tripel aus Wert, Position des ersten Auftretens und Anzahl der Vorkommen enthält.
+	Das ermöglicht es, die Sätze nach Wert sortiert in einem B-Baum abzulegen.
+	Dadurch wird die Sortierung erzielt und es ist ein schneller Zugriff auf Wertebereiche möglich.
+
+	Bei Typ 2, unsortiert mit wenigen verschiedenen Werten, werden die Werte in Lauflängen-codierte Bitmaps codiert.
+	Der häufigste Zugriff auf die Werte einer so abgelegten Spalte wird über die Position erfolgen.
+	Um diesen effizient zu gestalten, kann man pro Wert in einen B-Baum Sätze mit je einem Tripel der Lauflängencodierung (Bit, Startposition, Anzahl) mit Startposition als Schlüssel ablegen.
+
+	Für Typ 3, sortiert mit vielen verschiedenen Werten, wird eine Delta-Codierung eingesetzt.
+	Hier könnte man pro Delta-Kette einen Satz, bestehend aus einem Originalwert gefolgt von Delta-Werten, ablegen.
+	C-Store legt genau eine solche Kette pro Block ab, d.\,h.\ einen Satz pro Block.
+	Um den passenden Block schnell zu finden, können die Blöcke als B-Baum organisiert werden.
+
+	Bei Typ 4, unsortiert mit vielen verschiedenen Werten, werden die Werte nicht komprimiert.
+	Hier könnte also die ganze Spalte oder bei einer horizontal partitionierten Spalte jedes Segment als ein Satz abgelegt werden.
+	Das andere Extrem ist es, jeden Wert als einen Satz abzulegen. Ein B-Baum kann den Zugriff auf die Sätze beschleunigen.
+
+	Die B-Bäume werden bei C-Store dicht gepackt, da so die Baumhöhe gesenkt wird und da Änderungen selten sind.
+	\end{solution}
+
+	\item \label{cstore_3} Gegeben seien eine bestimmte Relation und eine Reihe von SQL-Anfragen mit Aggregatsfunktionen (\texttt{sum}, \texttt{min}, \texttt{max}, \texttt{avg}, \ldots ).
+	´Welche Gruppen von Spalten sollten dafür in C-Store definiert werden?
+
+	\begin{solution}
+	Es sollte Spaltengruppen geben, die in ihrer Partitionierung einer möglichen Selektionsbedingung der SQL-Anfragen entsprechen und natürlich auch die in der Aggregatsfunktion verwendete(n) Spalte(n) beinhalten.
+
+	Abhängig von der Aggregatsfunktion bieten sich verschiedene Spaltentypen an: \\
+	Für Funktionen, die aus einer möglichen Sortierung einen Performance-Vorteil ziehen würden (beispielsweise \texttt{min, max}), sollte man Typ 1 ("`sortiert mit wenigen verschiedenen Werten"') oder Typ 3 ("`sortiert mit vielen verschiedenen Werten"') wählen, sonst ist es eigentlich egal (Man kann dann nach einem anderen Attribut sortieren, wenn man Anfragen hat, für die sich das lohnt.): Für die Ermittlung des Minimums bzw.\ Maximums muss bei sortieren Werten nur auf einen Attributwert zugegriffen werden.
+	\end{solution}
+
+	\item In welchen Schritten läuft die Ausführung einer Anfrage aus Teilaufgabe \ref{cstore_3}) ab?
+
+	\begin{solution}
+	Vergleiche Übungsblatt 8.
+	\begin{enumerate}[i)]
+		\item Syntaxprüfung
+		\item Gibt es die Relationen und Attribute überhaupt?
+		\item Wie heißt die Datei zur Relation?
+		\item Was für eine Datei ist das -- direkt oder Schlüssel-basiert?
+		\item Gibt es passende Projektionen?
+		\item Wo liegen die Verbund-Indizes?
+		\item Müssen Partitionen zusammengeführt werden?
+	\end{enumerate}
+	\end{solution}
+\end{enumerate}

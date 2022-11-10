@@ -1,0 +1,139 @@
+\section*{Lernziele}
+\begin{itemize}
+	\item Auftretende Probleme bei nicht isolierten Transaktionen
+	\item Möglichkeiten, diese Probleme zu erkennen und zu vermeiden
+	\item Möglichkeiten zur Recovery unter Verwendung von Logs
+\end{itemize}
+
+
+\section*{Literatur}
+\HaerderNintyNine{14}
+
+\ElmasriFive{18, insbes. 18.1}
+
+\GarciaMolinaFirst{18}
+
+\BerensonNintyFive
+
+\section{Fragen zur Vorlesung}
+
+\begin{enumerate}[a)]
+	\item Welche möglichen Probleme bei der gleichzeitigen Ausführung von Transaktionen haben Sie in der Vorlesung kennengelernt?
+
+\begin{solution}
+\begin{itemize}
+	\item Verlorengegangene Änderung (Dirty Write, Lost Update)
+	\item Lesen nicht freigegebener Änderungen (Dirty Read)
+	\item Inkonsistente Analyse (Non-Repeatable Read)
+	\item Phantom-Problem
+\end{itemize}
+Für die Anomalien im Mehrbenutzerbetrieb gibt man bestimmte Abläufe,
+d.\,h.\ Ausführungsreihenfolgen von Operationen verschiedener Transaktionen,
+als Muster an.
+Beinhaltet ein Ablauf das Muster einer Anomalie,
+so sagt man:
+Die Anomalie tritt in diesem Ablauf auf.
+
+Leider ist die Definition der Anomalie-Muster umstritten.
+Das zeigt sich u.\,a.\ daran, dass viele reale Systeme (z.\,B.\ Oracle, PostgreSQL) nach unserer Definition nicht serialisierbar (und damit möglicherweise nicht korrekt) arbeiten, da sie eine andere Definition verwenden.
+Für eine tiefere Beschäftigung mit dieser Tatsache sei der Artikel von Berenson et al.\ empfohlen.
+Für diese Veranstaltung ist das aber nicht notwendig.
+
+Da aber eine Definition von Anomalie-Abläufen nötig ist, um über Anomalien sprechen zu können, verwenden wir die Definitionen aus dem Artikel von Berenson et al. (Vorlesungsfolie~\AnomalieDef):
+
+\paragraph{\color{solutioncolor}Dirty Write}
+$w_1[x] \ldots w_2[x] \ldots
+((c_1 \textrm{ oder } a_1) \textrm{ und } (c_2 \textrm{ oder } a_2)$
+in beliebiger Reihenfolge)
+
+Zwei Transaktionen schreiben überschneidend dasselbe Datenelement,
+wodurch Inkonsistenzen entstehen können
+und das Rücksetzen von Transaktionen erschwert wird.
+
+\paragraph{\color{solutioncolor}Dirty Read}
+$w_1[x] \ldots r_2[x] \ldots
+((c_1 \textrm{ oder } a_1) \textrm{ und } (c_2 \textrm{ oder } a_2)$
+in beliebiger Reihenfolge)
+
+Transaktion~2 hat Daten gelesen, die inkonsistent zu anderen Daten sein können und die eventuell "`nie existiert haben"', da Transaktion~1 abgebrochen werden könnte und damit alle ihre Änderungen rückgängig gemacht werden.
+
+\paragraph{\color{solutioncolor}Non-Repeatable Read}
+$r_1[x] \ldots w_2[x] \ldots
+((c_1 \textrm{ oder } a_1) \textrm{ und } (c_2 \textrm{ oder } a_2)$
+in beliebiger Reihenfolge)
+
+Transaktion~1 sieht, wenn sie erneut liest, einen anderen Wert als zuvor. Dadurch kann es zu inkonsistenten Analysen kommen.
+
+\paragraph{\color{solutioncolor}Phantom-Problem}
+$r_1[P] \ldots w_2[y \textrm{ in } P] \ldots
+((c_1 \textrm{ oder } a_1) \textrm{ und } (c_2 \textrm{ oder } a_2)$
+in beliebiger Reihenfolge);
+$P$ steht hier für die Menge der Datenobjekte, die ein Prädikat erfüllen.
+
+Nachdem Transaktion~1 $P$ liest, verändert Transaktion~2 diese Menge durch Einfügen eines geeigneten Tupels, wodurch inkonsistente Analysen entstehen können.
+\end{solution}
+
+\begin{note}
+Eine Anomalie liegt unabhängig davon vor, ob die Transaktionen mit Abort oder Commit enden, und unabhängig von der Reihenfolge des Endes. Damit die Anomalie vorliegt, dürfen beide Transaktionen aber erst \emph{nach} den anderen Operationen (z.\,B.\ $(r_1[x] w_2[x])$ bei Non-Repeatable Read) enden. Der Ablauf $(r_1[x] c_1[x] w_2[x] a_2[x])$ ist also kein Non-Repeatable Read, der Ablauf $(r_1[x] w_2[x] c_1[x] a_2[x])$ schon.
+
+Das Datenbanksystem kann nicht prüfen, ob eine Anomalie zu einem Problem wird oder nicht, da es nicht weiß, was das Anwendungsprogramm mit den Daten macht. Sobald eine Anomalie vorliegt, besteht aber die Möglichkeit, dass ein Problem, also ein anderes Ergebnis als bei einem seriellen Ablauf, entsteht. Deshalb muss das Datenbanksystem Abläufe mit Anomalien verhindern. Umgekehrt betrachtet muss also in jedem Ablauf, der zu einem Problem führt, eine Anomalie vorliegen.
+
+Beispiel für ein Non-Repeatable Read (und dafür, warum nach Berenson et al.\ kein zweites $(r_1[x])$ gefordert wird), direkt aus Berenson et al.:
+
+x und y seien zwei Kontostände, T1 möchte die Summe der beiden Kontostände ermitteln, T2 nimmt eine Umbuchung von 40 von x auf y vor.
+
+$(r_1[x=50] r_2[x=50] w_2[x=10] r_2[y=50] w_2[y=90] c_2 r_1[y=90] c_1)$
+
+T1 sieht eine Summe von 140 statt der korrekten 100. Die Anomalie ist ein Non-Repeatable Read aufgrund von $(r_1[x=50] \ldots w_2[x=10] \ldots c_2 \ldots c_1)$
+Würde Non-Repeatable Read ein zweites $(r_1[x])$ erfordern, würde in dem Ablauf keine Anomalie auftreten.
+
+Zentraler Punkt in Berenson et al., \emph{A Critique of ANSI SQL Isolation Levels} ist folgender:
+Einige Anomalien werden durch den SQL-Standard wie folgt definiert:
+\begin{enumerate}[i)]
+  \item P1 ("`Dirty read"'): SQL-transaction $T_1$ modifies a row. SQL-transaction $T_2$ then reads that row before $T_1$ performs a COMMIT. If $T_1$ then performs a ROLLBACK, $T_2$ will have read a row that was never committed and that may thus be considered to have never existed.
+
+  \item P2 ("`Non-repeatable read"'): SQL-transaction $T_1$ reads a row. SQL-transaction $T_2$ then modifies or deletes that row and performs a COMMIT. If $T_1$ then attempts to reread the row, it may receive the modified value or discover that the row has been deleted.
+
+  \item P3 ("`Phantom"'): SQL-transaction $T_1$ reads the set of rows N that satisfy some $<$search condition$>$. SQL-transaction $T_2$ then executes SQL-statements that generate one or more rows that satisfy the $<$search condition$>$ used by SQL-transaction $T_1$. If SQL-transaction $T_1$ then repeats the initial read with the same $<$search condition$>$, it obtains a different collection of rows.
+\end{enumerate}
+
+Dabei ist nun ungeklärt, ob der jeweilige "`If"'-Teil zur Definition der Anomalie gehört oder nur eine Erklärung dessen darstellt, was bei Auftreten der Anomalie passieren kann. Konkret: Muss $T_1$ ein ROLLBACK durchführen, damit ein Dirty Read vorliegt? Oder liegt der bereits durch $w_1(x) r_1(x)$ vor und der "`If $T_1$ \ldots "'-Satz erläutert nur, warum das schlimm sein kann? Genau das ist umstritten. Aber für uns gelten die Definitionen, die oben angegeben sind.
+\end{note}
+
+\item Definieren Sie den Begriff "`Serialisierbarkeit"'.
+
+\begin{solution}
+Direkt aus den Vorlesungsfolien:
+Ein Schedule von Transaktionen ist serialisierbar, wenn er zu irgendeinem seriellen Ablauf der in ihm enthaltenen Transaktionen äquivalent ist.
+\end{solution}
+
+
+\item Seien $T_i$ und $T_j$ beliebige Transaktionen und $H$ und $G$ zwei
+  dazugehörige Abläufe. Markieren Sie die Bedingungen, die für alle
+  Operationen auf einem beliebigen Datenobjekt $A$ gelten müssen, damit
+  zwei Abläufe nach der Definition der Vorlesung "`äquivalent"' sind.
+  \nt{Studierende darauf Hinweisen, dass in der Klausur ausgefüllt und nicht gekreuzt wird. Korrekturen mit Korrekturband.}
+
+  \begin{itemize}
+    \itemmc   \hspace*{0.45em} $r_i[A] <_H r_j[A] \Leftrightarrow r_i[A] <_G r_j[A]$
+    \itemmcsol \hspace*{0.45em} $r_i[A] <_H w_j[A] \Leftrightarrow r_i[A] <_G w_j[A]$
+    \itemmcsol \hspace*{0.45em} $w_i[A] <_H r_j[A] \Leftrightarrow w_i[A] <_G r_j[A]$
+    \itemmcsol \hspace*{0.45em} $w_i[A] <_H w_j[A] \Leftrightarrow w_i[A] <_G w_j[A]$
+  \end{itemize}
+
+\item Geben Sie eine Möglichkeit an, Serialisierbarkeit zu gewährleisten.
+
+\begin{solution}
+Serialisierung oder Sperren.
+Abhängigkeitsgraphen zählen nicht, da sie zur Prüfung dienen.
+Sicherstellen muss man das dann noch auf anderem Wege.
+\end{solution}
+
+\begin{note}
+Aus didaktischen Gründen lassen wir den Unterschied zwischen Konflikt-Serialisierbarkeit und anderen Serialisierbarkeitsarten aus.
+Ersteres ist ein stärkeres Kriterium und wird sowohl durch Abhängigkeitsgraphen als auch durch 2PL gewährleistet.
+Wir verbieten also einige Abläufe, die wir eigentlich erlauben könnten.
+Grund: Konflikt-Serialisierbarkeit ist leichter zu prüfen.
+\end{note}
+
+\end{enumerate}

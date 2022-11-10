@@ -1,0 +1,255 @@
+\section{Seitenersetzung Teil 2}
+Für einen Puffer wie in Aufgabe \ref{Seiten} stehen vier Seiten im Hauptspeicher zur Verfügung.
+\begin{enumerate}[a)]
+	\item Stellen Sie nun den Zustand des Puffers zur gegebenen Seitenreferenzenfolge für alle vier in der Vorlesung vorgestellten Seitenersetzungsstrategien dar.
+
+	Reihenfolge der Seitenreferenzen: 1, 4, 1, 4, 2, 1, 3, 5, 6, 2, 3, 7, 3, 10, 9, 5, 10, 4, 8, 8
+
+\begin{normalText}
+	Beispiele zur Notation:
+
+
+	\begin{minipage}{.49\textwidth}
+		FIFO:
+
+		\vspace{.25cm}
+
+		\begin{tabular}{|p{4.3cm}||c|c|c|}
+			\hline
+			\rowcolor{gray} Zeitpunkt & 1 & 2 & 3 \\
+			\hline
+			\rowcolor{gray} Referenzfolge & 1 & 4 & 1 \\
+			\hline \hline
+			Kachel 1 & 1 & 1 & 1 \\
+			\hline
+			Kachel 2 & - & 4 & 4 \\
+			\hline
+			Kachel 3 & - & - & - \\
+			\hline
+			Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{lightgray} \raggedright Auswahlzeiger auf Kachel-Nr: & 2 & 3 & 3 \\
+			\hline\hline
+			\rowcolor{gray} Seitenfehler & 1 & 2 & 2 \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+	\begin{minipage}{.45\textwidth}
+		LFU:
+
+		\vspace{.25cm}
+
+		\begin{tabular}{|p{4.3cm}||c|c|c|}
+			\hline
+			\rowcolor{gray} Zeitpunkt & 1 & 2 & 3 \\
+			\hline
+			\rowcolor{gray} Referenzfolge & 1 & 4 & 1 \\
+			\hline \hline
+			Kachel 1 & 1 & 1 & 1 \\
+			\hline
+			Kachel 2 & - & 4 & 4 \\
+			\hline
+			Kachel 3 & - & - & - \\
+			\hline
+			Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{lightgray} Zugriffszähler Kachel 1 & 1 & 1 & 2 \\
+			\hline
+			\rowcolor{lightgray} Zugriffszähler Kachel 2 & - & 1 & 1 \\
+			\hline
+			\rowcolor{lightgray} Zugriffszähler Kachel 3 & - & - & - \\
+			\hline
+			\rowcolor{lightgray} Zugriffszähler Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{gray} Seitenfehler & 1 & 2 & 2 \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+
+	\begin{minipage}{.49\textwidth}
+		LRU:
+
+		\vspace{.25cm}
+
+		\begin{tabular}{|p{4.3cm}||c|c|c|}
+			\hline
+			\rowcolor{gray} Zeitpunkt & 1 & 2 & 3 \\
+			\hline
+			\rowcolor{gray} Referenzfolge & 1 & 4 & 1 \\
+			\hline \hline
+			Kachel 1 & 1 & 1 & 1 \\
+			\hline
+			Kachel 2 & - & 4 & 4 \\
+			\hline
+			Kachel 3 & - & - & - \\
+			\hline
+			Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{lightgray} Letzter Zugriff Kachel 1 & 1 & 1 & 3 \\
+			\hline
+			\rowcolor{lightgray} Letzter Zugriff Kachel 2 & - & 2 & 2 \\
+			\hline
+			\rowcolor{lightgray} Letzter Zugriff Kachel 3 & - & - & - \\
+			\hline
+			\rowcolor{lightgray} Letzter Zugriff Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{gray} Seitenfehler & 1 & 2 & 2 \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+	\begin{minipage}{.45\textwidth}
+		CLOCK:
+
+		\vspace{.25cm}
+
+		\begin{tabular}{|p{4.3cm}||c|c|c|}
+			\hline
+			\rowcolor{gray} Zeitpunkt & 1 & 2 & 3 \\
+			\hline
+			\rowcolor{gray} Referenzfolge & 1 & 4 & 1 \\
+			\hline \hline
+			Kachel 1 & 1 & 1 & 1 \\
+			\hline
+			Kachel 2 & - & 4 & 4 \\
+			\hline
+			Kachel 3 & - & - & - \\
+			\hline
+			Kachel 4 & - & - & - \\
+			\hline \hline
+			\rowcolor{lightgray}Kontrollzustand Kachel 1 & 1 & 1 & 1 \\
+			\hline
+			\rowcolor{lightgray}Kontrollzustand Kachel 2 & 0 & 1 & 1 \\
+			\hline
+			\rowcolor{lightgray}Kontrollzustand Kachel 3 & 0 & 0 & 0 \\
+			\hline
+			\rowcolor{lightgray}Kontrollzustand Kachel 4 & 0 & 0 & 0 \\
+			\hline
+			\rowcolor{lightgray} \raggedright Auswahlzeiger auf Kachel-Nr: & 2 & 3 & 3 \\
+			\hline\hline
+			\rowcolor{gray} Seitenfehler & 1 & 2 & 2 \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+\end{normalText}
+
+\cprotEnv
+\begin{solution}
+Sie können ihre Lösung gerne mithilfe des Web-Tools \url{http://faui6g.informatik.uni-erlangen.de/#/paging} selbstständig überprüfen.
+\end{solution}
+
+\cprotEnv
+\begin{note}
+FIFO:\nopagebreak
+
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline
+	\rowcolor{lightgray} Refnr & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 \\
+	\hline
+	\rowcolor{lightgray} Ref & 1 & 4 & 1 & 4 & 2 & 1 & 3 & 5 & 6 & 2 & 3 & 7 & 3 & 10 & 9 & 5 & 10 & 4 & 8 & 8 \\
+	\hline \hline
+	K 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & \color{blue} 5 & 5 & 5 & 5 & 5 & 5 & 5 & \color{blue} 9 & 9 & 9 & 9 & 9 & 9 \\
+	\hline
+	K 2 & - & \color{blue} 4 & 4 & \color{blue} 4 & 4 & 4 & 4 & 4 & \color{blue} 6 & 6 & 6 & 6 & 6 & 6 & 6 & \color{blue} 5 & 5 & 5 & 5 & 5 \\
+	\hline
+	K 3 & - & - & - & - & \color{blue} 2 & 2 & 2 & 2 & 2 & \color{blue} 2 & 2 & \color{blue} 7 & 7 & 7 & 7 & 7 & 7 & \color{blue} 4 & 4 & 4 \\
+	\hline
+	K 4 & - & - & - & - & - & - & \color{blue} 3 & 3 & 3 & 3 & \color{blue} 3 & 3 & \color{blue} 3 & \color{blue} 10 & 10 & 10 & \color{blue} 10 & 10 & \color{blue} 8 & \color{blue} 8 \\
+	\hline \hline
+	\rowcolor{lightgray} Next & 2 & 3 & 3 & 3 & 4 & 4 & 1 & 2 & 3 & 3 & 3 & 4 & 4 & 1 & 2 & 3 & 3 & 4 & 1 & 1 \\
+	\hline
+	Fehler & 1 & 2 & 2 & 2 & 3 & 3 & 4 & 5 & 6 & 6 & 6 & 7 & 7 & 8 & 9 & 10 & 10 & 11 & 12 & 12 \\
+	\hline
+\end{tabular}
+
+LFU:\nopagebreak
+
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline
+	\rowcolor{lightgray} Refnr & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 \\
+	\hline
+	\rowcolor{lightgray} Ref & 1 & 4 & 1 & 4 & 2 & 1 & 3 & 5 & 6 & 2 & 3 & 7 & 3 & 10 & 9 & 5 & 10 & 4 & 8 & 8 \\
+	\hline \hline
+	K 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+	\hline
+	K 2 & - & \color{blue} 4 & 4 & \color{blue} 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & 4 & \color{blue} 4 & 4 & 4 \\
+	\hline
+	K 3 & - & - & - & - & \color{blue} 2 & 2 & 2 & \color{blue} 5 & 5 & \color{blue} 2 & 2 & \color{blue} 7 & 7 & \color{blue} 10 & \color{blue} 9 & \color{blue} 5 & \color{blue} 10 & 10 & \color{blue} 8 & \color{blue} 8 \\
+	\hline
+	K 4 & - & - & - & - & - & - & \color{blue} 3 & 3 & \color{blue} 6 & 6 & \color{blue} 3 & 3 & \color{blue} 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 \\
+	\hline \hline
+	\rowcolor{lightgray} Z 1 & \color{blue} 1 & 1 & \color{blue} 2 & 2 & 2 & \color{blue} 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 \\
+	\hline
+	\rowcolor{lightgray} Z 2 & - & \color{blue} 1 & 1 & \color{blue} 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & \color{blue} 3 & 3 & 3 \\
+	\hline
+	\rowcolor{lightgray} Z 3 & - & - & - & - & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & \color{blue} 1 & \color{blue} 1 & \color{blue} 1 & \color{blue} 1 & 1 & \color{blue} 1 & \color{blue} 2 \\
+	\hline
+	\rowcolor{lightgray} Z 4 & - & - & - & - &  &  & \color{blue} 1 & 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & \color{blue} 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 \\
+	\hline \hline
+	Fehler & 1 & 2 & 2 & 2 & 3 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 9 & 10 & 11 & 12 & 13 & 13 & 14 & 14 \\
+	\hline
+\end{tabular}
+
+LRU:\nopagebreak
+
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline
+	\rowcolor{lightgray} Refnr & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 \\
+	\hline
+	\rowcolor{lightgray} Ref. & 1 & 4 & 1 & 4 & 2 & 1 & 3 & 5 & 6 & 2 & 3 & 7 & 3 & 10 & 9 & 5 & 10 & 4 & 8 & 8 \\
+	\hline \hline
+	K 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & 1 & 1 & \color{blue} 2 & 2 & 2 & 2 & 2 & \color{blue} 9 & 9 & 9 & 9 & \color{blue} 8 & \color{blue} 8 \\
+	\hline
+	K 2 & - & \color{blue} 4 & 4 & \color{blue} 4 & 4 & 4 & 4 & \color{blue} 5 & 5 & 5 & 5 & \color{blue} 7 & 7 & 7 & 7 & \color{blue} 5 & 5 & 5 & 5 & 5 \\
+	\hline
+	K 3 & - & - & - & - & \color{blue} 2 & 2 & 2 & 2 & \color{blue} 6 & 6 & 6 & 6 & 6 & \color{blue} 10 & 10 & 10 & \color{blue} 10 & 10 & 10 & 10 \\
+	\hline
+	K 4 & - & - & - & - & - & - & \color{blue} 3 & 3 & 3 & 3 & \color{blue} 3 & 3 & \color{blue} 3 & 3 & 3 & 3 & 3 & \color{blue} 4 & 4 & 4 \\
+	\hline \hline
+	\rowcolor{lightgray} Z 1 & \color{blue} 1 & 1 & \color{blue} 3 & 3 & 3 & \color{blue} 6 & 6 & 6 & 6 & \color{blue} 10 & 10 & 10 & 10 & 10 & \color{blue} 15 & 15 & 15 & 15 & \color{blue} 19 & \color{blue} 20 \\
+	\hline
+	\rowcolor{lightgray} Z 2 & - & \color{blue} 2 & 2 & \color{blue} 4 & 4 & 4 & 4 & \color{blue} 8 & 8 & 8 & 8 & \color{blue} 12 & 12 & 12 & 12 & \color{blue} 16 & 16 & 16 & 16 & 16 \\
+	\hline
+	\rowcolor{lightgray} Z 3 & - & - & - & - & \color{blue} 5 & 5 & 5 & 5 & \color{blue} 9 & 9 & 9 & 9 & 9 & \color{blue} 14 & 14 & 14 & \color{blue} 17 & 17 & 17 & 17 \\
+	\hline
+	\rowcolor{lightgray} Z 4 & - & - & - & - & - & - & \color{blue} 7 & 7 & 7 & 7 & \color{blue} 11 & 11 & \color{blue} 13 & 13 & 13 & 13 & 13 & \color{blue} 18 & 18 & 18 \\
+	\hline \hline
+	Fehler & 1 & 2 & 2 & 2 & 3 & 3 & 4 & 5 & 6 & 7 & 7 & 8 & 8 & 9 & 10 & 11 & 11 & 12 & 13 & 13 \\
+	\hline
+\end{tabular}
+
+Clock:\nopagebreak
+
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline
+	\rowcolor{lightgray} Refnr & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 \\
+	\hline
+	\rowcolor{lightgray} Ref & 1 & 4 & 1 & 4 & 2 & 1 & 3 & 5 & 6 & 2 & 3 & 7 & 3 & 10 & 9 & 5 & 10 & 4 & 8 & 8 \\
+	\hline \hline
+	K 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & \color{blue} 5 & 5 & 5 & 5 & 5 & 5 & \color{blue} 10 & 10 & 10 & \color{blue} 10 & 10  & \color{blue} 8 &  \color{blue} 8 \\
+	\hline
+	K 2 & - & \color{blue} 4 & 4 & \color{blue} 4 & 4 & 4 & 4 & 4 & \color{blue} 6 & 6 & 6 & 6 & 6 & 6 & \color{blue} 9 & 9 & 9 & 9 & 9 & 9 \\
+	\hline
+	K 3 & - & - & - & - & \color{blue} 2 & 2 & 2 & 2 & 2 & \color{blue} 2 & 2 & \color{blue} 7 & 7 & 7 & 7 & 7 & 7 & \color{blue} 4 & 4 & 4 \\
+	\hline
+	K 4 & - & - & - & - & - & - & \color{blue} 3 & 3 & 3 & 3 & \color{blue} 3 & 3 & \color{blue} 3 & 3 & 3 & \color{blue} 5 & 5 & 5 & 5 & 5 \\
+	\hline \hline
+	\rowcolor{lightgray} Z 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & 1 & 0  & 0 & \color{blue} 1 & 1 & 1 & \color{blue} 1 & 0 & \color{blue} 1 & \color{blue} 1 \\
+	\hline
+	\rowcolor{lightgray} Z 2 & 0 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & 1 & 0 & \color{blue} 1 & 1 & 1 & 0 & 0 & 0 & \color{blue} 1 & 1 & 1 & 0 & 0 & 0 \\
+	\hline
+	\rowcolor{lightgray} Z 3 & 0 & 0 & 0 & 0 & \color{blue} 1 & 1 & 1 & 0 & 0 & \color{blue} 1 & 1 & \color{blue} 1 & 1 & 1 & 1 & 0 & 0 & \color{blue} 1 & 1 & 1 \\
+	\hline
+	\rowcolor{lightgray} Z 4 & 0 & 0 & 0 & 0 & 0 & 0 & \color{blue} 1 & 0 & 0 & 0 & \color{blue} 1 & 0 & \color{blue} 1 & 0 & 0 & \color{blue} 1 & 1 & 1 & 0 & 0 \\
+	\hline \hline
+	Zeig & 2 & 3 & 3 & 3 & 4 & 4 & 1 & 2 & 3 & 3 & 3 & 4 & 4 & 2 & 3 & 1 & 1 & 4 & 2 & 2 \\
+	\hline
+	Fehler & 1 & 2 & 2 & 2 & 3 & 3 & 4 & 5 & 6 & 6 & 6 & 7 & 7 & 8 & 9 & 10 & 10 & 11 & 12 & 12 \\
+	\hline
+\end{tabular}
+\end{note}
+	\item Welche \deepen Strategie eignet sich Ihrer Meinung nach am besten und wieso?
+
+	\begin{note}
+		CLOCK hat, genauso wie FIFO in diesem Fall nur 12 Seitenfehler. Der Verwaltungsaufwand ist bei diesen beiden annähernd identisch.
+	\end{note}
+\end{enumerate}

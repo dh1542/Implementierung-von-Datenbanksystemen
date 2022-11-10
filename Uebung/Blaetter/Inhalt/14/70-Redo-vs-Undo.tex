@@ -1,0 +1,13 @@
+\section{Vergleich: Reine Redo und reine Undo Recovery}
+
+Welche Nachteile haben reine Redo und reine Undo Recovery jeweils? Kann man diese umgehen?
+
+\begin{solution}
+\begin{itemize}
+	\item Reine Redo Recovery:
+	Es dürfen keine Änderungen in die eigentliche DB geschrieben werden, bevor die TA zu Ende ist (NoSteal). Also müssen alle geänderten Seiten im Puffer verbleiben $\Rightarrow$ hoher Speicherbedarf.
+	\item Reine Undo Recovery:
+	Alle Änderungen müssen vor TA-Ende in den Dateien stehen (Force) $\Rightarrow$ hoher I/O-Aufwand.
+\end{itemize}
+Lösung: Kombiniertes Undo-/Redo-Logging. Speichert man alten und neuen Stand, so muss man nur das Log vor Schreiben des Commit-Records schreiben. Dann kann man Änderungen wiederherstellen. Unvollständige Änderungen kann man bereits in die Dateien schreiben, da man sie ja wieder rückgängig machen kann. Nachteil: Größeres Log.
+\end{solution}

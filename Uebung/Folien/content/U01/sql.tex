@@ -1,0 +1,149 @@
+\section{SQL}
+\sectionpage
+
+\begin{frame}{Gegeben ist der folgende Teil eines einfachen Datenbankschemas:}
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+\end{frame}
+
+\begin{frame}{Erstellen Sie eine SQL-Anfrage, die alle Titel von Ray Charles' Songs liefert, die höchstens 180 Sekunden dauern!}
+\only<+->{
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+}
+
+\vspace{2em}
+\only<+->{
+SELECT title
+\newline
+FROM   songs
+\newline
+WHERE  artist = 'Ray Charles' and length <= 180;}
+\end{frame}
+
+\begin{frame}{Erstellen Sie eine SQL-Anfrage, die jeden Songtitel zusammen mit dem Geburtsdatum des Produzenten des Albums ausgibt, auf dem der Song erschienen ist.}
+\only<+->{
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+}
+
+\vspace{2em}
+\only<+->{
+SELECT s.title, p.date\_of\_birth
+
+FROM   songs s, producers p, albums a
+
+WHERE  s.album = a.title AND a.producer = p.name;
+}
+\end{frame}
+
+\begin{frame}{Erstellen Sie eine SQL-Anfrage, die eine aufsteigend nach Künstlername sortierte Liste der Künstler und der Anzahl an Songs, die der jeweilige Künstler in der Datenbank hat, zurückgibt. Berücksichtigen Sie dabei nur Songs, die auf einem Album erschienen sind und berücksichtigen Sie nur Künstler, zu denen es mindestens 5 solcher Songs gibt.}
+\only<+->{
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+}
+
+\vspace{2em}
+\only<+->{
+SELECT   artist, count(title) AS anzahl
+\newline
+FROM     songs
+\newline
+WHERE    album IS NOT NULL\\
+GROUP BY artist\\
+HAVING   count(title) >= 5\\
+ORDER BY artist ASC;
+}
+\end{frame}
+
+\begin{frame}{Erstellen Sie eine SQL-Anfrage, die die 5 Alben mit der durchschnittlich längsten Song-Dauer in einem Ranking ausgibt, wobei das Album mit den durchschnittlich längsten Songs Rang 1 belegt.}
+
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+
+\end{frame}
+
+\begin{frame}{Mögliche Lösung:}
+
+WITH avg\_songlength AS
+\newline
+(
+\newline
+	SELECT   album, AVG(length) AS avg\_song\_length
+	\newline
+	FROM     songs
+	\newline
+	GROUP BY album
+ \newline
+)
+\newline
+SELECT   COUNT(*) AS rang, a1.album, a1.avg\_song\_length
+\newline
+FROM     avg\_songlength a1, avg\_songlength a2
+\newline
+WHERE    a1.avg\_song\_length <= a2.avg\_song\_length
+\newline
+GROUP BY a1.album, a1.avg\_song\_length
+\newline
+HAVING   COUNT(*) <= 5
+\newline
+ORDER BY rang ASC;
+
+\end{frame}
+
+\begin{frame}{Erstellen Sie eine SQL-Anfrage, die alle Songs ausgibt, die länger sind als der Durchschnitt aller Songs. Erweitern Sie die Anfrage dann so, dass sie alle Songs ausgibt, die länger sind als der Durchschnitt aller Songs des jeweiligen Albums.}
+\only<+->{
+\texttt{songs(\underline{title, artist}, length, album[albums])}
+\newline
+\texttt{producers(\underline{name}, date\_of\_birth)}
+\newline
+\texttt{albums(\underline{title}, producer[producers], release\_year, genre)}
+}
+
+\vspace{2em}
+\only<+->{
+\begin{minipage}{0.4\textwidth}
+SELECT *
+\newline
+FROM   songs s1
+\newline
+WHERE  s1.length > 
+\newline
+(
+\newline
+SELECT avg (s2.length)\\
+FROM songs s2\\
+);
+\end{minipage}}
+\only<+->{
+	\begin{minipage}{0.4\textwidth}
+		SELECT *
+		\newline
+		FROM   songs s1
+		\newline
+		WHERE  s1.length > 
+		\newline
+		(
+		\newline
+		SELECT avg (s2.length)\\
+		FROM songs s2\\
+		WHERE s1.album = s2.album\\
+		);
+	\end{minipage}
+}
+\end{frame}

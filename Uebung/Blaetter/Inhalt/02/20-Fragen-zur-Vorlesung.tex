@@ -1,0 +1,70 @@
+\section{Fragen zur Vorlesung}
+\begin{enumerate}[a)]
+	\item Wozu dient die Schichtenbildung in der Softwarearchitektur?
+
+	\begin{solution}
+	Auf den Punkt gebracht: Zur Strukturierung komplexer Software-Systeme.
+
+	Vorteile von Schichtenbildung (Folie~\SchichteVorteil):
+	\begin{itemize}
+		\item Höhere Ebenen werden einfacher, weil sie tiefere Ebenen benutzen können
+		\item Änderungen auf höheren Ebenen haben keinen Einfluss auf tiefere Ebenen
+		\item Höhere Ebenen können abgetrennt werden, tiefere Ebenen bleiben trotzdem funktionsfähig (und damit wieder verwendbar)
+		\item Tiefere Ebenen können getestet werden, bevor die höheren Ebenen lauffähig sind
+		\item Änderungen auf tieferen Ebenen bei Beibehalten der Schnittstellen benötigen keine Änderungen der höheren Schichten.
+		(Bsp: Bei Einbau einer neuen, größeren Festplatte muss nicht das Programm umgeschrieben werden)
+	\end{itemize}
+	\end{solution}
+
+
+	\item Wodurch kann eine Schicht beschrieben werden?
+
+	\begin{solution}
+	Funktional ("`was tut eine Schicht?"', Folie~\SchichteAufgabe):
+	\begin{itemize}
+		\item Realisiert einen bestimmten Dienst, den sie an der Schnittstelle "`nach oben"' darüber liegenden Schichten zur Verfügung stellt
+		\item Nimmt Dienste darunter liegender Schichten in Anspruch
+		\item Verbirgt die darunter liegenden Schichten vollständig und muss daher alle erforderlichen Funktionen anbieten
+	\end{itemize}
+
+	Strukturell ("`was sieht man an der Schnittstelle?"'):
+	\begin{itemize}
+		\item Durch die ausgetauschten Datenobjekte und die angebotenen Funktionen
+	\end{itemize}
+	\end{solution}
+
+
+	\item Welche Beispiele für schichtenartig aufgebaute Software-Systeme außer Datenbanksystemen kennen Sie noch?
+
+	\begin{solution}
+	\begin{itemize}
+		\item ISO/OSI-Referenzmodell für Kommunikationsprotokolle
+		\item Linux-Kernel (\url{http://www.makelinux.net/kernel_map/})
+		\item Firefox-Browser (\url{https://www.researchgate.net/figure/Mozilla-Firefox-architecture-The-User-Interface-is-split-over-two-subsystems-allowing_fig4_325076604})
+		\item Behauptung: fast jede große Software ist in Schichten aufgebaut
+	\end{itemize}
+	\end{solution}
+
+
+	\item Was versteht man unter der Datenunabhängigkeit einer Anwendung?
+
+	\begin{solution}
+	Datenunabhängigkeit einer Anwendung (Folie~\Datenunabhaengig): Speichern und Wiedergewinnen (= Auffinden und Aushändigen) von persistenten Daten ohne Kenntnis der Details der Speicherung.
+	Kommt in der Informatik häufig vor, aber unter anderen Namen: Information Hiding, Datenabstraktion, Datenkapselung usw.
+	\end{solution}
+
+	\item Welche \deepen Vor- und Nachteile hat die blockorientierte Dateischnittstelle im Vergleich zur direkten Adressierung über Zylinder, Spur und Sektornummer?
+
+	\begin{note}
+		Folie~\LogischeSpeichergeraete, nur umgekehrt.
+		Zusätzlich:~\Geraeteunabhaengigkeit
+	\end{note}
+
+	\item Welche \deepen Verwaltungsdatenstrukturen benötigt die blockorientierte Dateischnittstelle?
+
+	\begin{note}
+		Folie~\Dateikatalog
+	\end{note}
+\end{enumerate}
+\beamertxt{\pagebreak}
+

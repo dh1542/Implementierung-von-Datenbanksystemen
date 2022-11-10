@@ -1,0 +1,84 @@
+\section{Kosten der Operatorausführung}
+\label{sec:kosten}
+
+\begin{enumerate}[a)]
+
+\item Bei einer kostenbasierten Optimierung stellen die Kosten die Größe dar, die minimiert werden soll.
+	Welche Werte könnte man bei der Optimierung von Datenbankanfragen in die Kosten einfließen lassen?
+
+	\begin{solution}
+		Z.\,B.\ Anzahl Blockzugriffe auf den Hintergrundspeicher, CPU-Zeit, Hauptspeicherbedarf, \ldots
+	\end{solution}
+
+\item \label{item:kostenformeln} Wir nehmen ein einfaches Kostenmodell an, das nur die Lese- und Schreibvorgänge auf dem Hintergrundspeicher berücksichtigt.
+	Stellen Sie dafür Kostenformeln für die Planoperatoren Selektion, Projektion, Nested-Loop Join, Sort-Merge Join und Hash Join auf.
+	Gehen Sie davon aus, dass die Eingaben vom Hintergrundspeicher gelesen werden müssen und die Ergebnisse direkt ausgegeben werden.
+	\(B(S)\) gibt die Anzahl der Blöcke an, aus denen die Relation \(S\) besteht.
+
+	\begin{solution}
+		\begin{tabular}{l l p{5cm}}
+			\hline
+			\textbf{Implementierung} & \textbf{Kosten}          &                                                         \\ \hline
+			Selektion(S)             & $B(S)$                   &                                                         \\ \hline
+			Projektion(S)            & $B(S)$                   &                                                         \\ \hline
+			NestedLoopJoin(S, T)     & $B(S) + B(S) \cdot B(T)$ &                                                         \\ \hline
+			SortMergeJoin(S, T)      & $3 (B(S) + B(T))$        & Unter den in \SortMergeJoin genannten Voraussetzungen   \\ \hline
+			HashJoin(S, T)           & $B(S) + B(T)$            & Classic Hashing, wenn eine Relation in den Puffer passt \\ \hline
+		\end{tabular}
+
+		Die Kosten werden einheitslos angegeben, da sie nur zum Vergleich zwischen den Operatoren dienen.
+
+		In der Literatur finden sich je nach verwendetem Kostenmodell und berücksichtigten Kostentypen unterschiedliche Formeln. Eine gute Herleitung von Kostenformeln steht bei Garcia-Molina et al.
+	\end{solution}
+
+\item \label{item:pipelining} Pipelining bezeichnet das direkte Hintereinanderausführen mehrerer Operatoren, ohne die Zwischenergebnisse erst komplett zu erzeugen und auf den Hintergrundspeicher zu schreiben.
+	Welche der aus der Vorlesung und Übung bekannten Planoperatoren eignen sich für Pipelining gut, welche nicht?
+
+	\begin{solution}
+		Als Quelle für Pipelining können alle Operatoren dienen.
+		Zu beachten ist dabei aber, dass vom Quelloperator belegte Pufferkacheln nicht für den Zieloperator zur Verfügung stehen.
+		Werden Table Scan und Index Scan als eigenständige Operatoren behandelt, wie wir das im Folgenden tun, dann werden sie immer per Pipelining mit dem folgenden Operator verbunden.
+		Ein Table-Scan-Operator ohne Pipelining wäre sinnlos, da er lediglich die Relation umkopieren würde.
+
+		Als Ziel für Pipelining sind alle Operatoren gut geeignet, die die Quelle nur einmal durchlaufen müssen, beispielsweise Selektion, Projektion oder auch die äußere Relation des Nested-Loop Joins.
+
+		Der Nested-Loop Join ist gleichzeitig auch ein Beispiel für einen Operator, der sich nicht gut als Ziel für Pipelining eignet.
+		Wird die innere Relation nicht zwischengespeichert, muss sie für jeden Durchlauf neu erzeugt werden.
+	\end{solution}
+
+\item Wie ändern sich die Kostenformeln aus Teilaufgabe \ref{item:kostenformeln}), wenn Pipelining eingesetzt wird?
+Verwenden Sie \(C(S)\) für die Kosten zur Erzeugung der Zwischenergebnisrelation \(S\).
+
+	\begin{solution}
+		Dient ein Operator A als Eingabe für einen weiteren Operator B, können dessen Kosten in der Kostenformel für B an der Stelle der Blockzugriffe zum Lesen der Eingaberelation angesetzt werden.
+		Blockzugriffe für das Schreiben des Ergebnisses werden nicht benötigt, da das Ergebnis direkt an den nächsten Operator oder an den Anwender weitergegeben wird.
+		Die Gesamtkosten einer Anfrage sind dann einfach die Kosten der Wurzel im Operatorbaum.
+
+		Beispiel: Selektion(S) hat mit Pipelining Kosten von C(S). Das bedeutet, dass die Kosten eines Selektionsoperators gerade so hoch sind wie die Erzeugungskosten seiner Eingabedaten. Das liegt daran, dass wir nur E/A-Kosten berücksichtigen und die Selektion selbst keine Ein- oder Ausgabe vornimmt.
+
+		Als Kostenformeln mit Pipelining ergeben sich:
+
+		\begin{tabular}{l l}
+			\hline
+			\textbf{Implementierung} 	& \textbf{Kosten}\\
+			\hline
+			Selektion(S)						& $C(S)$\\
+			\hline
+			Projektion(S)						& $C(S)$\\
+			\hline
+			TableScan	(S)							& $B(S)$\\
+			\hline
+			IndexScan(S)							& $a \cdot \left \lceil{ B(S) \cdot \mathrm{Selektivit"atsfaktor} }\right \rceil $\\
+			\hline
+			NestedLoopJoin(S, T)			& $C(S) + B(S) \cdot C(T)$\\
+			\hline
+			SortMergeJoin(S, T)				& $C(S) + C(T) + 2 (B(S) + B(T))$\\
+			\hline
+			HashJoin(S, T) 						& $C(S) + C(T)$\\
+			\hline
+		\end{tabular}
+
+		Beim Index Scan wurden hier die Kosten eines wahlfreien Blockzugriffs als a-mal so hoch wie die eines sequentiellen Blockzugriffs angesetzt.
+	\end{solution}
+
+\end{enumerate}

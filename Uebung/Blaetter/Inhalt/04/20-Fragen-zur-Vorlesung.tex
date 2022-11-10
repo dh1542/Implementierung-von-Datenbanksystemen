@@ -1,0 +1,52 @@
+\section{Fragen zur Vorlesung}
+
+\begin{enumerate}[a)]
+
+	\item Was versteht man unter einem (Such-)Schlüssel?
+
+	\begin{solution}
+	Ein (Such-)Schlüssel ist ein bestimmtes Feld (oder mehrere) eines Satzes, bei welchem man beim Suchen dieses Satzes vom Datenbanksystem unterstützt werden möchte. Wir abstrahieren hierbei also weg von Satzadressen hin zu inhaltlichen Kriterien.
+	\end{solution}
+
+	\item Warum wird der Schlüsselzugriff zusätzlich zum Zugriff über Satzadressen in einem DBS benötigt?
+
+	\begin{solution}
+	Weil der Anwender sich für inhaltliche Kriterien interessiert und nicht für Satzadressen.
+Der Rechtsanwalt sagt ja auch "`Geben Sie mir die Akte Schmitt"'{}, und nicht "`Geben Sie mir den Ordner in Regal 3, zwei links von der Mitte"'{}. Auch hier will man wieder nicht die ganze Datei durchsuchen, sondern möglichst schnell das finden, wofür man sich interessiert. Also: neue Hilfsstrukturen.
+	\end{solution}
+
+	\item Hashing kann man in zwei Bereiche unterteilen:
+	\begin{enumerate}[i)]
+		\item Auswahl der Hashfunktion
+		\item Überlaufbehandlung
+	\end{enumerate}
+	Worauf muss man bei diesen Schritten für bestmögliche Leistung jeweils achten?
+
+	\begin{solution}
+	\begin{enumerate}[i)]
+		\item Die Hashfunktion soll die Sätze möglichst gleichmäßig über die Buckets verteilen. Sonst entstehen Überläufe und die sind teuer.
+		\item Die Überlaufbehandlung ist für den Fall da, dass eine völlig gleichmäßige Verteilung nicht gelingt (und das tut sie eigentlich nie). Hier ist darauf zu achten, dass ein Zugriff im Falle von Überläufern immer noch möglichst schnell gelingt.
+	\end{enumerate}
+	\end{solution}
+
+	\item Was kann schlimmstenfalls passieren, wenn die Hashfunktion schlecht gewählt ist?
+
+	\begin{solution}
+	Nehmen wir als triviales Beispiel die Hashfunktion $h(k)=1$. Alle Sätze werden auf den gleichen Bucket abgebildet. Damit degeneriert das Hashing zu einer verketteten Liste $\Rightarrow$ Aufwand nicht mehr O(1), sondern O(n).
+	\end{solution}
+
+	\item Was sind die Vor- und Nachteile von Hashing als Schlüsselzugriffsverfahren?
+
+	\begin{solution}
+	Vorteil:
+	\begin{itemize}
+		\item Extrem schnell (beim Zugriff auf inhaltlich bestimmte Sätze).
+	\end{itemize}
+	Nachteile:
+	\begin{itemize}
+		\item Vorbelegung des Speicherplatzes (nicht bei einigen Hashing-Varianten; siehe weiter hinten in diesem Übungsblatt).
+		\item Ordnung schwierig. Suche nur nach einem Kriterium möglich (und da nur perfekter Match, d.\,h. kein $>, <$, \ldots).
+	\end{itemize}
+	\end{solution}
+
+\end{enumerate}

@@ -1,0 +1,126 @@
+\documentclass[t]{beamer}
+\setbeameroption{hide notes}
+
+%\includeonly{content/pbd, content/namelookup}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[USenglish]{babel}
+%\usepackage[babel,german=quotes]{csquotes}
+\usepackage{graphicx}
+\usepackage{pgf}
+\usepackage{xcolor}
+\usepackage{relsize}
+\usepackage{listings}
+
+\colorlet{darkgreen}{green!50!black}
+
+\lstset{ 
+  language=C++,                % the language of the code
+  basicstyle=\large,           % the size of the fonts that are used for the code
+  numbers=none,                   % where to put the line-numbers
+  numberstyle=\small\color{gray},  % the style that is used for the line-numbers
+  stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+								  % will be numbered
+  %numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=true,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  %title=\lstname,                   % show the filename of files included with \lstinputlisting;
+								  % also try caption instead of title
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{darkgreen},       % comment style
+  stringstyle=\color{brown},         % string literal style
+  %escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+  morekeywords={*,..., noexcept, decltype, constexpr, override, final, nullptr}               % if you want to add more keywords to the set
+}
+
+	
+\usetheme{fau-4-3}
+
+%c from texinfo.tex
+\def\ifmonospace{\ifdim\fontdimen3\font=0pt }
+
+%c C plus plus
+\def\C++{%
+\ifmonospace%
+    C++%
+\else%
+    C\kern-.1em\raise.30ex\hbox{\smaller{++}}%
+\fi%
+\spacefactor1000 }
+
+%c C sharp
+\def\Csharp{%
+\ifmonospace%
+    \Csharp%
+\else%
+    C\kern-.1em\raise.30ex\hbox{\smaller{\#}}%
+\fi%
+\spacefactor1000 }
+
+\def\inline{\lstinline[basicstyle=\sffamily]}
+
+%c Cool Quote
+\newcommand{\quoteframe}[3]
+{
+	\begin{frame}
+		\begin{quote}
+		\Huge#3
+		\end{quote}
+		\vskip0pt plus 1filll
+		\begin{minipage}{\textwidth}
+			\begin{flushright}
+			\LARGE#1
+			\\
+			\normalsize#2
+			\end{flushright}
+		\end{minipage}
+	\end{frame}
+}
+	
+
+% Title page
+
+\date{Erlangen, \ifnum\day<10\relax0\fi\the\day-\ifnum\month<10\relax0\fi\the\month-\the\year}
+%\institute{Lehrstuhl f\"ur Informatik 6}
+
+
+% Optinale Box links neben dem FAU-Logo
+\pgfdeclareimage[height=25.7mm]{inf6logo}{art/inf6logo}
+\pgfdeclareimage[height=15.8mm]{inf6logosmall}{art/inf6logo}
+\setbeamertemplate{projectbox}{\pgfuseimage{inf6logo}}
+\setbeamertemplate{projectboxsmall}{\pgfuseimage{inf6logosmall}}
+
+\setbeamercolor{quote}{fg=faublue}
+
+\defbeamertemplate*{section in toc}{my theme}
+{\leavevmode\leftskip=0.5em\large \inserttocsection\par}
+
+\defbeamertemplate*{subsection in toc}{my theme}
+{\leavevmode\leftskip=2em\normalsize \inserttocsubsection\par}
+
+\setbeamertemplate{sectioncontent}
+{
+	\scriptsize{
+	\tableofcontents[
+		currentsection,
+		subsectionstyle=hide, 
+	]}
+}
+\setbeamertemplate{subsectioncontent}
+{
+	\scriptsize{
+	\tableofcontents[
+		currentsection,
+		currentsubsection,
+		hideothersubsections,
+	]}
+}

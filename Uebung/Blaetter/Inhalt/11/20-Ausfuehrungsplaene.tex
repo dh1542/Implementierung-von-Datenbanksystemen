@@ -1,0 +1,278 @@
+\section{Ausführungspläne}
+
+Gegeben seien folgende Relationen:
+
+\texttt{Employee (\underline{num}, fname, lname, addr, mgr[employee],\beamertxt{\linebreak} dep[department])}
+
+\texttt{Department (\underline{num}, name, mgr[employee])}
+
+\texttt{Project (\underline{num}, dep[department], mgr[employee])}
+
+\texttt{Works\_on (\underline{proj[project], empl[employee]})}
+
+Darüber hinaus wurden folgende Sichten erstellt:
+
+\texttt{
+    CREATE VIEW EmployeesManager AS \\
+    \hspace*{.3cm}  SELECT e.lname as empl\_lname, s.lname as mgr\_lname \\
+    \hspace*{.3cm}  FROM employee e, employee s \\
+    \hspace*{.3cm}  WHERE e.mgr = s.num
+    }
+
+\texttt{
+    CREATE MATERIALIZED VIEW ResearchMembers AS \\
+    \hspace*{.3cm}  SELECT e.fname as fname, e.lname as lname,\beamertxt{\linebreak\hspace*{.cm}} e.addr as addr \\
+    \hspace*{.3cm}  FROM employee e \\
+    \hspace*{.3cm}  JOIN department d \\
+    \hspace*{.3cm}  ON d.num = e.dep \\
+    \hspace*{.3cm}  WHERE d.name = 'Research'
+    }
+
+\begin{note}
+Die nicht-optimierten Lösungen entsprechen zum Teil denen von Blatt 10.
+Sie müssen dementsprechend nicht zwangsläufig erneut hergeleitet werden.
+\end{note}
+
+Setzen Sie folgende SQL-Anweisungen zunächst in nicht-optimierte Operatorgraphen um. Verwenden Sie dafür die Baum-Notation von Vorlesungsfolie~\Operatorgraph.
+
+Optimieren Sie anschließend die Operatorgraphen wie von Blatt 10 gewohnt,
+nun aber auch unter Berücksichtigung der oben definierten Sichten.
+
+\begin{enumerate}[a)]
+
+	\item
+Alle MitarbeiterInnen und ihre Vorgesetzten
+	\begin{lstlisting}
+SELECT empl_lname, mgr_lname
+FROM   EmployeesManager e;
+	\end{lstlisting}
+
+\begin{solution}
+Die Anfrage mit der Sicht sieht wie folgt aus:
+
+	\begin{tikzpicture}
+		\node (proj) at (0, 0) {\texttt{PROJ(\qquad, (empl\_lname, mgr\_lname))} };
+		\node (ren)[below of =proj, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (emp)[below of =ren, xshift =2cm] {\texttt{EmployeesManager} };
+
+		\draw[-triangle 60] (ren) -- ($(proj.south) + (-2.2,0.1)$);
+		\draw[-triangle 60] (emp) -- ($(ren.south) + (0.1,0.1)$);
+	\end{tikzpicture}
+
+Da es sich aber nicht um eine materialisierte Sicht handelt,
+muss der Operatorbaum der Sicht selbst aufgestellt und eingesetzt werden:
+
+	\begin{tikzpicture}
+		\node (rename) at (0,0) {\texttt{RENAME(\hspace{0.5cm}, (e.lname AS empl\_lname, s.lname AS mgr\_lname))}};
+		\node (proj) [below of = rename, xshift=-2.8cm] {\texttt{PROJ(\hspace{0.5cm} , (e.lname, s.lname))} };
+		\node (sel) [below of =proj] {\texttt{SEL(\hspace{0.5cm} , (e.mgr = s.num))} };
+		\node (cross)[below of =sel] {\texttt{CROSS(\qquad, \qquad)} };
+		\node (ren2)[below of =cross, xshift = 2cm] {\texttt{RENAME(\qquad, s)}};
+		\node (ren1)[below of =cross, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (emp1) [below of =ren2] {\texttt{employee}};
+		\node (emp2) [below of =ren1] {\texttt{employee}};
+
+		\draw[-triangle 60] (proj) -- ($(rename.south) + (-4.2,0)$);
+		\draw[-triangle 60] (sel) -- ($(proj.south) + (-1.4,0)$);
+		\draw[-triangle 60] (cross) -- ($(sel.south) + (-1.4,0)$);
+		\draw[-triangle 60] (ren1) -- ($(cross.south) + (0.0,0.1)$);
+		\draw[-triangle 60] (ren2) -- ($(cross.south) + (0.8,0.1)$);
+		\draw[-triangle 60] (emp1) -- ($(ren2.south) + (0.2,0.1)$);
+		\draw[-triangle 60] (emp2) -- ($(ren1.south) + (0.5,0.1)$);
+	\end{tikzpicture}
+
+Setzt man nun den Baum der Sicht ein in den Baum der Anfrage, ergibt sich:
+
+	\begin{tikzpicture}
+        \node (proj2) at (0, 0) {\sout{\texttt{PROJ(\qquad, (empl\_lname, mgr\_lname))}}};
+		\node (ren)[below of =proj2] {\sout{\texttt{RENAME(\qquad, e)}}};
+		\node (rename)[below of =ren] {\texttt{RENAME(\hspace{0.5cm}, (e.lname AS empl\_lname, s.lname AS mgr\_lname))}};
+		\node (proj) [below of = rename, xshift=-2.8cm] {\texttt{PROJ(\hspace{0.5cm} , (e.lname, s.lname))} };
+		\node (sel) [below of =proj] {\texttt{SEL(\hspace{0.5cm} , (e.mgr = s.num))} };
+		\node (cross)[below of =sel] {\texttt{CROSS(\qquad, \qquad)} };
+		\node (ren2)[below of =cross, xshift = 2cm] {\texttt{RENAME(\qquad, s)}};
+		\node (ren1)[below of =cross, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (emp1) [below of =ren2] {\texttt{employee}};
+		\node (emp2) [below of =ren1] {\texttt{employee}};
+
+		\draw[-triangle 60] (ren) -- ($(proj2.south) + (-2,0)$);
+		\draw[-triangle 60] (rename) -- ($(ren.south) + (0.3,0)$);
+		\draw[-triangle 60] (proj) -- ($(rename.south) + (-4.2,0)$);
+		\draw[-triangle 60] (sel) -- ($(proj.south) + (-1.4,0)$);
+		\draw[-triangle 60] (cross) -- ($(sel.south) + (-1.4,0)$);
+		\draw[-triangle 60] (ren1) -- ($(cross.south) + (0.0,0.1)$);
+		\draw[-triangle 60] (ren2) -- ($(cross.south) + (0.8,0.1)$);
+		\draw[-triangle 60] (emp1) -- ($(ren2.south) + (0.2,0.1)$);
+		\draw[-triangle 60] (emp2) -- ($(ren1.south) + (0.5,0.1)$);
+	\end{tikzpicture}
+
+Die oberste Projektion ist offensichtlich redundant und kann wegoptimiert werden.
+\end{solution}
+
+	\item
+Alle MitarbeiterInnen der Forschungsabt. in der Martensstr. 3
+
+\cprotEnv
+\begin{normalText}
+\begin{lstlisting}[showstringspaces=false]
+SELECT e.fname, e.lname, e.addr
+FROM   employee e
+JOIN   department d
+ON     d.num = e.dep
+WHERE  d.name = 'Research' AND e.addr = 'Martensstr. 3';
+\end{lstlisting}
+\end{normalText}
+
+\cprotEnv
+\begin{beamerText}
+\begin{lstlisting}[showstringspaces=false]
+SELECT e.fname, e.lname, e.addr
+FROM   employee e
+JOIN   department d
+ON     d.num = e.dep
+WHERE  d.name = 'Research'
+  AND e.addr = 'Martensstr. 3';
+\end{lstlisting}
+\end{beamerText}
+%\end{beamerText}
+
+\begin{solution}
+Der nicht-optimierte Baum ist weitgehend von Blatt 10 bekannt:
+
+  \begin{tikzpicture}
+		\node (proj) at (0, 0) {\texttt{PROJ(\qquad , (e.fname, e.lname, e.addr))} };
+		\node (sel)[below of =proj,xshift=-1cm] {\texttt{SEL(\qquad , d.name = 'Research' AND e.addr = 'Martensstr. 3'))} };
+		\node (join)[below of =sel,xshift=-2cm] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+		\node (ren2)[below of =join, xshift = 2cm] {\texttt{RENAME(\qquad, d)}};
+		\node (ren1)[below of =join, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (dept)[below of =ren2] {\texttt{department} };
+		\node (emp)[below of =ren1] {\texttt{employee} };
+
+		\draw[-triangle 60] (dept) -- ($(ren2.south) + (0.4,0.1)$);
+		\draw[-triangle 60] (emp) -- ($(ren1.south) + (0.5,0.1)$);
+		\draw[-triangle 60] (ren1) -- ($(join.south) + (-2,0.1)$);
+		\draw[-triangle 60] (ren2) -- ($(join.south) + (-1,0.1)$);
+		\draw[-triangle 60] (join) -- ($(sel.south) + (-5,0.1)$);
+		\draw[-triangle 60] (sel) -- ($(proj.south) + (-2.6,0.1)$);
+	\end{tikzpicture}
+
+Das Besondere ist nun, dass eine materialisierte Sicht zur Verfügung steht,
+die vom System genutzt werden kann, um die Anfrage zu optimieren.
+
+Der Operatorbaum der Sicht sieht so aus:
+
+  \begin{tikzpicture}
+		\node (proj) at (0, 0) {\texttt{PROJ(\qquad , (e.fname, e.lname, e.addr))} };
+		\node (sel)[below of =proj] {\texttt{SEL(\qquad , d.name = 'Research'))} };
+		\node (join)[below of =sel] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+		\node (ren2)[below of =join, xshift = 2cm] {\texttt{RENAME(\qquad, d)}};
+		\node (ren1)[below of =join, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (dept)[below of =ren2] {\texttt{department} };
+		\node (emp)[below of =ren1] {\texttt{employee} };
+
+		\draw[-triangle 60] (dept) -- ($(ren2.south) + (0.4,0.1)$);
+		\draw[-triangle 60] (emp) -- ($(ren1.south) + (0.5,0.1)$);
+		\draw[-triangle 60] (ren1) -- ($(join.south) + (-2,0.1)$);
+		\draw[-triangle 60] (ren2) -- ($(join.south) + (-1,0.1)$);
+		\draw[-triangle 60] (join) -- ($(sel.south) + (-1.8,0.1)$);
+		\draw[-triangle 60] (sel) -- ($(proj.south) + (-2.6,0.1)$);
+	\end{tikzpicture}
+
+Da die Daten der materialisierten Sicht bereits physisch vorliegen,
+kann sie wie jede andere Relation im Operatorbaum verwendet werden.
+So kann auf die tatsächliche Ausführung der evtl.\ kostenintensiven JOIN-Operationen
+und der damit verbundenen Table-Scans verzichtet werden, indem die bereits
+von der materialisierten Sicht vorgehaltenen Daten verwendet werden.
+
+Um nun einen Teilbaum des ursprünglichen Operatorbaums der Anfrage zu ersetzen,
+muss die Selektion noch aufgeteilt werden und die Projektion vorgezogen werden:
+
+  \begin{tikzpicture}
+		\node (sel2) at (0, 0) {\texttt{SEL(\qquad , e.addr = 'Martensstr. 3'))} };
+		\node (proj)[below of =sel2] {\texttt{PROJ(\qquad , (e.fname, e.lname, e.addr))} };
+		\node (sel)[below of =proj] {\texttt{SEL(\qquad , d.name = 'Research'))} };
+		\node (join)[below of =sel] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+		\node (ren1)[below of =join, xshift = 2cm] {\texttt{RENAME(\qquad, d)}};
+		\node (ren2)[below of =join, xshift =-3cm] {\texttt{RENAME(\qquad, e)}};
+		\node (dept)[below of =ren2] {\texttt{department} };
+		\node (emp)[below of =ren1] {\texttt{employee} };
+
+		\draw[-triangle 60] (dept) -- ($(ren2.south) + (0.2,0.1)$);
+		\draw[-triangle 60] (emp) -- ($(ren1.south) + (0.2,0.1)$);
+		\draw[-triangle 60] (join) -- ($(sel.south) + (-1.8,0.1)$);
+		\draw[-triangle 60] (ren2) -- ($(join.south) + (-2.0,0.1)$);
+		\draw[-triangle 60] (ren1) -- ($(join.south) + (-0.8,0.1)$);
+		\draw[-triangle 60] (sel) -- ($(proj.south) + (-2.5,0.1)$);
+		\draw[-triangle 60] (proj) -- ($(sel2.south) + (-2.5,0.1)$);
+	\end{tikzpicture}
+
+Nun kann der untere Teil des Operatorbaums komplett ersetzt werden:
+
+  \begin{tikzpicture}
+    \node (sel) at (0, 0) {\texttt{SEL(\qquad , e.addr = 'Martensstr. 3'))} };
+		\node (ren)[below of =sel] {\texttt{RENAME(\qquad , e)} };
+		\node (mem)[below of =ren] {\texttt{ResearchMembers} };
+
+		\draw[-triangle 60] (ren) -- ($(sel.south) + (-2.4,0.1)$);
+		\draw[-triangle 60] (mem) -- ($(ren.south) + (0.3,0.1)$);
+	\end{tikzpicture}
+
+\paragraph{\color{solutioncolor}Zusatzfrage:} Unter welchen Bedingungen können materialisierte Sichten
+automatisch zur Optimierung genutzt werden, obwohl sie in der formulierten
+Anfrage nicht vorkommen\footnote{Nach: Hector Garcia-Molina, Jeffrey D. Ullman, Jennifer Widom: \emph{Database Systems -- The Complete Book}. 2nd edition, Pearson, 2013, ISBN 1-292-02447-X, Kap.~8}?
+
+Angenommen, es gibt eine materialisierte Sicht V, die durch eine Anfrage der
+folgenden Form definiert ist:
+
+  \texttt{SELECT $L_V$ FROM $R_V$ WHERE $C_V$}
+
+Dabei ist $L_V$ eine Liste von Attributen, $R_V$ eine Liste von Relationen
+und $C_V$ eine Bedingung.
+
+Außerdem haben wir eine Anfrage Q der Form:
+
+  \texttt{SELECT $L_Q$ FROM $R_Q$ WHERE $C_Q$}
+
+Dann kann Q (zumindest teilweise) umgeschrieben werden, um V zu nutzen, wenn gilt:
+
+  \begin{itemize}
+    \item Alle Relationen in $R_V$ kommen auch in $R_Q$ vor.
+    \item $C_Q$ ist äquivalent zu \texttt{$C_V$ AND $C$}.
+      (Wobei $C_V$ in der umgeschriebenen Anfrage dann verschwindet bzw.
+      in der Sicht bereits enthalten ist und $C$ die restliche Bedingung
+      aus $C_Q$ ist, die von $C_V$ noch nicht abgedeckt ist.)
+    \item Die Attribute aus $L_Q$, die sich auf Relationen aus $R_V$
+      beziehen, müssen ebenfalls in $L_V$ vorkommen.
+    \item Falls $C$ nicht leer ist,
+       müssen auch die in $C$ verwendeten Attribute,
+       die sich auf Relationen aus $R_V$ beziehen, in $L_V$ vorkommen.
+    \end{itemize}
+
+\paragraph{\color{solutioncolor}Anmerkung:}
+Die erste Bedingung wirkt auf den ersten Blick vielleicht unnötig,
+da zusätzliche Informationen,
+die aus einer Relation in $R_V$ stammen und
+nicht in der Ausgabe enthalten sein sollen,
+durch die zweite Bedingung und die Projektion wieder eliminiert würden.
+Das stimmt zwar für die Informationen an sich,
+ein Problem stellt allerdings die Multimengen-Eigenschaft dar.
+
+Beispiel: Es existieren zwei Relationen
+\texttt{A(a1, a2)} und \texttt{B(b1, b2)}.
+Außerdem gibt es eine materialisierte Sicht,
+die das Kreuzprodukt aus A und B bildet.
+Nun wird eine Anfrage $Q$ ausgeführt, die sich nur auf \texttt{B} bezieht.
+Angenommen, die Sicht wird zur Ausführung von $Q$ herangezogen.
+Die Projektion würde zwar die Attribute \texttt{A.a1} und
+\texttt{A.a2} eliminieren,
+da aber normalerweise keine Duplikateliminierung durchgeführt wird,
+wäre jedes Tupel aus \texttt{B} $n$-mal in der Ausgabe enthalten,
+wobei $n$ die Anzahl der Tupel in \texttt{A} ist.
+
+\paragraph{\color{solutioncolor}Weitere Anmerkung:}
+Diese Aufgabe ist nur ein Spezialfall.
+Auch komplexere Anfragen können umgeschrieben werden,
+dann aber nicht unbedingt mit so einfachen Regeln.
+\end{solution}
+
+\end{enumerate}

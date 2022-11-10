@@ -1,0 +1,106 @@
+\section{Sort-Merge Join in der Anwendung}
+
+Gegeben sind zwei Relationen A und B mit jeweils zwei Attributen ax und ay bzw.\ bx und by.
+Das Attribut by ist als UNIQUE gekennzeichnet.
+
+\begin{center}
+	\begin{minipage}{5cm}
+		\begin{center}
+
+			\textbf{Relation A}
+			\begin{tabular}{|p{2cm}|p{2cm}|}
+				\hline
+				\textbf{ax} & \textbf{\textit{ay}} \\\hline
+				1 & 11 \\\hline
+				2 & 18 \\\hline
+				4 & 5 \\\hline
+				8 & 9 \\\hline
+				16 & 1337 \\\hline
+				32 & 9 \\\hline
+				64 & 32 \\\hline
+				128 & 42 \\\hline
+				265 & 18 \\\hline
+				512 & 58 \\\hline
+				1024 & 11 \\\hline
+				2048 & 55 \\\hline
+			\end{tabular}
+
+		\end{center}
+	\end{minipage}
+	%
+	\hspace{2cm}
+	%
+	\begin{minipage}{5cm}
+		\begin{center}
+
+			\textbf{Relation B}
+			\begin{tabular}{|p{2cm}|p{3cm}|}
+				\hline
+				\textbf{bx} & \textbf{\textit{by} (UNIQUE)} \\\hline
+				12 & 9 \\\hline
+				3 & 42 \\\hline
+				6 & 11 \\\hline
+				10 & 18 \\\hline
+			\end{tabular}
+
+		\end{center}
+	\end{minipage}
+\end{center}
+
+Führen Sie einen Inner Join mit der Bedingung \emph{A.ay = B.by} mittels Sort-Merge Join durch. Im Puffer stehen 5 Kacheln zur Verfügung. Gehen Sie zur Vereinfachung davon aus, dass pro Block jeweils nur ein Tupel abgelegt ist.
+
+Geben Sie die einzelnen Schritte und Zwischenergebnisse des Algorithmus an: Geben Sie zu jedem Schritt den Zustand und die Änderungen im Hauptspeicher an (z.\,B.\ "`Aus Relation A drittes Tupel in Kachel 1 und fünftes Tupel in Kachel 2 laden"'). Geben Sie außerdem die Änderungen an der Ergebnisrelation nach dem jeweiligen Schritt an.
+
+\begin{solution}
+	Lade A1-A5: Sortiert speichern in C (Neue Liste), Reihenfolge: A3, A4, A1, A2, A5\\
+	Lade A6-A10: Sortiert speichern in D (Neue Liste), Reihenfolge: A6, A9, A7, A8, A10\\
+	Lade A11-A12: Sortiert speichern in E (Neue Liste), Reihenfolge: A11, A12\\
+	Lade B1-B4: Sortiert speichern in F (Neue Liste), Reihenfolge: B1, B3, B4, B2
+
+	Zuordnung: C in Kachel 1, D in Kachel 2, E in Kachel 3, F in Kachel 4
+
+	\hspace{-2.3cm}\begin{tabular}{|cc|cc|cc|cc|c|}
+		\hline
+		\textbf{Kachel 1} &   & \textbf{Kachel 2} &  & \textbf{Kachel 3} & & \textbf{Kachel 4} & & \textbf{Kachel 5} \\
+		\hline
+		\cellcolor{orange} C1 = A3 & (4, 5) & D1 = A6 & (32, 9) & E1 = A11 & (1024, 11) & F1 = B1 & (12, 9) &  \\
+		\hline
+		\cellcolor{orange}\underline{C2 = A4} & (8, 9) & D1 = A6& (32, 9) & E1 = A11 & (1024, 11) & \underline{F1 = B1} & (12, 9) & (8, 9, 12, 9)\\
+		\hline
+		C3 = A1 & (1, 11) & \cellcolor{orange}\underline{D1 = A6}& (32, 9) & E1 = A11 & (1024, 11) & \underline{F1 = B1} & (12, 9) &(32, 9, 12, 9) \\
+		\hline
+		C3 = A1 & (1, 11) & D2 = A9 & (265, 18) & E1 = A11 & (1024, 11) & \cellcolor{orange} F1 = B1 & (12, 9) &  \\
+		\hline
+		\cellcolor{orange}\underline{C3 = A1} & (1, 11) & D2 = A9 & (265, 18) & E1 = A11 & (1024, 11) & \underline{F2 = B3} & (6, 11) & (1, 11, 6, 11)\\
+		\hline
+		C4 = A2 & (2, 18) & D2 = A9 & (265, 18) & \cellcolor{orange}\underline{E1 = A11} & (1024, 11) & \underline{F2 = B3} & (6, 11) & (1024, 11, 6, 11) \\
+		\hline
+		C4 = A2 & (2, 18) & D2 = A9 & (265, 18) & E2 = A12 & (2048, 55) & \cellcolor{orange}F2 = B3 & (6, 11) & \\
+		\hline
+		\cellcolor{orange}\underline{C4 = A2} & (2, 18) & D2 = A9 & (265, 18) & E2 = A12 & (2048, 55) & \underline{F3 = B4} & (10, 18) & (2, 18, 10, 18)\\
+		\hline
+		C5 = A5 & (16, 1337) & \cellcolor{orange} \underline{D2 = A9} & (265, 18) & E2 = A12 & (2048, 55) & \underline{F3 = B4} & (10, 18) & (265, 18, 10, 18)\\
+		\hline
+		C5 = A5 & (16, 1337) & D3 = A7 & (64, 32) & E2 = A12 & (2048, 55) & \cellcolor{orange}F3 = B4 & (10, 18) & \\
+		\hline
+		C5 = A5 & (16, 1337) &\cellcolor{orange} D3 = A7 & (64, 32) & E2 = A12 & (2048, 55) & F4 = B2 & (3, 42) & \\
+		\hline
+		C5 = A5 & (16, 1337) &\cellcolor{orange}\underline{D4 = A8} & (128, 42) & E2 = A12 & (2048, 55) & \underline{F4 = B2} & (3, 42) & (128, 42, 3, 42)\\
+		\hline
+		C5 = A5 & (16, 1337) &D5 = A10 & (512, 58) & E2 = A12 & (2048, 55) & \cellcolor{orange}F4 = B2 & (3, 42) &\\
+		\hline
+		C5 = A5 & (16, 1337) &D5 = A10 & (512, 58) & E2 = A12 & (2048, 55) &  &  &
+		\\
+		\hline
+	\end{tabular}
+
+Abbruch, da keine weiteren Kombinationen mehr möglich sind.
+
+\paragraph{\color{solutioncolor}Hinweis:} \begin{tabular}{|c|}
+		\hline
+		\cellcolor{orange}\\
+		\hline
+	\end{tabular}
+bedeutet, dass dieser Slot im nächsten Schritt neu eingelesen wird. \\
+	\underline{Der Unterstrich} weist darauf hin, dass dieser Slot in diesem Schritt mit einem anderen kombiniert wird.
+\end{solution}

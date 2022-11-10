@@ -1,0 +1,174 @@
+\section{SQL 2}
+Gegeben ist der folgende Teil eines einfachen Datenbankschemas:
+
+\texttt{Professoren(\underline{PersNr}, Name, Rang, Raum)}\\
+\texttt{Studenten(\underline{MatrNr}, Name, Semester)}\\
+\texttt{Vorlesungen(\underline{Vorlnr}, Titel, SWS, gelesenVon\normaltxt{[Professoren]})}\\
+\texttt{voraussetzen(\underline{Vorgaenger\normaltxt{[Vorlesungen]}, Nachfolger\normaltxt{[Vorlesungen]}})}\\
+\texttt{hoeren(\underline{MatrNr\normaltxt{[Studenten]}, VorlNr\normaltxt{[Vorlesungen]}})}\\
+\texttt{Assistenten(\underline{PersNr}, Name, Fachgebiet, Boss\normaltxt{[Professoren]})}\\
+\texttt{pruefen(\underline{MatrNr\normaltxt{[Studenten]}, VorlNr\normaltxt{[Vorlesungen]}}, PersNr\normaltxt{[Professoren]}, Note)}
+\cprotEnv
+\begin{normalText}
+
+Sie können Ihre Ergebnisse gerne online unter \href{https://hyper-db.de/interface.html}{hyper-db.de/interface.html} überprüfen.
+
+\begin{enumerate}[a)]
+	\item Erstellen Sie eine SQL-Anfrage, die alle Studierenden nach ihrer 
+	bisherigen Studiendauer sortiert, beginnend mit der längsten bisherigen 
+	Studiendauer.
+	Ausgegeben werden sollen nur der Name und die Matrikelnummer.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT Name, MatrNr
+FROM   Students
+ORDER BY Semester DESC;
+	\end{lstlisting}
+	\end{note}
+
+	\item Erstellen Sie eine SQL-Anfrage, die alle Professoren mit Namen und der Anzahl der von ihnen jeweils gehaltenen Vorlesungen ausgibt.
+	Die Ausgabe soll absteigend nach Anzahl der Vorlesungen sortiert sein.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT Professoren.Name, count(*) AS anzahl_der_vorlesungen
+FROM   Professoren, Vorlesungen
+WHERE  PersNr = gelesenVon
+GROUP BY Name, PersNr
+ORDER BY anzahl_der_vorlesungen DESC;
+	\end{lstlisting}
+	\end{note}
+
+	\item Erstellen Sie eine SQL-Anfrage, die alle Professoren mit mehr als einer Vorlesung alphabetisch nach Namen sortiert auflistet.
+	Neben dem Namen der Professoren und der Anzahl der Vorlesungen soll jeweils auch die Raumnummer der Professoren, sowie die Rang der Professoren ausgegeben werden.
+
+	Stellen Sie die SQL-Anfrage dann so um, dass die Sortierung erst absteigend nach der Anzahl der Vorlesung, dann alphabetisch nach Namen erfolgt.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+SELECT Name, Raum, Rang, count(*) as anzahlVorlesungen
+FROM   Professoren, Vorlesungen
+WHERE  Professoren.PersNr = Vorlesungen.gelesenVon
+GROUP BY Professoren.PersNr, Name, Raum, Rang
+HAVING count(*) >= 2
+ORDER BY Name ASC;
+	\end{lstlisting}
+
+	Da ASC die Standard-Reihenfolge ist, wenn nicht explizit DESC angegeben wird, kann es auch weggelassen werden.
+
+	\begin{lstlisting}
+SELECT Name, Raum, Rang, count(*) as anzahlVorlesungen
+FROM   Professoren, Vorlesungen
+WHERE  Professoren.PersNr = Vorlesungen.gelesenVon
+GROUP BY Professoren.PersNr, Name, Raum, Rang
+HAVING count(*) >= 2
+ORDER BY anzahlVorlesungen DESC, Name ASC;
+	\end{lstlisting}
+	\end{note}
+
+
+	\item Erstellen Sie eine SQL-Anfrage, die die Anzahl der Professoren, welche mehr als eine Vorlesung anbieten, sowie die Gesamtanzahl der von diesen Professoren angebotenen Vorlesungen angibt.
+
+	Dazu benötigen Sie das Ergebnis der vorherigen Aufgabe.
+	Erstellen Sie eine View, die dieses Ergebnis zur Verfügung stellt.
+
+	Diskutieren Sie Vor- und Nachteile der Verwendung einer View.
+	Überlegen Sie sich, wie man das View-Konzept erweitern könnte, so dass es sich zur Beschleunigung der Anfrageausführung eignet (die Lösung lernen Sie noch im weiteren Verlauf von IDB kennen).
+	
+	\textit{Hinweis:} Diese Teilaufgabe lässt sich leider nicht online überprüfen, da dort Views nicht erlaubt sind. Alternativ können sie ein With-Statement verwenden (Vgl. TPC-H Query 15).
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+CREATE VIEW bigProfs AS
+(
+SELECT count(*) as anzahlVorlesungen
+FROM   Vorlesungen
+GROUP BY gelesenVon
+HAVING count(*) >= 2
+);
+	\end{lstlisting}
+
+	Diskussion View:
+
+	Ein View wird jedes Mal, wenn er verwendet wird, neu ausgewertet.
+	Somit bleibt ein View auch aktuell, wenn sich die zugrundeliegenden Daten ändern.
+	Dies kann allerdings zu einer schlechten Performanz bei komlexeren Anfragen führen.
+
+	Mögliche Alternativen sind Materialized Views (werden später in IDB behandelt) oder Stored Procedures.
+	Bei dieser einmaligen Anfrage sollte normalerweise keine View erstellt werden, sondern stattdessen die With-Klausel verwendet werden.
+	Diese ist den Teilnehmern aber nicht aus KonzMod bekannt.
+
+	\begin{lstlisting}
+SELECT count(*) AS professoren,
+       sum(anzahlVorlesungen) AS totaleAnzahlVorlesungen
+FROM   bigProfs;
+	\end{lstlisting}
+
+	Da wir die View laut Aufgabenstellung nicht mehr weiter verwenden wollen:
+
+	\begin{lstlisting}
+DROP VIEW bigProfs;
+	\end{lstlisting}
+	\end{note}
+
+
+%	\item Erstellen \deepen Sie eine SQL-Anfrage, die alle Braumeister mit Brauer-ID, Name und Geburtsdatum ausgibt, welche mindestens ein Bier mit mehr als 6\% Vol. kreiert haben.
+
+%	\begin{note}
+%	\begin{lstlisting}
+%SELECT *
+%FROM   brewmasters
+%WHERE EXISTS
+%(SELECT *
+% FROM   beers
+% WHERE  beers.brewmaster = brewmasters.brewer_id
+% AND    alcohol_by_volume > 6);
+%	\end{lstlisting}
+%	\end{note}
+% TODO Das geht einfacher mit einem Join. Durch eine Aufgabe ersetzen, bei der exists sinnvoller eingesetzt wird.
+%
+%	\item Erstellen \deepen Sie eine SQL-Anfrage, die alle Braumeister mit Brauer-ID, Name und Geburtsdatum ausgibt, welche noch keine fünf Biere kreiert.
+%
+%	\begin{note}
+%	\begin{lstlisting}
+%SELECT brewmasters.brewer_id,
+%       brewmasters.name,
+%       brewmasters.date_of_birth
+%FROM   brewmasters, beers
+%WHERE  beers.brewmaster = brewmasters.brewer_id
+%GROUP BY brewmasters.brewer_id,
+%         brewmasters.name,
+%         brewmasters.date_of_birth
+%HAVING count(*) < 5;
+%	\end{lstlisting}
+%	\end{note}
+% TODO Stattdessen eine Aufgabe ergänzen, die einen Mengenoperator verwendet
+
+	\item Erstellen Sie ein SQL-Statement, mit der Sie sich selbst, mit 
+	Schreibfehler im Namen, in die Liste der Studierenden hinzufügen.
+
+	Korrigieren Sie anschließend den Schreibfehler in der Datenbank.
+
+	\textit{Hinweis:} Diese Teilaufgabe lässt sich leider nicht online überprüfen, da Änderungsoperationen nicht erlaubt sind.
+
+\cprotEnv
+	\begin{note}
+	\begin{lstlisting}
+INSERT INTO studenten
+VALUES (42, 'Max Mutterstudent', 5);
+	\end{lstlisting}
+
+	\begin{lstlisting}
+UPDATE studenten
+SET   name = 'Max Musterstudent';
+WHERE MatrNr = 42
+	\end{lstlisting}
+	\end{note}
+
+\end{enumerate}
+\end{normalText}

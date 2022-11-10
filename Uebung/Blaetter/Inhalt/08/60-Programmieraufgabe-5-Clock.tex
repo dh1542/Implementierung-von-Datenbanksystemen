@@ -1,0 +1,23 @@
+\section{Programmieraufgabe 5: ClockImpl}
+
+\subsection{Aufgabenstellung}
+\begin{enumerate}
+	\item Implementieren Sie eine Klasse, die die Schnittstelle \beamertxt{\linebreak}\texttt{idb.buffer.DBBuffer} implementiert.
+		Beachten Sie die Dokumentation der Methoden in der Schnittstelle. Beachten Sie, dass diese Aufgabe den Übungsaufgaben zum Thema Pufferverwaltung mit Clock entspricht.
+		Ihre Implementierung soll dieses Verhalten umsetzen.
+	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{generateClockBuffer()} ein.
+		Die Funktion nimmt als Parameter die Pagesize und die Anzahl an Kacheln in dem ClockBuffer.
+	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{ClockBufferTests} erfüllen.
+	Sie können diese Testfälle mit \lstinline|ant Meilenstein5| ausführen.
+	\item Die Abgabe auf GitLab erfolgt zeitgleich mit der Abgabe der Zusatzaufgaben des nächsten Übungsblattes auf StudOn. Markieren Sie hierfür ihre Abgabe mit dem Tag "`Aufgabe-5"'.
+\end{enumerate}
+
+\subsection{Hinweise}
+\begin{itemize}
+	\item Die Klasse \texttt{idb.buffer.Page} zur Verwaltung von Seiten ist schon gegeben. Nutzen Sie diese bei der Implementierung.
+	\item Das \texttt{override} Flag in \texttt{idb.buffer.Page::clear} wird verwendet, um den ByteBuffer nach dem Zurückschreiben auf die Platte zu überschreiben.
+		Dies ist im Falle des ClockBuffers nicht nötig.
+	\item Achten Sie darauf, eine Seite erst zu leeren (\texttt{clear}), sobald Sie nach dem Verfahren Clock entschieden haben, die Seite zu verdrängen und nicht schon beim \texttt{unfix()}.
+	\item Eine Klasse zur Verwaltung von Blocknummer und \texttt{BlockFile} ist in \texttt{idb.buffer.PageDescriptor} schon gegeben. Diese Klasse kann mittels \texttt{equals} auf Gleichheit geprüft werden und kann als Schlüssel in einer Hash-Struktur aus der Java Standardbibliothek verwendet werden.
+	\item Achten Sie darauf, in der Methode \texttt{flush} nur Seiten zu leeren, die nicht gerade gefixt sind. Achten Sie außerdem darauf, dass die Seiten nach dem Aufruf der Methode \texttt{flush} immer noch im Puffer verbleiben und nur ihre Änderungen in die Blockfiles geschrieben werden.
+\end{itemize}
