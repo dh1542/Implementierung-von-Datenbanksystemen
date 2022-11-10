@@ -29,5 +29,5 @@ In *Uebung/Materialien* findet sich eine SQL-Datenbank für das erste Übungsbla
 
 In *Material* finden sich nichtverwendete Materialien.
 
-[Blätter]: ../jobs/artifacts/main/download?job=build_blaetter
-[Folien]: ../jobs/artifacts/main/download?job=build_folien
+[Blätter]: ../-/jobs/artifacts/main/download?job=build_blaetter
+[Folien]: ../-/jobs/artifacts/main/download?job=build_folien
