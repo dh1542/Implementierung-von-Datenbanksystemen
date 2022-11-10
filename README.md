@@ -8,12 +8,12 @@ Die Vorlesungsfolien befinden sich im Zugehörigen Ordner *Vorlesungsfolien*.
 
 ### Übungsunterlagen
 
-#### Blätter
+#### [Blätter]
 
 Die Blätter befinden sich unter *Uebung/Blaetter*. Sie können mithilfe des Makefiles generiert werden.
 Anschließend befinden diese sich dann in *Uebung/Blaetter/_out*.  
 
-#### Folien
+#### [Folien]
 
 Folien existieren teils in LaTeX unter *Uebung/Folien*.
 
@@ -28,3 +28,6 @@ Die Vorlage kann mit ```ant -f private.xml package``` erzeugt werden.
 In *Uebung/Materialien* findet sich eine SQL-Datenbank für das erste Übungsblatt.
 
 In *Material* finden sich nichtverwendete Materialien.
+
+[Blätter]: ../jobs/artifacts/main/download?job=build_blaetter
+[Folien]: ../jobs/artifacts/main/download?job=build_folien

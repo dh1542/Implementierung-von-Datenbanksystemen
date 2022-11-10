@@ -8,8 +8,14 @@ variables:
   # thomasweise/texlive
   # adnrv/texlive
   LATEX_IMAGE: thomasweise/docker-texlive-full
+  PYTHON_IMAGE: python:3.6.6
+
+stages:
+  - build
+  - badges
 
 build_blaetter:
+  stage: build
   image: $LATEX_IMAGE
   script:
     - make UBlaetter_ci
@@ -18,9 +24,25 @@ build_blaetter:
       - "Blaetter"
 
 build_folien:
+  stage: build
   image: $LATEX_IMAGE
   script:
     - make UFolien_ci
   artifacts:
     paths:
       - "Folien"
+
+badges:
+  stage: badges
+  image: $PYTHON_IMAGE
+  only:
+    refs:
+      - main
+  script:
+    - pip install anybadge
+    - anybadge -l "Blätter" -p " Hier herunterladen (Commit " -s ") " -v $CI_COMMIT_SHORT_SHA -f blaetter.svg -c lightgrey
+    - anybadge -l "Folien" -p " Hier herunterladen (Commit " -s ") " -v $CI_COMMIT_SHORT_SHA -f folien.svg -c lightgrey
+  artifacts:
+    paths:
+        - blaetter.svg
+        - folien.svg
