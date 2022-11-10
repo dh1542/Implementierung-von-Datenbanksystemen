@@ -1,0 +1,26 @@
+variables:
+  # Feel free to choose the image that suits you best.
+  # blang/latex:latest ... Former image used in this template. No longer maintained by author.
+  # listx/texlive:2020 ... The default, referring to TexLive 2020. Current at least to 2021-02-02.
+
+  # Additional alternatives with high Docker pull counts:
+  # thomasweise/docker-texlive-full
+  # thomasweise/texlive
+  # adnrv/texlive
+  LATEX_IMAGE: thomasweise/docker-texlive-full
+
+build_blaetter:
+  image: $LATEX_IMAGE
+  script:
+    - make UBlaetter_ci
+  artifacts:
+    paths:
+      - "Blaetter"
+
+build_folien:
+  image: $LATEX_IMAGE
+  script:
+    - make UFolien_ci
+  artifacts:
+    paths:
+      - "Folien"
