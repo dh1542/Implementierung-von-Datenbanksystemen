@@ -20,6 +20,7 @@ build_blaetter:
   script:
     - make UBlaetter_ci
   artifacts:
+    name: "UeIDB_Blaetter"
     paths:
       - "Blaetter"
 
@@ -29,6 +30,7 @@ build_folien:
   script:
     - make UFolien_ci
   artifacts:
+    name: "UeIDB_Folien"
     paths:
       - "Folien"
 
