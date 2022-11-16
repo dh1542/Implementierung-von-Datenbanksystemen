@@ -57,21 +57,18 @@ Der Einsatz eines solchen Index ist sinnvoll, wenn nach bestimmten Werten, wie d
 Ein Function Based Index beschleunigt nur Abfragen, die den Wert des Function Based Index benötigen.
 Wie jeder Index muss dieser beim Einfügen und Ändern angepasst und dabei die Funktion erneut berechnet werden.
 Dies verlangsamt die Einfüge- und Änderungsoperationen. Es muss also auch bei diesem Indextyp abgewogen werden, ob der Nutzen des Index den Pflegeaufwand rechtfertigt.
-\end{solution}
 
-\begin{note}
-Bei Einfügen und Ändern kann die Änderung des Function Based Index abhängig von der Funktion übermäßig viel Zeit beanspruchen, da z.\,B. die Analyse von Bildern, Videos oder Audiodateien sehr aufwändig sein kann.
-\end{note}
+Bei Einfügen und Ändern kann die Aktualisierung des Function Based Index abhängig von der Funktion übermäßig viel Zeit beanspruchen, da z.\,B. die Analyse von Bildern, Videos oder Audiodateien sehr aufwändig sein kann.
+\end{solution}
 
 \item Diskutieren Sie weitere Beispiele, die ähnliche Anforderungen haben wie das aus Teilaufgabe \ref{item:fbi}). Denken Sie dabei etwa an Multimedia-Anwendungen.
 
 \begin{solution}
 Ein möglicher Einsatz ist ein Function Based Index über die durchschnittliche Helligkeit eines Bildes oder über die Frequenzverteilung eines Audiostücks.
-\end{solution}
 
-\begin{note}
 Ein Beispiel für den praktischen Einsatz eines Function Based Index (in Oracle) findet sich unter folgendem Link:\\
-\href{https://docs.oracle.com/cd/E11882\_01/server.112/e40540/indexiot.htm\#CNCPT721}{https://docs.oracle.com/cd/E11882\_01/server.112/e40540/indexiot.htm\#CNCPT721}.
-\end{note}
+\url{https://docs.oracle.com/cd/E11882\_01/server.112/e40540/indexiot.htm\#CNCPT1161}.
+
+\end{solution}
 
 \end{enumerate}
