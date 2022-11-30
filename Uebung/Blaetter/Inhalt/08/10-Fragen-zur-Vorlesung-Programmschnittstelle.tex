@@ -18,10 +18,7 @@
 
 	\begin{note}
 	\begin{center}
-	\begin{tikzpicture}
-		\draw (0, 0) rectangle+(5, 1);
-		\node at (2.5, 0.5) {LINQ-Anmerkung hier};
-	\end{tikzpicture}
+		\fbox{LINQ-Beispiel in Beamer Version}
 	\end{center}
 	\end{note}
 
@@ -33,3 +30,56 @@
 	\end{solution}
 
 \end{enumerate}
+\cprotEnv
+\begin{beamerText}
+\pagebreak
+\section*{Exkurs: LINQ -- Languate Integrated Query}
+\subsection*{Was ist das?}
+\begin{itemize}
+	\item Datenzugriff bei .NET
+	\item Deklarativ (SQL-Ähnlich)
+	\item aus 
+	\begin{itemize}
+		\item relationalen Datenbanken (MS SQL Server)
+		\item Arrays, Listen
+		\item XML-Strukturen
+		\item \ldots
+	\end{itemize}
+\end{itemize}
+\subsection*{Was bietet das?}
+\begin{itemize}
+	\item Syntaxkontrolle durch den Compiler
+	\item Strenge Typisierung
+	\item IDE-Unterstützung
+	\item Transaktionsunterstützung
+\end{itemize}
+\subsection*{Wie sieht das aus?}
+\begin{lstlisting}
+string[] namen = {"Tina", "Tom", ...};
+
+IEnumerable<string> query = from s in namen
+  where s.Length == 3
+  orderby s
+  select s.ToUpper();
+\end{lstlisting}
+oder
+\begin{lstlisting}[]
+string[] namen = {"Tina", "Tom", ...};
+
+IEnumerable<string> query = namen
+  .Where(s => s.Length == 3)
+  .OrderBy(s => s)
+  .Select(s => s.ToUpper());
+\end{lstlisting}
+
+Mit Objekten
+\begin{lstlisting}
+Person[] personen = {
+  new Person {Name="Thomas", Alter=22},
+  new Person {Name="Susi", Alter=17}, ...}
+var query = from p in personen
+  select new
+    {p.Name, Volljähring = p.Alter >= 18};
+\end{lstlisting}
+
+\end{beamerText}
