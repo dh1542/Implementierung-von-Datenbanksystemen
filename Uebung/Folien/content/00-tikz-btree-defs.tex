@@ -108,6 +108,23 @@ code={
 	\node[defaultNode, secondNode]{#4};
 }}}
 
+%Erster Blattknoten einer Ebene.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 1. Nutzdateneintrag
+%\param #3 : 2. Referenzschlüsseleintrag
+%\param #4 : 2. Nutzdateneintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+%\param #7 : Offset in x-Richtung
+\tikzset{pics/firstLeafNodeNonGray/.style n args={7}{
+		code={
+			\node[defaultNode, greyNode](#6+0) at (#7,-#5*2) {#1};
+			\chainin (#6+0);
+			\node[defaultNode, secondNode]{#2};
+			\node[defaultNode, secondNode]{#3};
+			\node[defaultNode, secondNode]{#4};
+}}}
+
 %Blattknoten.
 %\param #1 : 1. Referenzschlüsseleintrag
 %\param #2 : 1. Nutzdateneintrag
@@ -122,6 +139,22 @@ code={
 	\node[defaultNode, secondNode, greyNode]{#3};
 	\node[defaultNode, secondNode]{#4};
 }}}
+
+%Blattknoten.
+%\param #1 : 1. Referenzschlüsseleintrag
+%\param #2 : 1. Nutzdateneintrag
+%\param #3 : 2. Referenzschlüsseleintrag
+%\param #4 : 2. Nutzdateneintrag
+%\param #5 : Ebene auf der sich der Knoten befindet
+%\param #6 : Name des Knotens (am besten fortlaufende Zahlen verwenden)
+\tikzset{pics/leafNodeNonGray/.style n args={6}{
+		code={
+			\node[defaultNode,node distance=3.5mm, secondNode, greyNode](#6+0){#1};
+			\node[defaultNode, secondNode]{#2};
+			\node[defaultNode, secondNode]{#3};
+			\node[defaultNode, secondNode]{#4};
+}}}
+
 
 %Verbindungspfeil zeichnen
 %\param #1 : Name des Vaterblocks
