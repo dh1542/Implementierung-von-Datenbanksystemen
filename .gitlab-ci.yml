@@ -23,6 +23,8 @@ build_blaetter:
     name: "UeIDB_Blaetter"
     paths:
       - "Blaetter"
+    expire_in:
+      6 month
 
 build_folien:
   stage: build
@@ -33,6 +35,8 @@ build_folien:
     name: "UeIDB_Folien"
     paths:
       - "Folien"
+    expire_in:
+      6 month
 
 badges:
   stage: badges
@@ -48,3 +52,5 @@ badges:
     paths:
         - blaetter.svg
         - folien.svg
+    expire_in:
+      6 month
