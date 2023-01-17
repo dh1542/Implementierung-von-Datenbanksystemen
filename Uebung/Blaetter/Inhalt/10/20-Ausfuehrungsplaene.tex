@@ -13,6 +13,7 @@ Gegeben seien folgende Relationen:
 
 Setzen Sie folgende SQL-Anweisungen in nicht-optimierte Operatorgraphen um. Verwenden Sie dafür die Baum-Notation von Vorlesungsfolie~\Operatorgraph. % stimmt noch (KMW, 04.12.2018)
 
+\fbox{\begin{minipage}{\textwidth}
 \paragraph{Hinweis:} Zur weiteren Übung können Sie das Tool DBSnap verwenden: \\
 	\DBSnap \\
 	Bitte beachten: Es führt bei der Projektion zusätzlich eine Duplikateliminierung durch.
@@ -20,7 +21,7 @@ Setzen Sie folgende SQL-Anweisungen in nicht-optimierte Operatorgraphen um. Verw
 	\begin{note}
 		Literatur: Y. N. Silva et al.: DBSnap: Learning Database Queries by Snapping Blocks, SIGCSE 2015, DOI \url{http://dx.doi.org/10.1145/2676723.2677220}
 	\end{note}
-
+\end{minipage}}
 \begin{enumerate}[a)]
 
 	\item Alle MitarbeiterInnen und ihre Vorgesetzten.
@@ -147,8 +148,8 @@ WHERE e.lname = 'Smith';
 		\node (sel_top) [below of =proj_top] {\small{\texttt{SEL(\hspace{0.5cm}, (e.lname = 'Smith'))} } };
 		\node (union) [below of =sel_top] {\small{\texttt{UNION(\qquad, \qquad)} } };
 
-		\node (proj_left) [below of =union, xshift = 3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.numb, e.lname))} } };
-		\node (proj_right) [below of =union, xshift = -3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.numb, e.lname))} } };
+		\node (proj_left) [below of =union, xshift = 3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
+		\node (proj_right) [below of =union, xshift = -3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
 
 		\node (sel_left) [below of =proj_left] {\small{\texttt{SEL(\hspace{0.5cm}, (d.num = p.dep} } };
 		\node (sel_left2) [below of =sel_left, xshift =1cm, yshift = 0.6cm] {\small{\texttt{AND d.mgr = e.num))} } };
