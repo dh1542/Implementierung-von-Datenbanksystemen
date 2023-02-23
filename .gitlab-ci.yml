@@ -24,7 +24,7 @@ build_blaetter:
     paths:
       - "Blaetter"
     expire_in:
-      6 month
+      40 days
 
 build_folien:
   stage: build
@@ -36,7 +36,7 @@ build_folien:
     paths:
       - "Folien"
     expire_in:
-      6 month
+      40 days
 
 badges:
   stage: badges
@@ -53,4 +53,4 @@ badges:
         - blaetter.svg
         - folien.svg
     expire_in:
-      6 month
+      40 days
