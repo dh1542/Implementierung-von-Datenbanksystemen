@@ -12,7 +12,6 @@ variables:
 
 stages:
   - build
-  - badges
 
 build_blaetter:
   stage: build
@@ -35,22 +34,5 @@ build_folien:
     name: "UeIDB_Folien"
     paths:
       - "Folien"
-    expire_in:
-      40 days
-
-badges:
-  stage: badges
-  image: $PYTHON_IMAGE
-  only:
-    refs:
-      - main
-  script:
-    - pip install anybadge
-    - anybadge -l "Blätter" -p " Hier herunterladen (Commit " -s ") " -v $CI_COMMIT_SHORT_SHA -f blaetter.svg -c lightgrey
-    - anybadge -l "Folien" -p " Hier herunterladen (Commit " -s ") " -v $CI_COMMIT_SHORT_SHA -f folien.svg -c lightgrey
-  artifacts:
-    paths:
-        - blaetter.svg
-        - folien.svg
     expire_in:
       40 days
