@@ -14,11 +14,20 @@
 #
 
 # Suffixes:
-START = UeIDB
+START = UeIDB_
 EXERCISE_SUFFIX = _Blatt
 SOLUTION_SUFFIX = _ML
 NOTES_SUFFIX = _Notizen
 BEAMER_SUFFIX = _Beamer
+
+# TexFiles:
+INPUT_TEX = $(wildcard Inhalt/$(START)$(BLATT)*.tex)
+EXERCISES_TEX = $(INPUT_TEX:Inhalt/%.tex=%$(EXERCISE_SUFFIX).tex)
+SOLUTIONS_TEX = $(INPUT_TEX:Inhalt/%.tex=%$(SOLUTION_SUFFIX).tex)
+NOTES_TEX     = $(INPUT_TEX:Inhalt/%.tex=%$(NOTES_SUFFIX).tex)
+BEAMER_TEX    = $(INPUT_TEX:Inhalt/%.tex=%$(BEAMER_SUFFIX).tex)
+
+TEXFILES      = $(filter %$(SUFFIX).tex,$(EXERCISES_TEX) $(SOLUTIONS_TEX) $(NOTES_TEX) $(BEAMER_TEX))
 # Output directories for all genereted files
 OUT_DIR = _out/
 
@@ -31,100 +40,104 @@ STUDON_DIR = $(OUT_DIR)StudOn/
 # Folder for exercise sheets with solutions and notes
 TUTOR_DIR = $(OUT_DIR)Tutor/
 
-CP_EXERCISES = cp -f $(TEMP_DIR)$(START)$(FLAG)*$(EXERCISE_SUFFIX).pdf $(STUDON_DIR).
-CP_SOLUTIONS = cp -f $(TEMP_DIR)$(START)$(FLAG)*$(SOLUTION_SUFFIX).pdf $(STUDON_DIR).
-CP_NOTES = cp -f $(TEMP_DIR)$(START)$(FLAG)*$(NOTES_SUFFIX).pdf $(TUTOR_DIR).
-CP_BEAMER = cp -f $(TEMP_DIR)$(START)$(FLAG)*$(BEAMER_SUFFIX).pdf $(TUTOR_DIR).
+# PdfFiles:
+EXERCISES_PDF = $(INPUT_TEX:Inhalt/%.tex=$(STUDON_DIR)%$(EXERCISE_SUFFIX).pdf)
+SOLUTIONS_PDF = $(INPUT_TEX:Inhalt/%.tex=$(STUDON_DIR)%$(SOLUTION_SUFFIX).pdf)
+NOTES_PDF     = $(INPUT_TEX:Inhalt/%.tex=$(TUTOR_DIR)%$(NOTES_SUFFIX).pdf)
+BEAMER_PDF    = $(INPUT_TEX:Inhalt/%.tex=$(TUTOR_DIR)%$(BEAMER_SUFFIX).pdf)
 
+PDFFILES     = $(filter %$(SUFFIX).pdf,$(EXERCISES_PDF) $(SOLUTIONS_PDF) $(NOTES_PDF) $(BEAMER_PDF))
+
+# Copy Instructios
+CP_EXERCISES = cp -f $(TEMP_DIR)$(START)$(BLATT)*$(EXERCISE_SUFFIX).pdf $(STUDON_DIR).
+CP_SOLUTIONS = cp -f $(TEMP_DIR)$(START)$(BLATT)*$(SOLUTION_SUFFIX).pdf $(STUDON_DIR).
+CP_NOTES = cp -f $(TEMP_DIR)$(START)$(BLATT)*$(NOTES_SUFFIX).pdf $(TUTOR_DIR).
+CP_BEAMER = cp -f $(TEMP_DIR)$(START)$(BLATT)*$(BEAMER_SUFFIX).pdf $(TUTOR_DIR).
+
+BLAETTER := 01 02 03 04 05 06 07 08 09 10 11 12 13 14
+
+# LaTeX MK
 LATEXMKCI = latexmk -pdf -output-directory=$(TEMP_DIR)
 
 LATEXMK = $(LATEXMKCI) -silent
 
-
-
+LATEXBUILDER = $(LATEXMK)
 ################################################################################
 ### Targets to build multiple files
 
-.PHONY: all ci clean
+.PHONY: all ci clean exercises notes solutions beamer $(BLAETTER) TEX PDFS bulid move_pdf
+.PRECIOUS: $(TEMP_DIR)%.pdf
 
-all: build_beamer build_exercises build_notes build_solutions
-	$(MAKE) $(THIS_FILE) move_all
+all: PDFS
 
-ci: | $(TEMP_DIR)
-	$(LATEXMKCI)
-	$(MAKE) $(THIS_FILE) move_all
+ci: LATEXBUILDER=$(LATEXMKCI)
+ci: move_pdf
 
-exercises: build_exercises | $(STUDON_DIR)
+# Recall makefile, because change of suffix changes variables
+exercises: $(EXERCISES_PDF)
+
+# Recall makefile, because change of suffix changes variables
+notes: $(NOTES_PDF)
+
+# Recall makefile, because change of suffix changes variables
+solutions:  $(SOLUTIONS_PDF)
+
+# Recall makefile, because change of suffix changes variables
+beamer: $(BEAMER_PDF)
+
+TEX: $(TEXFILES)
+
+PDFS: $(PDFFILES)
+
+build: $(TEMP_DIR) $(TEXFILES)
+	$(LATEXBUILDER) $(START)$(BLATT)*$(SUFFIX).tex
+
+move_pdf: $(STUDON_DIR) $(TUTOR_DIR) build
 	$(CP_EXERCISES)
-
-notes: build_notes | $(TUTOR_DIR)
-	$(CP_NOTES)
-
-solutions: build_solutions | $(STUDON_DIR)
-	$(CP_SOLUTIONS)
-
-beamer: build_beamer | $(TUTOR_DIR)
-	$(CP_BEAMER)
-
-move_all: FORCE | $(STUDON_DIR) $(TUTOR_DIR)
-	$(CP_EXERCISES)
 	$(CP_SOLUTIONS)
 	$(CP_NOTES)
 	$(CP_BEAMER)
-
-build_exercises: FORCE | $(TEMP_DIR)
-	$(LATEXMK) *$(EXERCISE_SUFFIX).tex
-
-build_notes: FORCE | $(TEMP_DIR)
-	$(LATEXMK) *$(NOTES_SUFFIX).tex
-
-build_solutions: FORCE | $(TEMP_DIR)
-	$(LATEXMK) *$(SOLUTION_SUFFIX).tex
-
-build_beamer: FORCE | $(TEMP_DIR)
-	$(LATEXMK) *$(BEAMER_SUFFIX).tex
 
 ################################################################################
-### Targets to build long or short
+### Targets to build pdf files
 
-tex_long: FORCE
-	./generate.sh
+$(STUDON_DIR)%.pdf: $(TEMP_DIR)%.pdf $(STUDON_DIR)
+	cp $< $@
+$(TUTOR_DIR)%.pdf: $(TEMP_DIR)%.pdf $(TUTOR_DIR)
+	cp $< $@
 
-tex_short: FORCE
-	./generate_short.sh
+$(TEMP_DIR)%.pdf: %.tex $(TEMP_DIR)
+	$(LATEXBUILDER) $<
+
+
+$(TEMP_DIR) $(STUDON_DIR) $(TUTOR_DIR):
+	mkdir -p $@
+
+################################################################################
+### Targets to build tex files
+
+%$(EXERCISE_SUFFIX).tex: Inhalt/%.tex
+	printf "\\input{Format/paper}\n\\input{Inhalt/$*.tex}\n" > $@
+%$(SOLUTION_SUFFIX).tex: Inhalt/%.tex
+	printf "\\input{Format/solution}\n\\input{Inhalt/$*.tex}\n" > $@
+%$(BEAMER_SUFFIX).tex: Inhalt/%.tex
+	printf "\\input{Format/beamer}\n\\input{Inhalt/$*.tex}\n" > $@
+%$(NOTES_SUFFIX).tex: Inhalt/%.tex
+	printf "\\input{Format/tutor}\n\\input{Inhalt/$*.tex}\n" > $@
+
 
 ################################################################################
 ### Targets to build one exercise
 
-%build: FORCE | $(TEMP_DIR)
-	$(LATEXMK) $(START)$**.tex
+# Recall makefile, because change of BLATT changes variables
+$(BLAETTER):
+	$(MAKE) $(THIS_FILE) PDFS BLATT=$@
 
-01 02 03 04 05 06 07 08 09 10 11 12 13 14:
-	$(MAKE) $(THIS_FILE) $@build
-	$(MAKE) $(THIS_FILE) move_all
-
-################################################################################
-### Targets to build one file
-
-$(STUDON_DIR)%.pdf: $(TEMP_DIR)%.pdf |$(STUDON_DIR)
-	cp -f $(TEMP_DIR)$(@F) $@
-
-$(TUTOR_DIR)%.pdf: $(TEMP_DIR)%.pdf | $(TUTOR_DIR)
-	cp -f $(TEMP_DIR)$(@F) $@
-
-$(TEMP_DIR)%.pdf: %.tex FORCE |$(TEMP_DIR)
-	$(LATEXMK) $<
-
-$(TEMP_DIR) $(STUDON_DIR) $(TUTOR_DIR):
-	mkdir -p $@
 ################################################################################
 ### Remaining Targets
 
-FORCE:
-
 clean:
-	rm -rf $(OUT_DIR) $(TEMP_DIR)
-	latexmk -C
+	rm -rf $(OUT_DIR) $(TEMP_DIR) $(START)*
+	-latexmk -C
 	rm -f *.cpt
 # END
-

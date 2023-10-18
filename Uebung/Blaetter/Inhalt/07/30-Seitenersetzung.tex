@@ -1,12 +1,14 @@
 \section{Seitenersetzungsstrategien}\label{Seiten}
-Für einen Puffer stehen drei Kacheln im Hauptspeicher zur Verfügung. Es soll nun bestimmt werden, wie sich eine Seitenersetzungsstrategie bei einem bestimmten Zugriffsmuster auf Seiten verhält.
+Für einen Puffer stehen drei Kacheln im Hauptspeicher zur Verfügung.
+Es soll nun bestimmt werden, wie sich eine Seitenersetzungsstrategie bei einem bestimmten Zugriffsmuster auf Seiten verhält.
 
 \begin{enumerate}[a)]
     \item Diskutieren Sie die Funktionsweise und Eignung der Strategien LFU und LRU.
 \begin{solution}
     \begin{itemize}
         \item \textbf{LFU} (Least Frequently Used):
-					Block, auf den am seltensten zugegriffen wurde, wird ersetzt. (Bei Gleichstand in der Benutzungshäufigkeit kann beispielsweise die Seite verdrängt werden, die länger im Hauptspeicher ist.)
+					Block, auf den am seltensten zugegriffen wurde, wird ersetzt.
+					(Bei Gleichstand in der Benutzungshäufigkeit kann beispielsweise die Seite verdrängt werden, die länger im Hauptspeicher ist.)
 
             Eignung von LFU: Die Häufigkeit der Nutzung eines Blocks sagt nicht unbedingt etwas über die Häufigkeit der Nutzung in Zukunft aus.
             Werden beispielsweise kurzfristig sehr viele Daten aus einem Block benötigt, z.B. aus einem Index, hält sich dieser anschließend so lange, bis ein weiterer Block ebenfalls so häufig genutzt wurde.
@@ -15,16 +17,23 @@ Für einen Puffer stehen drei Kacheln im Hauptspeicher zur Verfügung. Es soll n
         \item \textbf{LRU} (Least Recently Used):
             Block, auf den am längsten nicht zugegriffen wurde, wird ersetzt.
 
-            Eignung von LRU: LRU berücksichtigt sowohl das Alter als auch die Benutzungshäufigkeit, so dass die bei LFU (bzw. FIFO) auftretenden Probleme gelöst sind. Allerdings ist die Ermittlung der zu verdrängenden Seite bei LRU und LFU im Gegensatz zu z.B. FIFO aufwändiger.
+            Eignung von LRU: LRU berücksichtigt sowohl das Alter als auch die Benutzungshäufigkeit, so dass die bei LFU (bzw. FIFO) auftretenden Probleme gelöst sind.
+			Allerdings ist die Ermittlung der zu verdrängenden Seite bei LRU und LFU im Gegensatz zu z.B. FIFO aufwändiger.
     \end{itemize}
 
 \end{solution}
 \beamertxt{\pagebreak}
 
 	\item
-Modellieren Sie die folgende Referenzfolge mit der Seitenersetzungsstrategie CLOCK. Beurteilen Sie auch, wie gut die vorgegebene Strategie zur Referenzfolge passt und wo die Strategie ungünstige Entscheidungen trifft.
+Modellieren Sie die folgende Referenzfolge mit der Seitenersetzungsstrategie CLOCK.
+Beurteilen Sie auch, wie gut die vorgegebene Strategie zur Referenzfolge passt und wo die Strategie ungünstige Entscheidungen trifft.
 
-Zu Beginn seien alle Kacheln leer. Geben Sie an, welche Seiten zu welchen Zeitpunkten in den Kacheln des Prozesses eingelagert sind. Notieren Sie auch die Kontrollzustände für jede Belegung. Im Falle von CLOCK ist das das Benutzt-Bit. Geben Sie außerdem die Anzahl der Seitenfehler an, d.\,h. die Anzahl der Seiten, die vom Hintergrundspeicher geladen werden müssen. Die Einlagerungen der ersten drei Seiten sollen auch als Seitenfehler mitgezählt werden.
+Zu Beginn seien alle Kacheln leer.
+Geben Sie an, welche Seiten zu welchen Zeitpunkten in den Kacheln des Prozesses eingelagert sind.
+Notieren Sie auch die Kontrollzustände für jede Belegung.
+Im Falle von CLOCK ist das das Benutzt-Bit.
+Geben Sie außerdem die Anzahl der Seitenfehler an, d.\,h. die Anzahl der Seiten, die vom Hintergrundspeicher geladen werden müssen.
+Die Einlagerungen der ersten drei Seiten sollen auch als Seitenfehler mitgezählt werden.
 
 Reihenfolge der Seitenreferenzen: $1, 2, 3, 5, 1, 1, 4, 1, 2, 1, 3, 1$.
 
@@ -305,7 +314,10 @@ for(j=0; j<8; j++){
 
 	Der Auswahlzeiger zeigt stets auf die Kachel, die für das Ersetzen als nächstes geprüft wird (sowohl wenn eine Seite eingefügt wurde, als auch wenn eine Seite schon im Puffer war und das Benutzt-Bit wieder auf 1 gesetzt wurde).
 
-	Eignung von CLOCK: Ressourcenschonend, da lediglich ein Bit „Verwaltungsstruktur“ für jeden Puffer dazukommt, bzw. eine externe Bitmap mit der Anzahl der verwalteten Pufferblöcke geführt und durchsucht wird. CLOCK berücksichtigt jedoch nicht die Anzahl der Zugriffe. Jede Seite überlebt mindestens zwei „Zeigerumläufe“. Kann zu FIFO degenerieren, wenn alle Benutzt-Bits 1 sind (siehe Aufgabe).
+	Eignung von CLOCK: Ressourcenschonend, da lediglich ein Bit „Verwaltungsstruktur“ für jeden Puffer dazukommt, bzw. eine externe Bitmap mit der Anzahl der verwalteten Pufferblöcke geführt und durchsucht wird.
+	CLOCK berücksichtigt jedoch nicht die Anzahl der Zugriffe.
+	Jede Seite überlebt mindestens zwei „Zeigerumläufe“.
+	Kann zu FIFO degenerieren, wenn alle Benutzt-Bits 1 sind (siehe Aufgabe).
 	\input{Inhalt/07/33-Ersetzungsverfahren-und-lokalitaet.tex}
 \end{solution}
 
@@ -322,7 +334,8 @@ Bestimmen Sie die Working Set Size und die aktuelle Lokalität für eine Fenster
 Bestimmen Sie weiterhin die durchschnittliche Lokalität für diese Fenstergröße und die gegebene Referenzfolge.
 
 \begin{solution}
-Die Anzahl an unterschiedlichen referenzierten Seiten bei $w$ Zugriffen nennen wir Working Set Size. Betrachten wir  die ersten 8 (\(t=8\)) und die letzten 8 Zugriffe (\(t=13\)), dann sehen wir, dass im ersten Fall 3 unterschiedliche Werte auftreten und im anderen Fall 7 $\rightarrow$ die Working Set Size $|W|$ beträgt im ersten Fall also $3$ und im zweiten Fall $7$.
+Die Anzahl an unterschiedlichen referenzierten Seiten bei $w$ Zugriffen nennen wir Working Set Size.
+Betrachten wir  die ersten 8 (\(t=8: (1,2,1,3,1,2,1,2)\)) und die letzten 8 Zugriffe (\(t=13: (2,1,2,3,4,5,6,7)\)), dann sehen wir, dass im ersten Fall 3 unterschiedliche Werte auftreten und im anderen Fall 7 $\rightarrow$ die Working Set Size $|W|$ beträgt im ersten Fall also $3$ und im zweiten Fall $7$.
 
 Die aktuelle Lokalität ist dann gegeben durch	\[AL(t, w) = \frac{|W(t, w)|}{w}\] d.\,h. $\frac{3}{8}$
 für \(t=8\), und $\frac{7}{8}$ für \(t=13\).
@@ -338,7 +351,8 @@ Für die gegebene Referenzfolge ergibt sich eine durchschnittliche Lokalität vo
     \item Bestimmen Sie für die Seitenreferenzfolge $1, 2, 3, 5, 1, 1, 4, 1, 2, 1, 3, 1$ die LRU-Stack\-tie\-fen\-ver\-tei\-lung.
 
 \begin{solution}
-Der LRU-Stack enthält alle bereits referenzierten Seiten in der Reihenfolge ihres Zugriffsalters. Wie bestimmt man die Stacktiefen-Verteilung? Pro Stackposition gibt es einen Zähler; Referenz einer Seite führt zu Zählererhöhung an der jew. Stackposition ($\rightarrow$ Zählerwerte entsprechen Wiederbenutzungshäufigkeit)
+Der LRU-Stack enthält alle bereits referenzierten Seiten in der Reihenfolge ihres Zugriffsalters.
+Wie bestimmt man die Stacktiefen-Verteilung? Pro Stackposition gibt es einen Zähler; Referenz einer Seite führt zu Zählererhöhung an der jew. Stackposition ($\rightarrow$ Zählerwerte entsprechen Wiederbenutzungshäufigkeit)
 
 
     \begin{minipage}{0.28\textwidth}
@@ -489,7 +503,8 @@ Der LRU-Stack enthält alle bereits referenzierten Seiten in der Reihenfolge ihr
 Für das Ersetzungsverfahren LRU können aus der Stacktiefenverteilung für eine bestimmte Puffergröße direkt die Treffer- und Fehlseitenrate bestimmt werden.
 Für eine beispielhafte Puffergröße von 3 im oberen Beispiel hätte LRU 1+3+0 = 4 Treffer und 1+2 = 3 Fehler beim Zugriff.
 
-Charakteristisch ist die starke, oft monotone Abnahme der Wiederbenutzungswahrscheinlichkeit mit der Stacktiefe. Seitenreferenzen folgen oft der 80/20-Regel (20\,\% der Seiten vereinen 80\,\% der Zugriffe auf sich, die restlichen 80\,\% der Seiten nur 20\,\% der Zugriffe) oder besitzen noch ausgeprägtere Lokalität.
+Charakteristisch ist die starke, oft monotone Abnahme der Wiederbenutzungswahrscheinlichkeit mit der Stacktiefe.
+Seitenreferenzen folgen oft der 80/20-Regel (20\,\% der Seiten vereinen 80\,\% der Zugriffe auf sich, die restlichen 80\,\% der Seiten nur 20\,\% der Zugriffe) oder besitzen noch ausgeprägtere Lokalität.
 
 \begin{center}
 \includegraphics[width = 10cm]{Pictures/Ue07_Aufgabe2_Zusatz2.png}

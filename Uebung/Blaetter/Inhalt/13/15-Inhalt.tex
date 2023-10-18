@@ -1,10 +1,10 @@
 	\item Welche Teilprobleme müssen bei der Übersetzung von logischen Operatoren in Planoperatoren gelöst werden?
 
 \begin{solution}
-Gruppierung von direkt benachbarten Operatoren zur Auswertung durch einen einzelnen Planoperator.
-Beispiel: Verbund mit Selektionen und/oder Projektionen auf den beteiligten Relationen lässt sich durch einen speziellen Planoperator gemeinsam ausführen.
 \begin{itemize}
-	\item Bestimmung der Verknüpfungsreihenfolge bei Verbundoperationen
+	\item \textit{Gruppierung} von direkt benachbarten Operatoren zur Auswertung durch einen einzelnen Planoperator.
+	Beispiel: Verbund mit Selektionen und/oder Projektionen auf den beteiligten Relationen lässt sich durch einen speziellen Planoperator gemeinsam ausführen.
+	\item Bestimmung der \textit{Verknüpfungsreihenfolge} bei Verbundoperationen
 		\begin{itemize}
 			\item Ziel: minimale Kosten für die Operationsfolge
 			\item Heuristik: Minimierung der Größe der Zwischenergebnisse,
