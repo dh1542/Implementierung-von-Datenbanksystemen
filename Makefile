@@ -19,19 +19,19 @@ all: Uebung
 
 ci: UFolien_ci UBlaetter_ci
 
-Uebung: UBlaetter UFolien 
+Uebung: UBlaetter UFolien
 
 UBlaetter:
 	$(MAKE) -j -C $(UebungBlaetter)
 
-UBlaetter_ci:
+UBlaetter_ci: UBlaetter
 	$(MAKE) -C $(UebungBlaetter) ci
 	cp -r $(UebungBlaetter)_out Blaetter
 
 UFolien:
 	$(MAKE) -j -C $(UebungFolien)
 
-UFolien_ci:
+UFolien_ci: UFolien
 	$(MAKE) -C $(UebungFolien) ci
 	cp -r $(UebungFolien)_out Folien
 
