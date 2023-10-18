@@ -5,6 +5,8 @@
 /Uebung/Code/angabe
 /Uebung/Code/src-modified
 /Vorlesungsfolien/neues_format/**/*.*
+Blaetter/
+Folien/
 !*.tex
 !*.sty
 !*.cls
@@ -18,4 +20,3 @@
 !/Vorlesungsfolien/neues_format/Pictures/**/*.png
 !/Vorlesungsfolien/neues_format/Pictures/**/*.pdf
 !/Vorlesungsfolien/neues_format/Pictures/**/*.jpg
-
