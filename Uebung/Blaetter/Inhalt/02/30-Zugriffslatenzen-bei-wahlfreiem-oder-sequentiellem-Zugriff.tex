@@ -24,6 +24,7 @@ Beschreiben Sie kurz den Aufbau von und den Zugriff auf HDDs und SSDs.
 	Weitere Infos zu SSDs können Sie in diesem Blogbeitrag nachlesen: \href{http://databasearchitects.blogspot.com/2021/06/what-every-programmer-should-know-about.html}{databasearchitects.blogspot.com/2021/06/what-every-programmer-should-know-about.html}
 \end{solution}
 
+\beamertxt{\pagebreak}
 \subsection{Zugriffszeiten}
 \label{ZugriffFestplatten}
 Stellen Sie sich vor, Sie haben Laufwerke mit folgenden Leistungsdaten:
@@ -110,8 +111,7 @@ Stellen Sie sich vor, Sie haben Laufwerke mit folgenden Leistungsdaten:
 					&= (128 \cdot 1024) /(7300 \cdot 1000\cdot 1000) s  \\
 					&\approx 18 \mu s
 				\end{align*}
-				Damit erhalten wir im schlechtesten Fall $18\mu s \cdot 314 = 5,6ms$\\
-
+				Damit erhalten wir im schlechtesten Fall $18\mu s \cdot 314 = 5,6ms$
 			\end{description}
 		\end{solution}
 
@@ -121,7 +121,7 @@ Stellen Sie sich vor, Sie haben Laufwerke mit folgenden Leistungsdaten:
 
 		\begin{solution}
 			\begin{description}
-				\item[Festspeicherlaufwerk] 
+				\item[Festplattenlaufwerk] 
 				Wir gehen in der Musterlösung vom Worst Case aus (= jeder der 10.000 gesuchten Blöcke liegt auf einer anderen zufälligen Spur, was bei 480.000 Spuren nicht unwahrscheinlich ist), d.h. für jeden Block muss $TZugriff$ aufgewendet werden.
 				Die Lesezeit für einen Block pro Spur beträgt $1/508$ einer Umdrehung, das ist vernachlässigbar klein.
 				Dauer insgesamt: 
@@ -132,10 +132,10 @@ Stellen Sie sich vor, Sie haben Laufwerke mit folgenden Leistungsdaten:
 				\item[Flashlaufwerk]
 				Da über jeden NAND-Channel unabhängig zugegriffen werden kann, muss hier der parallele Zugriff vom sequentiellen unterscheiden werden.
 				\begin{description}
-					\item[parallel] Beim lesen von 10.000 Blöcken benötigt die SSD jeweils eine IOP.
-					Damit $10.000/1.000.000 s = 1/100 s = 10 ms$
 					\item[sequentiel] Wenn die Blöcke nur einer nach dem anderen zugegriffen werden können, benötigt jeder Block die Leselatenz.
 					Damit $10.000\cdot 80\mu s = 800 ms$
+					\item[parallel] Beim lesen von 10.000 Blöcken benötigt die SSD jeweils eine IOP.
+					Damit $10.000/1.000.000 s = 1/100 s = 10 ms$
 				\end{description}
 			\end{description}
 		\end{solution}

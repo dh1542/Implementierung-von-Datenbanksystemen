@@ -133,6 +133,12 @@ $(TEMP_DIR) $(STUDON_DIR) $(TUTOR_DIR):
 $(BLAETTER):
 	$(MAKE) $(THIS_FILE) PDFS BLATT=$@
 
+%_brochure.pdf: %
+	pdf2ps $(TUTOR_DIR)$(START)$**$(NOTES_SUFFIX).pdf $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX).ps
+	psbook $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX).ps $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX)_sorted.ps
+	psnup -2 $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX)_sorted.ps $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX)_brochure.ps
+	ps2pdf $(TEMP_DIR)$(START)$*$(NOTES_SUFFIX)_brochure.ps $@
+
 ################################################################################
 ### Remaining Targets
 

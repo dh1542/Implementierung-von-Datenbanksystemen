@@ -26,18 +26,32 @@ Behauptung: Eine Primzahl in der Hashfunktion maximiert im Falle äquidistanter 
 Zum Beweis dafür gibt es verschiedene Herangehensweisen, die im Prinzip aufs Gleiche hinauslaufen.
 
 
-\subsection{\color{solutioncolor}Wann treten Kollisionen auf? (1)}
+\subsection{\color{solutioncolor}Kollisionsabstand maximieren}
 
-Eine Kollision tritt auf, wenn wir eine ganzzahlige Anzahl von Umläufen durch die ganze Hashtabelle gemacht haben (das heißt, man ist wieder auf dem gleichen Bucket, in den man den ersten Wert eingefügt hat).
-Die Gesamtdistanz muss ein Vielfaches der Distanz zwischen zwei eingefügten Werten ($\Delta K$) sein.
+Zunächst stellen wir fest, dass es einen festen Kollisionsabstand gibt, also die Antwort auf die Frage \glqq Wenn ich einen Schlüssel einfüge, wie viele kann ich noch einfügen, bis ein schlüssel mit dem zunächst eingefügten Kollidiert?\grqq
 
-Für eine Kollision muss also die Gesamtdistanz das kleinste gemeinsame Vielfache der Tabellengröße $m$ und der Einzeldistanz $\Delta K$ sein.
-Wegen $\mathrm{kgV}(m,\Delta K) = \frac{m \cdot \Delta K}{\mathrm{ggT}(m,\Delta K)}$ ist das gerade maximal für $\mathrm{ggT}(m,\Delta K)=1$ und das ist genau der Fall wenn $m$ und $\Delta K$ teilerfremd sind.
+Diese Überlegung ist relativ einfach, da bei einer Kollision von $K_0$ mit $K_n$ auch $K_1 = K_0+\Delta K$ mit $K_{n+1} = K_n + \Delta K$ gilt.
 
-Eigentlich muss man also nur sicherstellen, dass $\Delta K$ und $m$ teilerfremd sind. Dies geht aber nur mit einer Primzahl für $m$, wenn $\Delta K$ im Voraus nicht bekannt ist.
+Um nun möglichst wenige Kollisionen zu erreichen, müssen wir den kleinsten Kollisionsabstand maximieren.
 
+Für den kleinsten Kollisionsabstand (\textit{KKA}) gelten die folgenden Eigenschaften:
+Er ist durch $\Delta K$ und $m$ teilbar.
+\begin{align*}
+	\textit{KKA} &= 0 \mod \Delta K\\
+	\textit{KKA} &= 0 \mod m
+\end{align*}
 
-\subsection{\color{solutioncolor}Wann treten Kollisionen auf? (2)}
+Aufgrund des Chinesischen Restsatzes ist die kleinste Zahl $\neq 0$, die diese beiden Bedingungen erfüllt, auch durch den kleinsten gemeinsamen Vielfachen von $\Delta K$ und $m$ teilbar.
+\begin{align*}
+	\textit{KKA} = 0 \mod \mathrm{kgV}(m, \Delta K)
+\end{align*}
+Damit gilt: $\textit{KKA} = \mathrm{kgV}(m, \Delta K)$
+
+Wegen $\mathrm{kgV}(m,\Delta K) = \frac{m \cdot \Delta K}{\mathrm{ggT}(m,\Delta K)}$ (Beweis mittels Primfaktorzerlegung) ist das gerade maximal für $\mathrm{ggT}(m,\Delta K)=1$ und das ist genau der Fall wenn $m$ und $\Delta K$ teilerfremd sind.
+
+Eigentlich muss man also nur sicherstellen, dass $\Delta K$ und $m$ teilerfremd sind. Da $\Delta K$ nicht in vornherein bekannt ist, geht dies am sichersten mit einer Primzahl für $m$.
+
+\subsection{\color{solutioncolor}Wann treten Kollisionen auf?}
 
 Wie schon in der Aufgabe als Hilfestellung gegeben, tritt eine Kollision auf, wenn:
 \[K_{0} \bmod m = (K_{0} + j \cdot \Delta K) \bmod m\]

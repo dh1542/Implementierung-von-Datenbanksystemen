@@ -95,7 +95,7 @@ Gerne können Sie die Primärliteratur verwenden\footnote{\url{https://doi.org/1
 	\draw (1  , 4  ) rectangle (2  , 5  ) node[pos=0.9,anchor=south east] {R1};
 }
 \newcommand{\RB} {
-	\draw (4.56, 3.8) rectangle (5.5, 4.8) node[pos=0.9,anchor=south east] {R2};
+	\draw (4.59, 3.82) rectangle (5.5, 4.78) node[pos=0.9,anchor=south east] {R2};
 }
 \newcommand{\RC} {
 	\draw (1.5, 3.8) rectangle (2.5, 2.8) node[pos=0.9,anchor=north east] {R3};
@@ -161,6 +161,7 @@ Gegeben sei ein anfangs leerer R-Baum mit $M=4$ sowie die geometrischen Objekte 
 				\RB
 				\RC
 				\RD
+				\draw[color=red] (.99, 1.99) rectangle (5.51, 5.01) {};
 			\end{tikzpicture}
 		\end{center}
 	\end{solution}
@@ -191,11 +192,10 @@ Gegeben sei ein anfangs leerer R-Baum mit $M=4$ sowie die geometrischen Objekte 
 				\RD
 
 				\RE
-
 				% root node
-				\draw[color=green] (1  , 1.2) rectangle (2.5, 5  ) node[anchor=south] {R6};
-				\draw[color=green] (4.5, 2.0) rectangle (5.5, 4.8) node[anchor=south] {R7};
-
+				\draw[color=green] (0.99  , 1.19) rectangle (2.51, 5.01) node[anchor=south] {R6};
+				\draw[color=green] (4.49, 1.99) rectangle (5.51, 4.79) node[anchor=south] {R7};
+				\draw[color=red] (0.98, 1.18) rectangle (5.52, 5.02) {};
 			\end{tikzpicture}
 		\end{center}
 
@@ -265,9 +265,9 @@ Gegeben sei ein anfangs leerer R-Baum mit $M=4$ sowie die geometrischen Objekte 
 
 
 				% root node
-				\draw[color=green] (0.4  , 1.2) rectangle (2.5, 5  ) node[anchor=south] {R6};
-				\draw[color=green] (4.5, 2.0) rectangle (5.5, 4.8) node[anchor=south] {R7};
-
+				\draw[color=green] (0.39  , 1.19) rectangle (2.51, 5.01  ) node[anchor=south] {R6};
+				\draw[color=green] (4.49, 1.99) rectangle (5.51, 4.79) node[anchor=south] {R7};
+				\draw[color=red] (0.38, 1.18) rectangle (5.52, 5.02) {};
 			\end{tikzpicture}
 		\end{center}
 
@@ -327,10 +327,10 @@ Gegeben sei ein anfangs leerer R-Baum mit $M=4$ sowie die geometrischen Objekte 
 				\RG
 
 				% root node
-				\draw[color=green] (0.4, 2.7) rectangle (2.5, 5  ) node[anchor=south] {R6};
-				\draw[color=green] (1.32, 0.5) rectangle (3.2, 2.2) node[anchor=south] {R10};
-				\draw[color=green] (4.5, 2.0) rectangle (5.5, 4.8) node[anchor=south] {R7};
-
+				\draw[color=green] (0.39, 2.69) rectangle (2.51, 5.01  ) node[anchor=south] {R6};
+				\draw[color=green] (1.31, 0.49) rectangle (3.21, 2.21) node[anchor=south] {R10};
+				\draw[color=green] (4.49, 1.99) rectangle (5.51, 4.79) node[anchor=south] {R7};
+				\draw[color=red] (0.38, 0.48) rectangle (5.52, 5.02) {};
 			\end{tikzpicture}
 		\end{center}
 
@@ -401,9 +401,9 @@ Gegeben sei ein anfangs leerer R-Baum mit $M=4$ sowie die geometrischen Objekte 
 				\RG
 
 				% root node
-				\draw[color=green] (0.4, 2.7) rectangle (5.5, 5  ) node[anchor=south] {R6};
-				\draw[color=green] (1.32, 0.5) rectangle (3.2, 2.2) node[anchor=south] {R10};
-
+				\draw[color=green] (0.39, 2.69) rectangle (5.51, 5.01  ) node[anchor=south] {R6};
+				\draw[color=green] (1.31, 0.49) rectangle (3.21, 2.21) node[anchor=south] {R10};
+				\draw[color=red] (0.38, 0.48) rectangle (5.52, 5.02) {};
 			\end{tikzpicture}
 		\end{center}
 

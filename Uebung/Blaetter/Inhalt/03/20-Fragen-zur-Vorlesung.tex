@@ -29,17 +29,24 @@
 	\item Welche Aussagen über Satzadressen sind \textit{Wahr}, welche \textit{Falsch}?
 
     \begin{description}
-        \itemmc   Satzadressen sind zur Realisierung von sequenziellen Satzdateien nötig.
+        \itemmc    Satzadressen sind zur Realisierung von sequenziellen Satzdateien nötig.
         \itemmcsol Satzadressen ermöglichen wahlfreien Zugriff auf Sätze.
-        \itemmc   Eine Satzadresse ist ein vom Anwender gewählter Identifikator.
-        \itemmc   Eine Satzadresse kann mehrfach vergeben werden.
-        \itemmc   Die Satzadresse ändert sich bei Verschiebung des zugehörigen Satzes.
+        \itemmc    Eine Satzadresse ist ein vom Anwender gewählter Identifikator.
+        \itemmcsol Eine Satzadresse kann wiederverwendet werden.
+        \itemmcsol Die Satzadresse kann sich bei Verschiebung des zugehörigen Satzes ändern.
     \end{description}
 
 	\begin{solution}
 	Eine Satzadresse allgemein ist ein Bezeichner, unter der man einen einzelnen Satz wiederfinden kann. Random Access ist nur so möglich. Eine Satzadresse wird immer vom System vergeben. Wenn man einen Satz einfügt, bekommt man dafür eine Adresse. Gibt man dem System diese Adresse wieder, findet es den Satz wieder.
-
-	Einmal vergebene Satzadressen dürfen auch nach dem Löschen des Satzes nicht wiederverwendet werden, da irgendwo noch eine Referenz darauf existieren könnte. Sie müssen stattdessen für die restliche Lebenszeit der Datenbank als ungültig markiert werden. Dies gilt insbesondere dann, wenn Satzadressen nicht nur innerhalb des Datenbankverwaltungssystems verwendet werden, sondern auch für den Anwender sichtbar sind. (In der Praxis wird von dieser reinen Lehre teilweise abgewichen. Beispielsweise behält sich Oracle vor, die ROWID eines gelöschten Satzes später wieder zu vergeben.\footnote{Oracle Database Online Documentation, 10g Release 2 (10.2), SQL Reference, Sect.\ ROWID Pseudocolumn, \url{https://docs.oracle.com/cd/B19306_01/server.102/b14200/pseudocolumns008.htm}})
+	
+	\begin{itemize}
+		\item Bei der sequentiellen Satzdatei gibt es somit keine Satzadressen.
+		\item Ein wahlfreier Zugriff (Direktzugriff) ist somit über die Satzadresse möglich.
+		\item Eine Satzadresse wird somit vom System bestimmt.
+		\item Einmal vergebene Satzadressen sollten auch nach dem Löschen des Satzes nicht wiederverwendet werden, da irgendwo noch eine Referenz darauf existieren könnte. So kann nicht unterschieden werden, ob dort noch der alte Satz liegt, oder ob der Satz gelöscht wurde, und jetzt einfach ein neuer Satz dort liegt.
+			Das System muss also anders sicherstellen, dass diese beiden Fälle unterscheidbar bleiben.
+		\item Beim Verschieben kann sich die Satzadresse ändern, da sich die Aktualisierung der Satzadresse in höheren Schichten jedoch als schwer erweist, sollte sie sich nicht ändern. Siehe hierzu \textit{stabil}.
+	\end{itemize}
 	\end{solution}
 \end{enumerate}
 
