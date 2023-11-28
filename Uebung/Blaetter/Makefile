@@ -144,6 +144,4 @@ $(BLAETTER):
 
 clean:
 	rm -rf $(OUT_DIR) $(TEMP_DIR) $(START)*
-	-latexmk -C
-	rm -f *.cpt
 # END

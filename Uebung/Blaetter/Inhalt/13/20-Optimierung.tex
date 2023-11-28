@@ -131,11 +131,14 @@ Der Nested-Loop-Join ist, bei den in dieser Aufgabe angesetzten Kostenformeln, d
 Exemplarisch wird in dieser Aufgabe die Berechnung beider Varianten gezeigt, im Folgenden jedoch nur noch die kostengünstigere Variante betrachtet.
 
 	\textbf{Ausführungsplan 1:}
-
-	$\mathtt{NestedLoopJoin}(L, M) = C(L) + B(L) * C(M) = 5.005.000$ \\
-	$\mathtt{NestedLoopJoin}(M, L) = C(M) + B(M) * C(L) = 5.001.000$ \\
-	$C(L) =\mathtt{ TableScan}(L) = B(L) = 5.000$ \\
-	$C(M) = \mathtt{TableScan}(M) = B(M) = 1.000$ \\
+	\begin{align*}
+		\mathtt{TableScan}(L)         & = B(L) = 5.000                                                         \\
+		\mathtt{TableScan}(M)         & = B(M) = 1.000                                                         \\
+		\mathtt{NestedLoopJoin}(L, M) & = C(L) + B(L) \cdot C(M) =                                             \\
+		                              & =\mathtt{TableScan}(L)+ B(L) \cdot \mathtt{TableScan}(M) =  5.005.000  \\
+		\mathtt{NestedLoopJoin}(M, L) & = C(M) + B(M) \cdot C(L) =                                             \\
+		                              & = \mathtt{TableScan}(M) + B(M) \cdot \mathtt{TableScan}(L) = 5.001.000
+	\end{align*}
 	$\Rightarrow$ Kosten: $5.001.000$ \\
 	\end{solution}
 
@@ -156,10 +159,14 @@ Ausführungsplan 2:
 
 	\begin{solution}
 	\textbf{Ausführungsplan 2:}
-
-	$\mathtt{HashJoin}(L,M) = C(L) + C(M)$ \\
-	$C(L) = \mathtt{IndexScan}(L) = 50$ (L.l ist PK, daher liefert er nur ein Tupel und der Selektivitätsfaktor ist $\frac{1}{T(L)} = \frac{1}{100000})$ \\
-	$C(M) = \mathtt{TableScan}(M) = 1.000$ \\
+	\begin{align*}
+		\mathtt{IndexScan}(L)  & = 50                                                                 \\
+		                       & \text{L.l ist PK, daher liefert er nur ein Tupel und der}           \\
+		                       & \text{Selektivitätsfaktor ist $\frac{1}{T(L)} = \frac{1}{100000}$} \\
+		\mathtt{TableScan}(M)  & = 1.000                                                              \\
+		\mathtt{HashJoin}(L,M) & = C(L) + C(M) = \mathtt{IndesScan}(L) + \mathtt{TableScan}(M) =      \\
+		                       & =  50 + 1000
+	\end{align*}
 	$\Rightarrow$ Kosten: $1.050$
 
 	Auch für ein Tupel muss man einen ganzen Block lesen.
@@ -380,12 +387,13 @@ WHERE  L.m > M.m
 
 			  \textbf{Abschätzung der Zwischenergebnisgrößen:}
 
-			  Bei \texttt{JOIN(L, M)} wird jedes Tupel aus L mit im Mittel $\frac{T(M)}{2} =5.000$ Tupeln aus M gejoint (oder umgekehrt).
-			  Die Anzahl der Tupel ist daher $\frac{T(L) \cdot T(M)}{2}=500.000.000$.
-			  Die Größe eines Tupels ist die Summe der Einzelgrößen: $bfr(L) = 20$, $bfr(M) = 10$
-
-			  $\Rightarrow bfr(\texttt{JOIN(L, M)}) = \frac{1}{(0.05 + 0.1)} = \lfloor6,67\rfloor = 6$.
-			  Das Zwischenergebnis von \texttt{B(JOIN(L, M))} hat 83.333.334 Blöcke.
+			  Bei \texttt{JOIN(L, M)} wird jedes Tupel aus L mit im Mittel $\frac{T(M)}{2} =5.000$ Tupeln aus M gejoint (oder umgekehrt).\\
+			  Die Anzahl der Tupel ist daher $\frac{T(L) \cdot T(M)}{2}=500.000.000$.\\
+			  Die Größe eines Tupels ist die Summe der Einzelgrößen:\\
+			  $bfr(L) = 20\Rightarrow \frac{1}{20}$~[Blöcke], $bfr(M) = 10\Rightarrow \frac{1}{10}$ [Blöcke].\\
+			  Tupelgröße: $\frac{1}{10}+\frac{1}{20} = \frac{3}{20}$ [Blöcke].\\
+			  $\Rightarrow bfr(\texttt{JOIN(L, M)}) = \left\lfloor\frac{1}{\frac{3}{20}}\right\rfloor = \left\lfloor \frac{20}{3}\right\rfloor =  \lfloor6,67\rfloor = 6$.
+			  Damit hat das Zwischenergebnis von \texttt{B(JOIN(L, M))} 83.333.334 Blöcke.
 
 			  Der Abschätzung liegen die gleichen Annahmen zugrunde wie Variante 1 in Teilaufgabe \ref{Optimierung2_1}).
 
