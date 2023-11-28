@@ -330,6 +330,12 @@ for(j=0; j<8; j++){
 \item Gegeben ist die folgende Seitenreferenzfolge für die Zeitpunkte \(t=1\) bis \(t=13\):
 \(1, 2, 1, 3, 1, 2, 1, 2, 3, 4, 5, 6, 7\)
 
+Mithilfe der der Working Set Size lässt sich die aktuelle Lokalität bestimmen.
+Bei dem Working Set handelt es sich um die referenzierten Seiten in einem Zugriffsintervall $W:=(a,b,c,...)$.
+Die Working Set Size zählt die Elemente darin $|W|$. 
+Die aktuelle Lokalität dividiert die Working Set Size durch die Größe des Intervalls $\frac{|W|}{t}$.
+Die aktuelle Lokalität sagt somit aus, wie groß der Anteil an unterschiedlichen Seiten in einer Seitenreferenzfolge ist.
+
 Bestimmen Sie die Working Set Size und die aktuelle Lokalität für eine Fenstergröße von \(w = 8\) für die Zeitpunkte \(t=8\) und \(t=13\).
 Bestimmen Sie weiterhin die durchschnittliche Lokalität für diese Fenstergröße und die gegebene Referenzfolge.
 
@@ -349,6 +355,10 @@ Für die gegebene Referenzfolge ergibt sich eine durchschnittliche Lokalität vo
 \end{solution}
 
     \item Bestimmen Sie für die Seitenreferenzfolge $1, 2, 3, 5, 1, 1, 4, 1, 2, 1, 3, 1$ die LRU-Stack\-tie\-fen\-ver\-tei\-lung.
+    
+        \paragraph{Hinweis:} Der LRU-Stack enthält alle bereits referenzierten Seiten in der Reihenfolge ihres Zugriffsalters.
+    Wie bestimmt man die Stacktiefenverteilung? Pro Stackposition gibt es einen Zähler; Bei Referenz einer Seite erhöht man den Zähler an der jew. Stackposition und verschiebt die Seite nach ganz oben im Stack.
+    Wenn eine neue Seite referenziert wird, so fügt man diese einfach oben auf dem Stack ein.
 
 \begin{solution}
 Der LRU-Stack enthält alle bereits referenzierten Seiten in der Reihenfolge ihres Zugriffsalters.

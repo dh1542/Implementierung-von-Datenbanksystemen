@@ -7,7 +7,7 @@
 /Vorlesungsfolien/neues_format/**/*.*
 Blaetter/
 Folien/
-!*.tex
+!**/*.tex
 !*.sty
 !*.cls
 !**/Makefile
