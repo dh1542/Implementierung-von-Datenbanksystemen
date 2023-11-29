@@ -46,7 +46,7 @@ Eine richtige Lösung muss die Hinweise nicht zwingend umsetzen, solange sie die
 \begin{itemize}
 	\item Die Interaktion mit dem Dateisystem aus Java kann in unserem Fall \normaltxt{\linebreak}\texttt{java.io.RandomAccessFile} übernehmen.
 	\item Ein \texttt{java.nio.ByteBuffer} ist das, was in Java am ehesten an ein \texttt{char*} aus C herankommt.
-		Er übernimmt die Rolle des Speichers, in den die Daten von der Festplatte gelesen werden können.
+		Er übernimmt die Rolle des Speichers, in den die Daten von dem Laufwerk gelesen werden können.
 	\item Für diese Aufgabe sind ausschließlich die Klassen in den Paketen \texttt{idb.block} und (zum Testen) \texttt{idb.datatypes} interessant.
 		Nutzen Sie diese Aufgabe, um sich mit den Klassen in diesen Paketen vertraut zu machen.
 	\item Eine nebenläufige Änderung der Dateigröße im Dateisystem muss nicht beachtet werden.

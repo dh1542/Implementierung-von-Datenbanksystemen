@@ -10,9 +10,9 @@
 		Beachten Sie, dass die BlockFiles zu diesem Zeitpunkt schon geöffnet sind.
 		Die zusätzlichen Parameter \texttt{threshhold, initCapacity} entsprechen den für das Lineare Hashing bekannten Parametern.
 	\item Tragen Sie den Konstruktor Ihrer Klasse in \texttt{idb.construct.Util} in der Methode \texttt{rebuildHash()} ein.
-		Die Funktion soll den DBBuffer und zwei BlockFiles nehmen und eine \textbf{existierende} HashImpl von der Platte laden.
+		Die Funktion soll den DBBuffer und zwei BlockFiles nehmen und eine \textbf{existierende} HashImpl vom Laufwerk laden.
 		Beachten Sie, dass die BlockFiles zu diesem Zeitpunkt schon geöffnet sind.
-		Beachten Sie auch, dass Sie \texttt{threshhold, initCapacity} und eventuelle interne Zustände wieder von der Platte rekonstruieren müssen.
+		Beachten Sie auch, dass Sie \texttt{threshhold, initCapacity} und eventuelle interne Zustände wieder vom Laufwerk rekonstruieren müssen.
 		Anders als bei einer TID speichern wir diese hier ab, anstatt sie beim Laden neu zu berechnen.
 	\item Sorgen Sie dafür, dass Sie alle Tests aus der Klasse \texttt{HashTests} erfüllen. Warnung: Diese Testfälle können 1-2 Minuten dauern.
 	Sie können diese Testfälle mit \lstinline|ant Meilenstein4| ausführen.

@@ -15,7 +15,7 @@
 \subsection{Hinweise}
 \begin{itemize}
 	\item Die Klasse \texttt{idb.buffer.Page} zur Verwaltung von Seiten ist schon gegeben. Nutzen Sie diese bei der Implementierung.
-	\item Das \texttt{override} Flag in \texttt{idb.buffer.Page::clear} wird verwendet, um den ByteBuffer nach dem Zurückschreiben auf die Platte zu überschreiben.
+	\item Das \texttt{override} Flag in \texttt{idb.buffer.Page::clear} wird verwendet, um den ByteBuffer nach dem Zurückschreiben auf das Laufwerk zu überschreiben.
 		Dies ist im Falle des ClockBuffers nicht nötig.
 	\item Achten Sie darauf, eine Seite erst zu leeren (\texttt{clear}), sobald Sie nach dem Verfahren Clock entschieden haben, die Seite zu verdrängen und nicht schon beim \texttt{unfix()}.
 	\item Eine Klasse zur Verwaltung von Blocknummer und \texttt{BlockFile} ist in \texttt{idb.buffer.PageDescriptor} schon gegeben. Diese Klasse kann mittels \texttt{equals} auf Gleichheit geprüft werden und kann als Schlüssel in einer Hash-Struktur aus der Java Standardbibliothek verwendet werden.

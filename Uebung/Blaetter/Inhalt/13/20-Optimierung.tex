@@ -323,7 +323,7 @@ WHERE  L.m = M.m
 		\end{enumerate}
 
 		Hier kann man sich natürlich die Frage stellen, ob die beiden Joins für das Pipelining gleichzeitig in den Hauptspeicher passen, genauer, ob der letzte Schritt des Sort-Merge-Joins Zeitgleich zum Hash-Join ausgeführt werden kann.
-		Dem Sort-Merge-Join steht zu Beginn der gesamte Arbeitsspeicher zur Verfügung, weswegen er die Relation L in $\lceil 1000/700\rceil = 2$, die Relation M in $\lceil 5000 / 700 \rceil = 8$ Teillisten auf, welche einzeln sortiert auf der Platte gespeichert werden.
+		Dem Sort-Merge-Join steht zu Beginn der gesamte Arbeitsspeicher zur Verfügung, weswegen er die Relation L in $\lceil 1000/700\rceil = 2$, die Relation M in $\lceil 5000 / 700 \rceil = 8$ Teillisten auf, welche einzeln sortiert auf dem Laufwerk gespeichert werden.
 		Im letzten Schritt wird nun von jeder dieser Teillisten ein Block geladen, das passende Tupel generiert und an den Hash-Join weitergeleitet.
 		Damit werden 10 (+1 für das Tupel selber) Kacheln benötigt.
 		Relation L benötigt 500 Kacheln im Hauptspeicher für die Hash-Tabelle, es stehen $700-11=689$ zur Verfügung.

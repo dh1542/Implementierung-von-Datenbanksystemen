@@ -68,7 +68,7 @@
 		\item Ein Zugriff erfordert immer mindestens zwei Blockzugriffe: einen für das Feld, einen für die Nutzdaten.
 		Bei TID kommt man (ohne Überlauf) mit einem Blockzugriff aus.
 		\item Will man einen Satz in einem Block oder auch über Blockgrenzen hinweg verschieben, so muss man auch das Feld ändern.
-		Das kann bei häufigen Änderungen oder hoher Nebenläufigkeit zu Engpässen führen, da das Feld ja persistent auf die Platte geschrieben werden muss.
+		Das kann bei häufigen Änderungen oder hoher Nebenläufigkeit zu Engpässen führen, da das Feld ja persistent auf das Laufwerk geschrieben werden muss.
 		Bei TID muss nur in den betroffenen Blöcken (Ursprungsblock und ggf. Überlaufblock) geschrieben werden
 	\end{itemize}
 	\end{solution}
