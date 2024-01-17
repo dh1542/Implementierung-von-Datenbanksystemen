@@ -24,17 +24,17 @@ Das ergibt folgenden optimierten Ausführungsplan:
 \begin{center}
 \begin{tikzpicture}
 	\node (proj) at(0, 0) {\texttt{PROJ(\qquad, (e.fname, e.lname, s.fname, s.lname))} };
-	\node (join) [below of =proj] {\texttt{JOIN(\qquad, \qquad, (e.mgr = s.num))} };
-	\node (rename_emp1) [below of = join, xshift=-3cm] {\texttt{RENAME(\qquad, e)}};
-	\node (rename_emp2) [below of =join, xshift=0.5cm] {\texttt{RENAME(\qquad, s)}};
-	\node (emp1) [below of = rename_emp1] {\texttt{employee}};
-	\node (emp2) [below of = rename_emp2] {\texttt{employee}};
+	\node (join) [below of =proj, xshift=-0.6cm] {\texttt{JOIN(\qquad, \qquad, (e.mgr = s.num))} };
+	\node (rename_emp1) [below of = join, xshift=-2.5cm] {\texttt{RENAME(\qquad, e)}};
+	\node (rename_emp2) [below of =join, xshift=1.5cm] {\texttt{RENAME(\qquad, s)}};
+	\node (emp1) [below of = rename_emp1, xshift=0.3cm] {\texttt{employee}};
+	\node (emp2) [below of = rename_emp2, xshift=0.3cm] {\texttt{employee}};
 
-	\draw[-triangle 60] (rename_emp1) -- ($(join.south) + (-1.8,0.1)$);
-	\draw[-triangle 60] (rename_emp2) -- ($(join.south) + (-0.8,0.1)$);
-	\draw[-triangle 60] (emp1) -- ($(rename_emp1.south) + (0.3,0.1)$);
-	\draw[-triangle 60] (emp2) -- ($(rename_emp2.south) + (0.3,0.1)$);
-	\draw[-triangle 60] (join) -- ($(proj.south) + (-3.5,0.1)$);
+	\draw[-triangle 60] ($(rename_emp1.north west) + (0.8,0)$) -- ($(join.south) + (-1.8,0.1)$);
+	\draw[-triangle 60] ($(rename_emp2.north west) + (0.8,0)$) -- ($(join.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (emp1.north) -- +(0,0.5);
+	\draw[-triangle 60] (emp2.north) -- +(0,0.5);
+	\draw[-triangle 60] ($(join.north west) + (0.5,0)$) -- +(0,0.5);
 \end{tikzpicture}
 \end{center}
 
@@ -43,56 +43,47 @@ Das ergibt folgenden optimierten Ausführungsplan:
 \begin{center}
 \begin{tikzpicture}
 	\node (proj) at(0, 0) {\texttt{PROJ(\qquad, (e.fname, e.lname, e.addr))} };
-	\node (join) [below of =proj] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
-	\node (r_emp) [below of = join, xshift=-4cm] {\texttt{RENAME(\qquad, e)}};
-	\node (emp) [below of = r_emp] {\texttt{employee}};
-	\node (sel) [below of =join, xshift=1cm] {\texttt{SEL(\qquad, (d.name = 'Research'))} };
-	\node (r_dept) [below of = sel] {\texttt{RENAME(\qquad, d)} };
-	\node (dept) [below of = r_dept] {\texttt{department} };
+	\node (join) [below of =proj, xshift=0.3cm] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+	\node (r_emp) [below of = join, xshift=-2.5cm] {\texttt{RENAME(\qquad, e)}};
+	\node (emp) [below of = r_emp, xshift=0.3cm] {\texttt{employee}};
+	\node (sel) [below of =join, xshift=3.5cm] {\texttt{SEL(\qquad, (d.name = 'Research'))} };
+	\node (r_dept) [below of = sel, xshift=-1cm] {\texttt{RENAME(\qquad, d)} };
+	\node (dept) [below of = r_dept, xshift=0.3cm] {\texttt{department} };
 
-	\draw[-triangle 60] (r_dept) -- ($(sel.south) + (-2.1,0.1)$);
-	\draw[-triangle 60] (r_emp) -- ($(join.south) + (-1.9,0.1)$);
-	\draw[-triangle 60] (dept) -- ($(r_dept.south) + (0.3,0.1)$);
-	\draw[-triangle 60] (sel) -- ($(join.south) + (-0.8,0.1)$);
-	\draw[-triangle 60] (emp) -- ($(r_emp.south) + (0.3,0.1)$);
-	\draw[-triangle 60] (join) -- ($(proj.south) + (-2.7,0.1)$);
+	\draw[-triangle 60] ($(r_dept.north west) + (0.8,0)$) -- +(0,0.5);
+	\draw[-triangle 60] ($(r_emp.north west) + (0.8,0)$) -- ($(join.south) + (-1.9,0.1)$);
+	\draw[-triangle 60] (dept.north) -- +(0,0.5);
+	\draw[-triangle 60] ($(sel.north west) + (0.4,0)$) -- ($(join.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] (emp.north) -- +(0,0.5);
+	\draw[-triangle 60] ($(join.north west) + (0.6,0)$) -- +(0,0.5);
 \end{tikzpicture}
 \end{center}
 
-\item Hier sind kaum Optimierungen möglich.
-    Da sich die Selektion, die aus der \texttt{HAVING}-Klausel entsteht,
-    auf ein aggregiertes Attribut bezieht,
-    muss sie auch hinter dem \texttt{GROUP} bleiben.
-    Betrachtet man das \texttt{GROUP}-Statement und die Projektion gemeinsam,
-    kann man jedoch eine Projektion ganz unten (zusätzlich) einfügen.
-
-    Das lohnt sich in diesem einfachen Beispiel aber wahrscheinlich nicht.
-    Es würde sich dann lohnen, wenn die Relation viele Attribute hätte und
-    das Zwischenergebnis so drastisch verkleinert werden könnte.
-
-    Als Referenz ist hier trotzdem das Ergebnis angeführt, das man erhält,
-    wenn man die vorgeschlagene Optimierung durchführt:
+\item Hier kommen wir mit den Heuristiken und Umformungsregeln aus der Vorlesung nicht weiter.
+	Da jedoch über den Primärschlüssel vom Department gruppiert wird, die Aggregation nur ein Count umfasst und die Vielfachheit nur aus dem Verbund mit dem Employee stammt, 
+	kann man hier die Gruppierung am Join vorbei zum Employee ziehen.
 
 \begin{tikzpicture}
-    \node (proj) at (0, 0) {\texttt{PROJ(\qquad , (d.name))} };
-    \node (hav)[below of =proj] {\texttt{SEL(\qquad , (aggregierte $>$ 10))} };
-    \node (group)[below of =hav] {\texttt{GROUP(\qquad , (d.num, d.name), ((count(d.num), aggregierte)))}};
-    \node (join)[below of =group] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
-    \node (proj2)[below of =join, xshift=2cm] {\texttt{PROJ(\qquad , (d.name, d.num))} };
+	\node (proj) at (0, 0) {\texttt{PROJ(\qquad , (d.name))} };
+	\node (join)[below of =proj, xshift=2.2cm] {\texttt{JOIN(\qquad, \qquad, (d.num = e.dep))} };
+	\node (proj2)[below of =join, xshift=5cm] {\texttt{PROJ(\qquad , (d.name, d.num))} };
+	\node (hav)[below of =join, xshift=-4cm] {\texttt{SEL(\qquad , (aggregierte $>$ 10))} };
+	\node (group)[below of =hav, xshift=-0.3cm] {\texttt{GROUP(\qquad , (e.dep),}};
+	\node (group2)[below of =group, xshift=3.5cm, yshift=0.5cm] {\texttt{((count(e.dep), aggregierte)))}};
+	\node (renamed)[below of =proj2, xshift=-0.6cm] {\texttt{RENAME(\qquad, d)} };
+	\node (renamee)[below of =group, yshift=-0.5cm, xshift =.5cm] {\texttt{RENAME(\qquad, e)} };
+	\node (dept)[below of =renamed, xshift=0.3cm] {\texttt{department} };
+	\node (emp)[below of =renamee, xshift=0.3cm] {\texttt{employee} };
+	
+	\draw[-triangle 60] (dept.north) -- +(0,0.5);
+	\draw[-triangle 60] (emp.north) -- +(0,0.5);
+	\draw[-triangle 60] ($(renamed.north west) + (0.8,0)$) -- +(0,0.5);
+	\draw[-triangle 60] ($(renamee.north west) + (0.8,0)$) -- +(0,1);
+	\draw[-triangle 60] ($(group.north west) + (0.65,0)$) -- +(0,0.5);
+	\draw[-triangle 60] ($(hav.north west) + (0.7,0)$) -- ($(join.south west) + (1.5,0.1)$);
+	\draw[-triangle 60] ($(proj2.north west) + (0.5,0)$) -- ($(join.south) + (-0.8,0.1)$);
+	\draw[-triangle 60] ($(join.north west) + (0.5,0)$) -- +(0,0.5);
 
-	\node (renamed)[below of =proj2] {\texttt{RENAME(\qquad, d)} };
-	\node (renamee)[below of =join, xshift =-3cm] {\texttt{RENAME(\qquad, e)} };
-	\node (dept)[below of =renamed] {\texttt{department} };
-	\node (emp)[below of =renamee] {\texttt{employee} };
-
-	\draw[-triangle 60] (renamed) -- ($(proj2.south) + (-1.5,0.1)$);
-	\draw[-triangle 60] (renamee) -- ($(join.south) + (-1.9,0.1)$);
-	\draw[-triangle 60] (dept) -- ($(renamed.south) + (0.3,0.1)$);
-	\draw[-triangle 60] (emp) -- ($(renamee.south) + (0.3,0.1)$);
-    \draw[-triangle 60] (proj2) -- ($(join.south) + (-0.8,0.1)$);
-    \draw[-triangle 60] (join) -- ($(group.south) + (-4.5,0.1)$);
-    \draw[-triangle 60] (group) -- ($(hav.south) + (-1.5,0.1)$);
-    \draw[-triangle 60] (hav) -- ($(proj.south) + (-0.6,0.1)$);
 \end{tikzpicture}
 
 \item
@@ -104,16 +95,16 @@ Das ergibt folgenden optimierten Ausführungsplan:
 
 \begin{tikzpicture}
 	\node (proj_top) at(0, 0) {\small{\texttt{PROJ(\hspace{0.5cm}, (e.lname))} } };
-	\node (union) [below of =proj_top] {\small{\texttt{UNION(\qquad, \qquad)} } };
+	\node (union) [below of =proj_top, xshift=0.6cm] {\small{\texttt{UNION(\qquad, \qquad)} } };
 
-	\node (proj_left) [below of =union, xshift =-3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
-	\node (proj_right) [below of =union, xshift =3.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
+	\node (proj_left) [below of =union, xshift =-2.2cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
+	\node (proj_right) [below of =union, xshift =5.7cm] {\small{\texttt{PROJ(\hspace{0.5cm}, (p.num, e.lname))} } };
 
-	\node (join_left1) [below of =proj_left, xshift =0.1cm]  {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (d.mgr = e.num))} } };
-	\node (join_right1) [below of =proj_right, xshift =0.1cm] {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (e.num = w.empl))} } };
+	\node (join_left1) [below of =proj_left, xshift =0.2cm]  {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (d.mgr = e.num))} } };
+	\node (join_right1) [below of =proj_right, xshift =0.2cm] {\small{\texttt{JOIN(\hspace{0.5cm},\hspace{0.5cm}, (e.num = w.empl))} } };
 
-	\node (join_left2) [below of =join_left1, xshift =1.5cm] {\small{\texttt{JOIN(\qquad, \qquad, (d.num = p.dep))} } };
-	\node (join_right2) [below of =join_right1, xshift =1.5cm, yshift=-0.5cm] {\small{\texttt{JOIN(\qquad, \qquad, (p.num = w.proj))} } };
+	\node (join_left2) [below of =join_left1, xshift =1.7cm] {\small{\texttt{JOIN(\qquad, \qquad, (d.num = p.dep))} } };
+	\node (join_right2) [below of =join_right1, xshift =1.7cm, yshift=-0.5cm] {\small{\texttt{JOIN(\qquad, \qquad, (p.num = w.proj))} } };
 
 	\node (rename_dept_left) [below of =join_left2, xshift =-1.5cm, yshift=-0.5cm] {\small\texttt{RENAME(\qquad, d)} };
 	\node (dept_left) [below of =rename_dept_left] {\small\texttt{department}};

@@ -33,10 +33,18 @@ Gegeben sei folgender Ablauf nicht synchronisierter Transaktionen \textbf{T1}, \
 	26            &              &              &              & c; [EOT]     \\ \hline
 \end{tabular}
 
+\begin{note}
+	Wie ich gerne Vorgehe: Ich gehe vom Objekt aus:\\
+	A: (1, T1, r), (11, T1, w), (25, T1, c); also kein Problem\\
+	B: (3, T3, r), (12, T3, w), (13, T1, r), (18, T3, a), (19, T1, w), (25, T1, c): (12, 13): dirty read, Problem wegen (18, T3, a);\\
+	C: (4, T4, r), (20, T1,r), (21, T4, w), (24, T1, w), (25, T1, c), (26, T4, c): (20, 21) non repeatable read; (21, 24): Lost update / dirty write (Problem, da W1 aufgrund des r1 geschieht); (4, 24): non repeatable read\\
+	D: (2, T2, r), (5, T1, r), (10, T2, w), (15, T1, r), (16, T2, c), (22, T1, r), (25, T1, c): (5, 10): non repeatable read (problem erst mit 15); (10, 15): dirty read, kein problem; 
+\end{note}
+
 \begin{solution}
 	\begin{itemize}
-		\item Der Wert von B, der von T1 in Zeile 19 geschrieben wird, ist inkonsistent aufgrund von Dirty Read (T3, 12; T1, 13; T3, 18; T1, 25).
-		\item Die Änderung von C durch T4 in Zeile 21 geht verloren aufgrund von Dirty Write (T4, 21; T1, 24; T1, 25; T4, 26). Außerdem zwei Non-Repeatable Reads (T1, 20; T4, 21; T1, 25; T4, 26) und (T4, 4; T1, 24; T1, 25; T4, 26).
-		\item T1 liest für D in den Zeilen 5 und 15/22 verschiedene Werte, ohne D selbst verändert zu haben, aufgrund von Non-Repeatable Read (T1, 5; T2, 10; T2, 16; T1, 25) und Dirty Read (T2, 10; T1, 15; T2, 16; T1, 25).
+		\item Der Wert von B, der von T1 in Zeile 19 geschrieben wird, ist inkonsistent aufgrund von Dirty Read ((12, T3, w[B]), (13, T1, r[B]), (18, T3, a), (25, T1, c)).
+		\item Die Änderung von C durch T4 in Zeile 21 geht verloren aufgrund von Dirty Write ((21, T4, r[C]), (24, T1, w[C]), (25, T1, c), (26, T4, c)). Außerdem zwei Non-Repeatable Reads ((20, T1, r[C]), (21, T4, W[C]), (25, T1, c), (26, T4, c)) und ((4, T4, r[C]), (24, T1, w[C]), (25, T1, c), (26, T4, c)).
+		\item T1 liest für D in den Zeilen 5 und 15/22 verschiedene Werte, ohne D selbst verändert zu haben, aufgrund von Non-Repeatable Read ((5, T1, r[D]), (10, T2, w[D]), (16, T2, c), (25, T1, c)) und Dirty Read ((10, T2, w[D]), (15, T1, r[D]), (16, T2, c), (25, T1, c)).
 	\end{itemize}
 \end{solution}
