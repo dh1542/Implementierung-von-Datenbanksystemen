@@ -10,14 +10,14 @@ Die Vorlesungsfolien befinden sich im Zugehörigen Ordner *Vorlesungsfolien*.
 
 #### [Blätter]
 
-[![Download Übungspdfs here](../badges/main/pipeline.svg?key_text=Download+Blätter&key_width=120)][Blätter]
+[![Download Übungspdfs here][BadgeBlaetter]][Blätter]
 
 Die Blätter befinden sich unter *Uebung/Blaetter*. Sie können mithilfe des Makefiles generiert werden.
 Anschließend befinden diese sich dann in *Uebung/Blaetter/_out*.  
 
 #### [Folien]
 
-[![Download Übungspdfs here](../badges/main/pipeline.svg?key_text=Download+Folien&key_width=120)][Folien]
+[![Download Übungspdfs here][BadgeFolien]][Folien]
 
 Folien existieren teils in LaTeX unter *Uebung/Folien*.
 
@@ -35,3 +35,5 @@ In *Material* finden sich nichtverwendete Materialien.
 
 [Blätter]: ../-/jobs/artifacts/main/download?job=build_blaetter
 [Folien]: ../-/jobs/artifacts/main/download?job=build_folien
+[BadgeBlaetter]: ../badges/main/pipeline.svg?key_text=Download+Blätter&key_width=120
+[BadgeFolien]: ../badges/main/pipeline.svg?key_text=Download+Folien&key_width=120
